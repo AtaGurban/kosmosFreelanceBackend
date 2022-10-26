@@ -1,0 +1,68 @@
+require("dotenv").config();
+const fs = require("fs");
+const http = require("http");
+// const https = require("https");
+// const privateKey = fs.readFileSync(
+//   "/etc/letsencrypt/live/tmcoder.ru/privkey.pem",
+//   "utf8"
+// );
+// const certificate = fs.readFileSync(
+//   "/etc/letsencrypt/live/tmcoder.ru/cert.pem",
+//   "utf8"
+// );
+// const ca = fs.readFileSync(
+//   "/etc/letsencrypt/live/tmcoder.ru/chain.pem",
+//   "utf8"
+// );
+const express = require("express");
+const sequelize = require("./db");
+const models = require("./models/models");
+const PORT = process.env.PORT || 5000;
+const cors = require("cors");
+const fileUpload = require("express-fileupload");
+const router = require("./routes/index");
+const ErrorHandlingMiddleware = require("./middleware/ErrorHandlingMiddleware");
+const path = require("path");
+const app = express();
+
+
+// const credentials = {
+//   key: privateKey,
+//   cert: certificate,
+//   ca: ca,
+// };
+
+app.use(cors());
+app.use(express.json());
+app.use("/api/user", express.static(path.resolve(__dirname, "files", "images")));
+app.use(fileUpload({}));
+app.use("/api", router);
+// app.use(express.static(path.resolve(__dirname, "files")))
+// app.use('/sign-in',express.static(path.resolve(__dirname, "files")))
+// app.use('/leader',express.static(path.resolve(__dirname, "files")))
+// app.use('/sign-up',express.static(path.resolve(__dirname, "files")))
+// app.use('/finances',express.static(path.resolve(__dirname, "files")))
+// app.use('/dashboard',express.static(path.resolve(__dirname, "files")))
+// app.use('/news',express.static(path.resolve(__dirname, "files")))
+// app.use('/tables',express.static(path.resolve(__dirname, "files")))
+// app.use('/personal-table/:id',express.static(path.resolve(__dirname, "files")))
+// app.use('/team',express.static(path.resolve(__dirname, "files")))
+// app.use('/settings',express.static(path.resolve(__dirname, "files")))
+// app.use('/table/:id',express.static(path.resolve(__dirname, "files")))
+app.use(ErrorHandlingMiddleware);
+
+const start = async () => {
+  const httpServer = http.createServer(app);
+  // const httpsServer = https.createServer(credentials, app);
+  try {
+    await sequelize.authenticate();
+    await sequelize.sync();
+    httpServer.listen(80, () => console.log(`server started on port 80`));
+    // httpsServer.listen(443, () => console.log(`server started on port 443`));
+    // app.listen(PORT, ()=> console.log(`server started on port ${PORT}`))
+  } catch (error) {
+    console.log(error);
+  }
+}; 
+
+start();
