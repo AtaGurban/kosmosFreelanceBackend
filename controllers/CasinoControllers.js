@@ -14,7 +14,7 @@ class CasinoControllers {
         const { authorization } = req.headers;
         const token = authorization.slice(7);
         const decodeToken = jwt_decode(token);
-        const user = await User.findOne({
+        const user = await User.findAll({
             where: { username: decodeToken.username },
         });
         const investItem = await InvestBox.findOne({

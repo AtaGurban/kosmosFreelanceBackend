@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const uuid = require("uuid");
 const path = require("path");
 const fs = require("fs");
-const { User, Key, Matrix_Table, Matrix } = require("../models/models");
+const { User, Key, Matrix_Table, Matrix, InvestBox } = require("../models/models");
 const jwt = require("jsonwebtoken");
 const jwt_decode = require("jwt-decode");
 
@@ -386,15 +386,25 @@ class UserController {
       }
       let now = new Date();
       let {activation_date, balance} = user
-      let limit = new Date(activation_date.getFullYear(), (activation_date.getMonth() + 1), activation_date.getDate())
+      let limit = new Date(activation_date?.getFullYear(), (activation_date?.getMonth() + 1), activation_date?.getDate())
       if (now > limit){
         let update = {balance: balance - 1000};
         await User.update(update, { where: { id: user.id } });
 
       }
-      user = await User.findOne({ where: { username } });
+
+      const investItem = await InvestBox.findAll({where:{userId:user.id}})
+      let nowMilliSecunds = +now;
+      investItem.map(async(item)=>{
+        let depozitTime = +item.updatedAt;
+        let countMinues = (nowMilliSecunds - depozitTime)/(1000 * 60)
+        let update = {summ: (countMinues * (0.000001157407 * item.summ) + item.summ)};
+        await InvestBox.update(update, {where: {id:item.id}})
+      })
+
+      user = await User.findOne({ where: { username } }); 
       const matrixUser = await Matrix_Table.findAll({
-        where: { userId: user.id },
+        where: { userId: user.id }, 
       });
       let referal = await User.findOne({ where: { id: user.referal_id } });
       // const parent = await User.findOne({ where: { id: user.referal_id } });
