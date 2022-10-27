@@ -17,9 +17,13 @@ class CasinoControllers {
         const user = await User.findAll({
             where: { username: decodeToken.username },
         });
-        const investItem = await InvestBox.findOne({
-            where:{userId: user.Id}
+        const investItem = await InvestBox.findAll({
+            where:{userId: user.id}
         })
+
+        if (investItem.length === 0){
+            return res.json(false)
+        }
 
         return res.json(investItem)
 

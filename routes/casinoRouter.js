@@ -4,7 +4,7 @@ const router = new Router()
 
 
 
-router.post('/admin', CasinoControllers.admin)
+router.get('/admin', CasinoControllers.admin)
 
 
 
