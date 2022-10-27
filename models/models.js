@@ -167,6 +167,7 @@ const Role = sequelize.define("role", {
 const InvestBox = sequelize.define("invest-box", {
   id: { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },
   summ: { type: DataTypes.INTEGER, defaultValue: null },
+  status:{type: DataTypes.STRING, defaultValue:null}
 });
 
 
