@@ -14,10 +14,10 @@ class CasinoControllers {
         const { authorization } = req.headers;
         const token = authorization.slice(7);
         const decodeToken = jwt_decode(token);
-        const user = await User.findAll({
+        const user = await User.findOne({
             where: { username: decodeToken.username },
         });
-        const investItem = await InvestBox.findAll({
+        const investItem = await InvestBox.findAll({ 
             where:{userId: user.id}
         })
 
@@ -26,6 +26,29 @@ class CasinoControllers {
         }
 
         return res.json(investItem)
+
+    }
+    async list(req, res, next) {
+
+        const { authorization } = req.headers;
+        const token = authorization.slice(7);
+        const decodeToken = jwt_decode(token);
+        const user = await User.findOne({
+            where: { username: decodeToken.username },
+        });
+        const investItem = await InvestBox.findAll({ 
+            where:{userId: user.id}
+        })
+
+        if (investItem.length === 0){
+            return res.json(false)
+        }
+
+        // let result = {}
+        // investItem.map((i, index)=>{
+        //     result[index] = i
+        // })
+        return res.json({items: investItem})
 
     }
 

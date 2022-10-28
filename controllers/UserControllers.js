@@ -359,7 +359,7 @@ class UserController {
       user.last_name,
       user.referral
     );
-    const w = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const w = user.id;
     return res.json({ access_token, w });
   }
   async inviter(req, res, next) {

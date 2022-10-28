@@ -1,5 +1,5 @@
 const ApiError = require("../error/ApiError");
-// const jwt_decode = require("jwt-decode");
+const jwt_decode = require("jwt-decode");
 const { Op } = require("sequelize");
 
 const { User } = require("../models/models");
@@ -126,7 +126,7 @@ const checkCombination = (symbols) => {
       ) {
         temp.push(item);
         // console.log(item, temp[i]);
-      } else if ((((+item[0]) + (+item[1])) === ((+arr[i][0]) + (+arr[i][1]))) && (arr[i][code] === symbols[arr[i][0]][arr[i][1][code]])) {
+      } else if ((((+item[0]) + (+item[1])) === ((+arr[i][0]) + (+arr[i][1]))) && (arr[i]['code'] === symbols[arr[i][0]][arr[i][1]['code']])) {
         temp.push(item);
       }
     }
@@ -214,21 +214,21 @@ const checkCombination = (symbols) => {
 
 class GameControllers {
   async project(req, res, next) {
-    const { authorization } = req.headers;
-    const token = authorization.slice(7);
-    const decodeToken = jwt_decode(token);
+    // const { authorization } = req.headers;
+    // const token = authorization.slice(7);
+    const data = JSON.parse(req.body.data);
+    let { request_id, bet, customVars } = data;
+    const decodeToken = jwt_decode(customVars);
     const user = await User.findOne({
         where: { username: decodeToken.username },
     });
-    const data = JSON.parse(req.body.data);
-    let { request_id, bet } = data;
     const balance = { before: user.balance, after: user.balance };
     // let val = 9
     // const a = { 0: 0 }
     const b = { 0: 1 };
     // const ab = { 0: { a, b, } }
 
-    // const denomination = 1;
+    const denomination = 1;
     const next_request_id = request_id ? request_id++ : 1;
     const paytable = {
       1: {
@@ -359,7 +359,7 @@ class GameControllers {
         17: 300,
         18: 500,
       },
-    };
+    }; 
     const directory = {
       paytable,
       rtp: 96.33,

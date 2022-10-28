@@ -5,6 +5,7 @@ const router = new Router()
 
 
 router.get('/admin', CasinoControllers.admin)
+router.get('/list', CasinoControllers.list)
 
 
 
