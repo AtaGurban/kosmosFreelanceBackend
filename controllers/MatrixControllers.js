@@ -3,21 +3,65 @@ const jwt_decode = require("jwt-decode");
 const { Op } = require("sequelize");
 
 const {
-  CloneStat,
+  CloneStatSecond,
   TypeMatrix,
   Matrix_Table,
   User,
   Matrix,
+  TypeMatrixSecond,
+  MatrixSecond,
+  Matrix_TableSecond,
 } = require("../models/models");
+
+const findParentId = async(typeMatrix, referalId, userId)=>{
+  if ((referalId === userId)){
+    return null
+  }
+  let parentId = (await MatrixSecond.findOne({where:{userId:referalId}, include: { model: Matrix_TableSecond, as: "matrix_table", where: { typeMatrixSecondId: typeMatrix } },})).id
+  if (!parentId){
+    const referalUser = await User.findOne({where:{id:referalId}})
+    return findParentId(typeMatrix, referalUser.referal_id, referalUser)
+  } else{
+    return parentId
+  }
+}
 
 class MatrixController {
  
   async getCount(req, res, next) {
-    const count = await CloneStat.findAll();
+    const count = await CloneStatSecond.findAll();
     return res.json({ items: count });
   }
   async getType(req, res, next) {
-    const type = await TypeMatrix.findAll();
+    const type = await TypeMatrixSecond.findAll();
+    return res.json({ items: type });
+  }
+  async buy(req, res, next) {
+    const { authorization } = req.headers;
+    const token = authorization.slice(7);
+    const { username } = jwt_decode(token);
+    const {matrix_id} = req.body
+    const price = (await TypeMatrixSecond.findOne({where:{id:matrix_id}})).summ
+    const user = await User.findOne({ where: { username } });
+    if (user.balance < price){
+      return next(ApiError.badRequest("Недостатосно средств"));
+    }
+    const referalId = user.referal_id;
+    
+    const parentId = findParentId(matrix_id, referalId, user.id)
+    const matrixItem = MatrixSecond.create({
+      date: new Date,
+      parent_id: parentId,
+      userId: user.id
+    })
+
+    const matrixTableItem = await Matrix_TableSecond.create({
+      matrixId: parentId,
+      typeMatrixId: matrix_id,
+      userId: user.id,
+      count: 1
+  })
+    
     return res.json({ items: type });
   }
   async structureUpper(req, res, next) {

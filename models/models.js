@@ -1,7 +1,7 @@
 const sequelize = require("../db");
 const { DataTypes } = require("sequelize");
 
-const CloneStat = sequelize.define("clone_stat", {
+const CloneStatSecond = sequelize.define("clone_stat_second", {
   id: {
     type: DataTypes.BIGINT,
     primaryKey: true,
@@ -9,8 +9,58 @@ const CloneStat = sequelize.define("clone_stat", {
     allowNull: false,
   },
   count: { type: DataTypes.INTEGER, allowNull: false },
-  level: { type: DataTypes.STRING, defaultValue: null },
 });
+
+const CloneStatThird = sequelize.define("clone_stat_third", {
+  id: {
+    type: DataTypes.BIGINT,
+    primaryKey: true,
+    autoIncrement: true,
+    allowNull: false,
+  },
+  count: { type: DataTypes.INTEGER, allowNull: false },
+});
+
+const CloneStatFour = sequelize.define("clone_stat_four", {
+  id: {
+    type: DataTypes.BIGINT,
+    primaryKey: true,
+    autoIncrement: true,
+    allowNull: false,
+  },
+  count: { type: DataTypes.INTEGER, allowNull: false },
+});
+
+const CloneStatFive = sequelize.define("clone_stat_five", {
+  id: {
+    type: DataTypes.BIGINT,
+    primaryKey: true,
+    autoIncrement: true,
+    allowNull: false,
+  },
+  count: { type: DataTypes.INTEGER, allowNull: false },
+});
+
+const CloneStatSix = sequelize.define("clone_stat_six", {
+  id: {
+    type: DataTypes.BIGINT,
+    primaryKey: true,
+    autoIncrement: true,
+    allowNull: false,
+  },
+  count: { type: DataTypes.INTEGER, allowNull: false },
+});
+
+const CloneStatSeven = sequelize.define("clone_stat_seven", {
+  id: {
+    type: DataTypes.BIGINT,
+    primaryKey: true,
+    autoIncrement: true,
+    allowNull: false,
+  },
+  count: { type: DataTypes.INTEGER, allowNull: false },
+});
+
 const Matrix = sequelize.define(
   "matrix",
   {
@@ -438,35 +488,66 @@ MatrixSix.hasMany(Matrix_TableSix, {as: 'matrix_table'}, {
 MatrixSeven.hasMany(Matrix_TableSeven, {as: 'matrix_table'}, {
   foreignKey: {name: 'matrix_parent_id'}
 });
-// Matrix_TableSeven.belongsTo(MatrixSeven, {as: 'matrix'});
+
+TypeMatrixSecond.hasOne(CloneStatSecond,  {
+  foreignKey: 'level'
+});
+
+TypeMatrixThird.hasOne(CloneStatThird,  {
+  foreignKey: 'level'
+});
+
+TypeMatrixFour.hasOne(CloneStatFour,  {
+  foreignKey: 'level'
+});
+
+TypeMatrixFive.hasOne(CloneStatFive,  {
+  foreignKey: 'level'
+});
+
+TypeMatrixSix.hasOne(CloneStatSix,  {
+  foreignKey: 'level'
+});
+
+TypeMatrixSeven.hasOne(CloneStatSeven,  {
+  foreignKey: 'level'
+});
+// CloneStatSecond.belongsTo(TypeMatrixSecond,  {
+//   foreignKey: 'level'
+// });
 
 TypeMatrix.hasMany(Matrix_Table);
 Matrix_Table.belongsTo(TypeMatrix, {as: 'type_matrix'});
 
-TypeMatrixSecond.hasMany(Matrix_TableSecond);
-Matrix_TableSecond.belongsTo(TypeMatrixSecond, {as: 'type_matrix'});
+TypeMatrixSecond.hasMany(Matrix_TableSecond); 
+// Matrix_TableSecond.belongsTo(TypeMatrixSecond, {as: 'type_matrix'});
 
 TypeMatrixThird.hasMany(Matrix_TableThird);
-Matrix_TableThird.belongsTo(TypeMatrixThird, {as: 'type_matrix'});
+// Matrix_TableThird.belongsTo(TypeMatrixThird, {as: 'type_matrix'});
 
 TypeMatrixFour.hasMany(Matrix_TableFour);
-Matrix_TableFour.belongsTo(TypeMatrixFour, {as: 'type_matrix'});
+// Matrix_TableFour.belongsTo(TypeMatrixFour, {as: 'type_matrix'});
 
 TypeMatrixFive.hasMany(Matrix_TableFive);
-Matrix_TableFive.belongsTo(TypeMatrixFive, {as: 'type_matrix'});
+// Matrix_TableFive.belongsTo(TypeMatrixFive, {as: 'type_matrix'});
 
 TypeMatrixSix.hasMany(Matrix_TableSix);
-Matrix_TableSix.belongsTo(TypeMatrixSix, {as: 'type_matrix'});
+// Matrix_TableSix.belongsTo(TypeMatrixSix, {as: 'type_matrix'});
 
 TypeMatrixSeven.hasMany(Matrix_TableSeven);
-Matrix_TableSeven.belongsTo(TypeMatrixSeven, {as: 'type_matrix'});
+// Matrix_TableSeven.belongsTo(TypeMatrixSeven, {as: 'type_matrix'});
 
 
 
 
 
 module.exports = {
-  CloneStat,
+  CloneStatSecond,
+  CloneStatThird,
+  CloneStatFour,
+  CloneStatFive,
+  CloneStatSix,
+  CloneStatSeven,
   Matrix,
   MatrixSecond,
   MatrixThird,
