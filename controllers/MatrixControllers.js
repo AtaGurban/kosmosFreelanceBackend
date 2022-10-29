@@ -11,17 +11,7 @@ const {
 } = require("../models/models");
 
 class MatrixController {
-  async createCount(req, res, next) {
-    const { level, count } = req.body;
-    const countDb = await CloneStat.create({ level, count });
-    return res.json({ countDb });
-  }
-  async createType(req, res, next) {
-    const { name, summ } = req.body;
-    const type = await TypeMatrix.create({ name, summ });
-    return res.json({ type });
-  }
-
+ 
   async getCount(req, res, next) {
     const count = await CloneStat.findAll();
     return res.json({ items: count });
