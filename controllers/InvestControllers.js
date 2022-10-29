@@ -18,6 +18,11 @@ class InvestControllers {
         const user = await User.findOne({
             where: { username: decodeToken.username },
         });
+        if (user.balance < amount){
+            return next(ApiError.internal("Не хватает средств!"));
+        }
+        let update = {balance: user.balance - amount}
+        await User.update(update, {where:{id:user.id}})
         const status = 'активный'
         const investItem = await InvestBox.create({
             status,

@@ -32,8 +32,8 @@ async function highCheck(level, user, idCreateUser) {
     parentSecond.id === parentSecond.referal_id
       ? parentSecond
       : await User.findOne({
-          where: { id: parentSecond.referal_id },
-        });
+        where: { id: parentSecond.referal_id },
+      });
   let bool = false;
 
   switch (level) {
@@ -123,7 +123,7 @@ class UserController {
     const userToken = await User.findOne({
       where: { username: decodeToken.username },
     });
-    if(userToken.balance < 1){
+    if (userToken.balance < 1) {
       return next(ApiError.badRequest("Для создание ключа продлите подписку"));
     }
     let bool;
@@ -385,26 +385,28 @@ class UserController {
         return next(ApiError.internal("Такой пользователь не найден"));
       }
       let now = new Date();
-      let {activation_date, balance} = user
+      let { activation_date, balance } = user
       let limit = new Date(activation_date?.getFullYear(), (activation_date?.getMonth() + 1), activation_date?.getDate())
-      if (now > limit){
-        let update = {balance: balance - 1000};
+      if (now > limit) {
+        let update = { balance: balance - 1000 };
         await User.update(update, { where: { id: user.id } });
 
       }
 
-      const investItem = await InvestBox.findAll({where:{userId:user.id}})
-      let nowMilliSecunds = +now;
-      investItem.map(async(item)=>{
-        let depozitTime = +item.updatedAt;
-        let countMinues = (nowMilliSecunds - depozitTime)/(1000 * 60)
-        let update = {summ: (countMinues * (0.000001157407 * item.summ) + item.summ)};
-        await InvestBox.update(update, {where: {id:item.id}})
+      const investItem = await InvestBox.findAll({ where: { userId: user.id } })
+      investItem.map(async (item) => {
+        let depozitTime = item.updatedAt;
+        let limitInvest = new Date(depozitTime?.getFullYear(), (depozitTime?.getMonth() + 1), depozitTime?.getDate())
+        if (now > limitInvest) {
+          let countMonth = Math.floor(now?.getMonth() - depozitTime?.getMonth())
+          let update = { summ: (countMonth * (0.05 * item.summ) + item.summ), updatedAt:new Date(depozitTime?.getFullYear(), (depozitTime?.getMonth() + countMonth), depozitTime?.getDate() ) };
+          await InvestBox.update(update, { where: { id: item.id } })
+        }
       })
 
-      user = await User.findOne({ where: { username } }); 
+      user = await User.findOne({ where: { username } });
       const matrixUser = await Matrix_Table.findAll({
-        where: { userId: user.id }, 
+        where: { userId: user.id },
       });
       let referal = await User.findOne({ where: { id: user.referal_id } });
       // const parent = await User.findOne({ where: { id: user.referal_id } });
@@ -479,10 +481,10 @@ class UserController {
       where: { username: decodeToken.username },
     });
     let update = {}
-    if (!firstName && lastName){
+    if (!firstName && lastName) {
       update = { last_name: lastName };
-    } else if (firstName && !lastName){
-      update = {first_name: firstName };
+    } else if (firstName && !lastName) {
+      update = { first_name: firstName };
     } else {
       update = { last_name: lastName, first_name: firstName };
     }
@@ -498,20 +500,20 @@ class UserController {
     const token = authorization.slice(7);
     const decodeToken = jwt_decode(token);
     let update = {}
-    if (!instagram && !telegram && vk){
-      update = {vkontakte:vk}
-    } else if(!instagram && telegram && !vk){
-      update = {telegram}
-    } else if(instagram && !telegram && !vk){
-      update = {instagram}
-    } else if (instagram && telegram && !vk){
-      update = {instagram, telegram}
-    } else if (instagram && !telegram && vk){
-      update = {instagram, vkontakte:vk}
-    } else if (!instagram && telegram && vk){
-      update = {telegram, vkontakte:vk}
+    if (!instagram && !telegram && vk) {
+      update = { vkontakte: vk }
+    } else if (!instagram && telegram && !vk) {
+      update = { telegram }
+    } else if (instagram && !telegram && !vk) {
+      update = { instagram }
+    } else if (instagram && telegram && !vk) {
+      update = { instagram, telegram }
+    } else if (instagram && !telegram && vk) {
+      update = { instagram, vkontakte: vk }
+    } else if (!instagram && telegram && vk) {
+      update = { telegram, vkontakte: vk }
     } else {
-      update = {telegram, instagram, vkontakte:vk}
+      update = { telegram, instagram, vkontakte: vk }
     }
     const user = await User.findOne({
       where: { username: decodeToken.username },
@@ -520,7 +522,7 @@ class UserController {
     return res.json(updatedUser)
   }
 
-  async description (req, res, next){
+  async description(req, res, next) {
     const { description } = req.body;
     if (!description) {
       return next(ApiError.internal("Поля не заполнены"));
@@ -531,7 +533,7 @@ class UserController {
     const user = await User.findOne({
       where: { username: decodeToken.username },
     });
-    let update = {description}
+    let update = { description }
     const updatedUser = await User.update(update, { where: { id: user.id } });
     return res.json(updatedUser)
   }
