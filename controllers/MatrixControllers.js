@@ -15,13 +15,19 @@ const {
 
 const findParentId = async(typeMatrix, referalId, userId)=>{
   if ((referalId === userId)){
+    console.log('1');
     return null
   }
-  let parentId = (await MatrixSecond.findOne({where:{userId:referalId}, include: { model: Matrix_TableSecond, as: "matrix_table", where: { typeMatrixSecondId: typeMatrix } },})).id
+  let matrixItems = await MatrixSecond.findOne({where:{userId:referalId}})
+  let matrixTableItems = await Matrix_TableSecond.findOne({where:{userId:referalId, matrixSecondId:matrixItems.parent_id, typeMatrixSecondId:typeMatrix}})
+  let parentId = matrixTableItems === 0 ? null : matrixItems.id
+  console.log(matrixTableItems);
   if (!parentId){
+    console.log('2');
     const referalUser = await User.findOne({where:{id:referalId}})
     return findParentId(typeMatrix, referalUser.referal_id, referalUser)
   } else{
+    console.log('3');
     return parentId
   }
 }
@@ -43,12 +49,15 @@ class MatrixController {
     const {matrix_id} = req.body
     const price = (await TypeMatrixSecond.findOne({where:{id:matrix_id}})).summ
     const user = await User.findOne({ where: { username } });
-    if (user.balance < price){
+    if ((+user.balance) < price){
       return next(ApiError.badRequest("Недостатосно средств"));
-    }
+    } 
+    let update = { balance: `${user.balance - price}.00000000` };
+    await User.update(update, { where: { id: user.id } });
     const referalId = user.referal_id;
     
-    const parentId = findParentId(matrix_id, referalId, user.id)
+    const parentId = await findParentId(matrix_id, referalId, user.id)
+
     const matrixItem = MatrixSecond.create({
       date: new Date,
       parent_id: parentId,
@@ -56,13 +65,13 @@ class MatrixController {
     })
 
     const matrixTableItem = await Matrix_TableSecond.create({
-      matrixId: parentId,
-      typeMatrixId: matrix_id,
+      matrixSecondId: parentId,
+      typeMatrixSecondId: matrix_id,
       userId: user.id,
       count: 1
   })
     
-    return res.json({ items: type });
+    return res.json(parentId);
   }
   async structureUpper(req, res, next) {
     const { matrix_id } = req.query;
