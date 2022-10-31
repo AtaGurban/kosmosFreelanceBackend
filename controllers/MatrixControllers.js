@@ -32,10 +32,16 @@ const findParentId = async(typeMatrix, referalId, userId)=>{
 }
 
 
-const checkCountParentId = async (parentId)=>{
+const checkCountParentId = async (parentId, userId)=>{
   const itemsParentId = await MatrixSecond.findAll({where:{parent_id:parentId}})
   if (itemsParentId.length > 1){
-    const itemsParentIdFirst = await MatrixSecond.findAll({where:{parent_id:itemsParentId[0].id}})
+    const leftItem = itemsParentId[0].userId
+    const rightItem = itemsParentId[1].userId
+    if (userId < leftItem){
+      return checkCountParentId(itemsParentId[0].id, userId)
+    } else{
+      return checkCountParentId(itemsParentId[1].id, userId)
+    }
 
     // if (itemsParentIdFirst.length > 0){
     //   return {parentId:itemsParentId[0].parent_id, side_matrix : 1}
@@ -85,12 +91,13 @@ class MatrixController {
       const referalId = user.referal_id;
     
       const parentIdForCheck = await findParentId(matrix_id, referalId, user.id)
-      const parentId = await checkCountParentId(parentIdForCheck)
+      const {parentId, side_matrix} = await checkCountParentId(parentIdForCheck, user.id)
   
       const matrixItem = MatrixSecond.create({
         date: new Date,
         parent_id: parentId,
-        userId: user.id
+        userId: user.id,
+        side_matrix
       })
   
       const matrixTableItem = await Matrix_TableSecond.create({
