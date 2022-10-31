@@ -1,6 +1,6 @@
 const ApiError = require("../error/ApiError");
 const jwt_decode = require("jwt-decode");
-const { Op, where } = require("sequelize");
+const { Op } = require("sequelize");
 
 const {
   CloneStatSecond,
@@ -15,18 +15,15 @@ const {
 
 const findParentId = async(typeMatrix, referalId, userId)=>{
   if ((referalId === userId)){
-    console.log('1');
     return null
   }
   let matrixItems = await MatrixSecond.findOne({where:{userId:referalId}})
   let matrixTableItems = matrixItems ? await Matrix_TableSecond.findOne({where:{userId:referalId, matrixSecondId:matrixItems?.parent_id, typeMatrixSecondId:typeMatrix}}) : null
   let parentId = matrixTableItems === null ? null : matrixItems.id
   if (!parentId){
-    console.log('2');
     const referalUser = await User.findOne({where:{id:referalId}})
     return findParentId(typeMatrix, referalUser.referal_id, referalUser)
   } else{
-    console.log('3');
     return parentId
   }
 }
@@ -37,10 +34,12 @@ const checkCountParentId = async (parentId, userId)=>{
   if (itemsParentId.length > 1){
     const leftItem = itemsParentId[0].userId
     const rightItem = itemsParentId[1].userId
-    if (userId < leftItem){
-      return checkCountParentId(itemsParentId[0].id, userId)
+    let one =  await checkCountParentId(itemsParentId[0].id, userId)
+    let two = await checkCountParentId(itemsParentId[1].id, userId)
+    if (one.parentId < two.parentId){
+      return one
     } else{
-      return checkCountParentId(itemsParentId[1].id, userId)
+      return two
     }
 
     // if (itemsParentIdFirst.length > 0){
@@ -92,6 +91,7 @@ class MatrixController {
     
       const parentIdForCheck = await findParentId(matrix_id, referalId, user.id)
       const {parentId, side_matrix} = await checkCountParentId(parentIdForCheck, user.id)
+      // console.log(result);
   
       const matrixItem = MatrixSecond.create({
         date: new Date,
@@ -107,7 +107,7 @@ class MatrixController {
         count: 1
       })
       
-      return res.json(parentId);
+      return res.json(true);
     } else {
       let updateTable = {count: checkMatrixTable.count + 1}
       await Matrix_TableSecond.update(updateTable, {where:{userId:user.id}})
