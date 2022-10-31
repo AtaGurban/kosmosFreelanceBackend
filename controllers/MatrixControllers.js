@@ -70,8 +70,19 @@ class MatrixController {
     return res.json({ items: count });
   }
   async getType(req, res, next) {
-    const type = await TypeMatrixSecond.findAll();
-    return res.json({ items: type });
+    const { authorization } = req.headers;
+    const token = authorization.slice(7);
+    const { username } = jwt_decode(token);
+    const user = await User.findOne({ where: { username } });
+    const type = await Matrix_TableSecond.findAll({where:{id:user.id}});
+    let result = []
+    type.map((i, index)=>{
+      result.push({id:(index + 1), count:i.count, level:i.typeMatrixSecondId})
+    })
+    for (let i = result.length + 1; i < 13; i++) {
+      result.push({id: i, count: 0, level: i})
+    }
+    return res.json({ items: result });
   }
   async buy(req, res, next) {
     const { authorization } = req.headers;
