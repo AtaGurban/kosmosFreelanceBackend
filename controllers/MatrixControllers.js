@@ -1,6 +1,6 @@
 const ApiError = require("../error/ApiError");
 const jwt_decode = require("jwt-decode");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 
 const {
   CloneStatSecond,
@@ -13,13 +13,33 @@ const {
   Matrix_TableSecond,
 } = require("../models/models");
 
+const childNode = async (node)=>{
+  if (!node){
+    return null
+  }
+  const childes = await Matrix_TableSecond.findAll({
+    where: { matrixSecondId: node },
+    include: {
+      model: User, 
+      as: "user",
+      where:{ id: {[Op.not]: 1} },
+    },
+  });
+  return childes
+}
+
+
 const findParentId = async(typeMatrix, referalId, userId)=>{
+  const temp = await Matrix_TableSecond.findAll({where:{typeMatrixSecondId:typeMatrix}})
+  if (temp.length === 0){
+    return null
+  }
   if ((referalId === userId)){
     return null
   }
-  let matrixItems = await MatrixSecond.findOne({where:{userId:referalId}})
-  let matrixTableItems = matrixItems ? await Matrix_TableSecond.findOne({where:{userId:referalId, matrixSecondId:matrixItems?.parent_id, typeMatrixSecondId:typeMatrix}}) : null
-  let parentId = matrixTableItems === null ? null : matrixItems.id
+  // let matrixItems = await Matrix_TableSecond.findOne({where:{userId:referalId, typeMatrixSecondId:typeMatrix}})
+  let matrixTableItems =  await Matrix_TableSecond.findOne({where:{userId:referalId, typeMatrixSecondId:typeMatrix}})
+  let parentId = matrixTableItems === null ? null : matrixTableItems.id
   if (!parentId){
     const referalUser = await User.findOne({where:{id:referalId}})
     return findParentId(typeMatrix, referalUser.referal_id, referalUser)
@@ -29,13 +49,13 @@ const findParentId = async(typeMatrix, referalId, userId)=>{
 }
 
 
-const checkCountParentId = async (parentId, userId)=>{
-  const itemsParentId = await MatrixSecond.findAll({where:{parent_id:parentId}})
+const checkCountParentId = async (parentId, userId, typeMatrixSecondId )=>{
+  const itemsParentId = await Matrix_TableSecond.findAll({where:{matrixSecondId: parentId, typeMatrixSecondId}})
   if (itemsParentId.length > 1){
     const leftItem = itemsParentId[0].userId
     const rightItem = itemsParentId[1].userId
-    let one =  await checkCountParentId(itemsParentId[0].id, userId)
-    let two = await checkCountParentId(itemsParentId[1].id, userId)
+    let one =  await checkCountParentId(itemsParentId[0].id, userId, typeMatrixSecondId)
+    let two = await checkCountParentId(itemsParentId[1].id, userId, typeMatrixSecondId)
     if (one.parentId < two.parentId){
       return one
     } else{
@@ -74,13 +94,15 @@ class MatrixController {
     const token = authorization.slice(7);
     const { username } = jwt_decode(token);
     const user = await User.findOne({ where: { username } });
-    const type = await Matrix_TableSecond.findAll({where:{id:user.id}});
+    const type = await Matrix_TableSecond.findAll({where:{userId:user.id}});
+    const typeMatrix = await TypeMatrixSecond.findAll()
+
     let result = []
     type.map((i, index)=>{
-      result.push({id:(index + 1), count:i.count, level:i.typeMatrixSecondId})
+      result.push({id:(index + 1), count:i.count,name:typeMatrix[index].name, level:i.typeMatrixSecondId, canBuy:true, isActive:true, summ:typeMatrix[index].summ})
     })
     for (let i = result.length + 1; i < 13; i++) {
-      result.push({id: i, count: 0, level: i})
+      result.push({id: i, count: 0, name: typeMatrix[i - 1].name, level: i, canBuy:true, isActive:true, summ:typeMatrix[i - 1].summ})
     }
     return res.json({ items: result });
   }
@@ -96,12 +118,19 @@ class MatrixController {
     } 
     let update = { balance: `${user.balance - price}.00000000` };
     await User.update(update, { where: { id: user.id } });
-    let checkMatrixTable = await Matrix_TableSecond.findOne({where:{userId:user.id}})
+    let checkMatrixTable = await Matrix_TableSecond.findOne({where:{userId:user.id, typeMatrixSecondId:matrix_id}})
     if (!checkMatrixTable){
       const referalId = user.referal_id;
-    
+      let parentId, side_matrix
       const parentIdForCheck = await findParentId(matrix_id, referalId, user.id)
-      const {parentId, side_matrix} = await checkCountParentId(parentIdForCheck, user.id)
+      if (parentIdForCheck){ 
+        const resultFuncCheckCountParentId = await checkCountParentId(parentIdForCheck, user.id, matrix_id)
+        parentId = resultFuncCheckCountParentId.parentId
+        side_matrix = resultFuncCheckCountParentId.side_matrix
+      } else {
+        parentId = null;
+        side_matrix = null;
+      }
       // console.log(result);
   
       const matrixItem = MatrixSecond.create({
@@ -115,13 +144,13 @@ class MatrixController {
         matrixSecondId: parentId,
         typeMatrixSecondId: matrix_id, 
         userId: user.id,
-        count: 1
+        count: 0
       })
       
       return res.json(true);
     } else {
       let updateTable = {count: checkMatrixTable.count + 1}
-      await Matrix_TableSecond.update(updateTable, {where:{userId:user.id}})
+      await Matrix_TableSecond.update(updateTable, {where:{userId:user.id, typeMatrixSecondId:matrix_id}})
       return res.json(updateTable)
     }
 
@@ -174,42 +203,105 @@ class MatrixController {
     const { matrix_type, matrix_id } = req.query;
 
     if (matrix_id) {
-      const rootUserId = await Matrix.findOne({ where: { id: matrix_id } });
+      const rootUserId = await MatrixSecond.findOne({ where: { id: matrix_id } });
       const rootUser = await User.findOne({ where: { id: rootUserId.userId } });
-      const downUsers = await Matrix_Table.findAll({
-        where: { matrix_parent_id: matrix_id },
-        include: {
-          model: User, 
-          as: "user",
-          where:{ id: {[Op.not]: 1} },
-          include: {model: Matrix, as: 'matrix'}
-        },
-      });
+
+      const firstChildes = await childNode(matrix_id)
+      const secondChildes = await childNode(firstChildes[0]?.id)
+      const thirdChildes = await childNode(firstChildes[1]?.id)
 
       let result = {
         0: {
           id: rootUserId.parent_id,
-          username: rootUser.username,
-          avatar: rootUser.avatar,
-          typeId: null,
+          userName: rootUser.username,
+          photo: rootUser.avatar,
+          typeId: null, 
           place: 0,
-          createdAt: rootUser.createdAt,
+          date: rootUser.createdAt,
         },
       };
 
-      if (downUsers) {
-        downUsers.map((item, index) => {
-          result[index + 1] = {
-            id: downUsers[index].user.matrix[downUsers[index].type_matrix_id - 1].id,
-            username: downUsers[index].user.username,
-            avatar: downUsers[index].user.avatar,
+      if (firstChildes?.length > 0) {
+          result[1] = {
+            id: firstChildes[0].id,
+            userName: firstChildes[0].user.username,
+            photo: firstChildes[0].user.avatar,
             typeId: null,
             place: 0,
-            createdAt: downUsers[index].user.createdAt,
+            createdAt: firstChildes[0].user.createdAt,
           };
-        });
+          if (firstChildes[1]){
+            result[2] = {
+              id: firstChildes[1].id,
+              userName: firstChildes[1].user.username,
+              photo: firstChildes[1].user.avatar,
+              typeId: null,
+              place: 0,
+              createdAt: firstChildes[1].user.createdAt,
+            };
+          } else {
+            result[2] = null
+            result[5] = null
+            result[6] = null
+          }
+      } else {
+        for (let i = 1; i < 7; i++) {
+          result[i] = null       
+        }
       }
 
+      if (secondChildes?.length > 0){
+        result[3] = {
+          id: secondChildes[0].id,
+          userName: secondChildes[0].user.username,
+          photo: secondChildes[0].user.avatar,
+          typeId: null,
+          place: 0,
+          createdAt: secondChildes[0].user.createdAt,
+        };
+        if (secondChildes[1]){
+          result[4] = {
+            id: secondChildes[1].id,
+            userName: secondChildes[1].user.username,
+            photo: secondChildes[1].user.avatar,
+            typeId: null,
+            place: 0,
+            createdAt: secondChildes[1].user.createdAt,
+          };
+        } else {
+          result[4] = null
+        }
+      } else {
+        result[3] = null
+        result[4] = null
+      }
+
+      if (thirdChildes?.length > 0){
+        result[5] = {
+          id: thirdChildes[0].id,
+          userName: thirdChildes[0].user.username,
+          photo: thirdChildes[0].user.avatar,
+          typeId: null,
+          place: 0,
+          createdAt: thirdChildes[0].user.createdAt,
+        };
+        if (secondChildes[1]){
+          result[4] = {
+            id: thirdChildes[1].id,
+            userName: thirdChildes[1].user.username,
+            photo: thirdChildes[1].user.avatar,
+            typeId: null,
+            place: 0,
+            createdAt: thirdChildes[1].user.createdAt,
+          };
+        } else {
+          result[6] = null
+        }
+      } else {
+        result[5] = null
+        result[6] = null
+      }
+      
       return res.json({ items: result });
     }
 
@@ -220,56 +312,108 @@ class MatrixController {
 
       const user = await User.findOne({ where: { username } });
 
-      const root_matrix_tables = await Matrix_Table.findAll({
-        where: { type_matrix_id: matrix_type, userId: user.dataValues.id },
+      const root_matrix_tables = await Matrix_TableSecond.findOne({
+        where: { typeMatrixSecondId: matrix_type, userId: user.dataValues.id },
         include: {
           model: User,
-          as: "user",
-          include: { model: Matrix, as: "matrix" },
+          as: "user", 
         },
       });
-      const down_matrix_tables = await Matrix_Table.findAll({
-        where: {
-          type_matrix_id: matrix_type,
-          userId: { [Op.not]: user.dataValues.id },
-          // matrix_parent_id: user.dataValues.id
-        },
-        include: {
-          model: User,
-          as: "user",
-          where: { referal_id: user.dataValues.id },
-          include: { model: Matrix, as: "matrix" },
-        },
-      });
-
-      if (!root_matrix_tables) {
-        return next(ApiError.badRequest("root пользователей не найден"));
-      }
 
       let result = {
         0: {
-          id: root_matrix_tables[0].matrix_parent_id,
-          username: root_matrix_tables[0].user.username,
-          avatar: root_matrix_tables[0].user.avatar,
+          id: root_matrix_tables.matrixSecondId,
+          userName: root_matrix_tables.user.username,
+          photo: root_matrix_tables.user.avatar,
           typeId: null,
           place: 0,
-          createdAt: root_matrix_tables[0].createdAt,
+          createdAt: root_matrix_tables.createdAt,
         },
       };
+      const firstChildes = await childNode(root_matrix_tables.id)
+      const secondChildes = await childNode(firstChildes[0]?.id)
+      const thirdChildes = await childNode(firstChildes[1]?.id)
 
-      if (down_matrix_tables) {
-        down_matrix_tables.map((item, index) => {
-          result[index + 1] = {
-            id: down_matrix_tables[index].matrix_parent_id,
-            username: down_matrix_tables[index].user.username,
-            avatar: down_matrix_tables[index].user.avatar,
+      if (firstChildes?.length > 0) {
+        result[1] = {
+          id: firstChildes[0].id,
+          userName: firstChildes[0].user.username,
+          photo: firstChildes[0].user.avatar,
+          typeId: null,
+          place: 0,
+          createdAt: firstChildes[0].user.createdAt,
+        };
+        if (firstChildes[1]){
+          result[2] = {
+            id: firstChildes[1].id,
+            userName: firstChildes[1].user.username,
+            photo: firstChildes[1].user.avatar,
             typeId: null,
             place: 0,
-            createdAt: down_matrix_tables[index].createdAt,
+            createdAt: firstChildes[1].user.createdAt,
           };
-        });
+        } else {
+          result[2] = null
+          result[5] = null
+          result[6] = null
+        }
+    } else {
+      for (let i = 1; i < 7; i++) {
+        result[i] = null       
       }
+    }
 
+    if (secondChildes?.length > 0){
+      result[3] = {
+        id: secondChildes[0].id,
+        userName: secondChildes[0].user.username,
+        photo: secondChildes[0].user.avatar,
+        typeId: null,
+        place: 0,
+        createdAt: secondChildes[0].user.createdAt,
+      };
+      if (secondChildes[1]){
+        result[4] = {
+          id: secondChildes[1].id,
+          userName: secondChildes[1].user.username,
+          photo: secondChildes[1].user.avatar,
+          typeId: null,
+          place: 0,
+          createdAt: secondChildes[1].user.createdAt,
+        };
+      } else {
+        result[4] = null
+      }
+    } else {
+      result[3] = null
+      result[4] = null
+    }
+
+    if (thirdChildes?.length > 0){
+      result[5] = {
+        id: thirdChildes[0].id,
+        userName: thirdChildes[0].user.username,
+        photo: thirdChildes[0].user.avatar,
+        typeId: null,
+        place: 0,
+        createdAt: thirdChildes[0].user.createdAt,
+      };
+      if (secondChildes[1]){
+        result[4] = {
+          id: thirdChildes[1].id,
+          userName: thirdChildes[1].user.username,
+          photo: thirdChildes[1].user.avatar,
+          typeId: null,
+          place: 0,
+          createdAt: thirdChildes[1].user.createdAt,
+        };
+      } else {
+        result[6] = null
+      }
+    } else {
+      result[5] = null
+      result[6] = null
+    }
       return res.json({ items: result });
     }
 

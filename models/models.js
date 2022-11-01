@@ -399,25 +399,25 @@ MatrixSeven.hasOne(MatrixSeven, {
 // Favourite.belongsTo(User);
 
 User.hasMany(Matrix, { as: "matrix" });
-Matrix.belongsTo(User);
+Matrix.belongsTo(User, {as: 'user'});
 
 User.hasMany(MatrixSecond, { as: "matrix_second" });
-Matrix.belongsTo(User);
+MatrixSecond.belongsTo(User, {as: 'user'});
 
 User.hasMany(MatrixThird, { as: "matrix_third" });
-Matrix.belongsTo(User);
+MatrixThird.belongsTo(User, {as: 'user'});
 
 User.hasMany(MatrixFour, { as: "matrix_four" });
-Matrix.belongsTo(User);
+MatrixFour.belongsTo(User, {as: 'user'});
 
 User.hasMany(MatrixFive, { as: "matrix_five" });
-Matrix.belongsTo(User);
+MatrixFive.belongsTo(User, {as: 'user'});
 
 User.hasMany(MatrixSix, { as: "matrix_six" });
-Matrix.belongsTo(User);
+MatrixSix.belongsTo(User, {as: 'user'});
 
 User.hasMany(MatrixSeven, { as: "matrix_seven" });
-Matrix.belongsTo(User);
+MatrixSeven.belongsTo(User, {as: 'user'});
 
 
 User.hasMany(Transaction);
@@ -427,26 +427,27 @@ User.hasMany(Statistic);
 Statistic.belongsTo(User);
 
 
-User.hasMany(Matrix_Table);
+User.hasMany(Matrix_Table, {as: 'matrix_table'});
 Matrix_Table.belongsTo(User, { as: "user" });
 
-User.hasMany(Matrix_TableSecond);
+User.hasMany(Matrix_TableSecond, {as: 'matrix_table_two'});
 Matrix_TableSecond.belongsTo(User, { as: "user" });
 
-User.hasMany(Matrix_TableThird);
+User.hasMany(Matrix_TableThird, {as: 'matrix_table_third'});
 Matrix_TableThird.belongsTo(User, { as: "user" });
 
-User.hasMany(Matrix_TableFour);
+User.hasMany(Matrix_TableFour, {as: 'matrix_table_four'});
 Matrix_TableFour.belongsTo(User, { as: "user" });
 
-User.hasMany(Matrix_TableFive);
+User.hasMany(Matrix_TableFive, {as: 'matrix_table_five'});
 Matrix_TableFive.belongsTo(User, { as: "user" });
 
-User.hasMany(Matrix_TableSix);
+User.hasMany(Matrix_TableSix, {as: 'matrix_table_six'});
 Matrix_TableSix.belongsTo(User, { as: "user" });
 
-User.hasMany(Matrix_TableSeven);
+User.hasMany(Matrix_TableSeven, {as: 'matrix_table_seven'});
 Matrix_TableSeven.belongsTo(User, { as: "user" });
+
 
 User.hasMany(InvestBox, { as: "invest" });
 InvestBox.belongsTo(User, { as: "user" });

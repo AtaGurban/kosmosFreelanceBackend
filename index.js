@@ -12,7 +12,7 @@ const http = require("http");
 // );
 // const ca = fs.readFileSync(
 //   "/etc/letsencrypt/live/tmcoder.ru/chain.pem",
-//   "utf8"
+//   "utf8" 
 // );
 const express = require("express");
 const sequelize = require("./db");
