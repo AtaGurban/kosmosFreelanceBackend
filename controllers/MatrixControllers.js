@@ -89,6 +89,19 @@ class MatrixController {
     const count = await CloneStatSecond.findAll();
     return res.json({ items: count });
   }
+  async clone(req, res, next) {
+    const {matrix_type} = req.query
+    const { authorization } = req.headers;
+    const token = authorization.slice(7);
+    const { username } = jwt_decode(token);
+    const user = await User.findOne({ where: { username } });
+    const count = await Matrix_TableSecond.findOne({where:{userId:user.id, typeMatrixSecondId:matrix_type}});
+    if (count?.count){
+      return res.json(count.count);
+    } else {
+      return res.json(null);
+    }
+  }
   async getType(req, res, next) {
     const { authorization } = req.headers;
     const token = authorization.slice(7);

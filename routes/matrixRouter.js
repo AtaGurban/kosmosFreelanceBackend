@@ -4,6 +4,7 @@ const router = new Router()
 
 
 router.get('/clone-stat', matrixController.getCount)
+router.get('/clone', matrixController.clone)
 router.get('/type', matrixController.getType)
 router.post('/buy', matrixController.buy)
 router.get('/structure', matrixController.structure)
