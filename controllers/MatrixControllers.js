@@ -25,7 +25,9 @@ const childNode = async (node)=>{
       where:{ id: {[Op.not]: 1} },
     },
   });
-  return childes
+
+  const matrix = await MatrixSecond.findAll({where:{parent_id:node}})
+  return [childes, matrix]
 }
 
 
@@ -104,40 +106,48 @@ class MatrixController {
   }
   async targetClone(req, res, next) {
     const {place, ancestor_id} = req.body
+    const { authorization } = req.headers;
     const token = authorization.slice(7);
     const { username } = jwt_decode(token);
     const user = await User.findOne({ where: { username } });
-    const type = await Matrix_TableSecond.findAll({where:{matrixSecondId :ancestor_id}});
+    const type = await Matrix_TableSecond.findOne({where:{id :ancestor_id}});
     let side_matrix
+    let parent_id
     switch (place) {
       case 1:
         side_matrix = 0
+        parent_id = ancestor_id
         break;
       case 2:
         side_matrix = 1
+        parent_id = ancestor_id
         break;
       case 3:
         side_matrix = 0
+        parent_id = (await MatrixSecond.findOne({where:{parent_id:ancestor_id, side_matrix:0}})).id
         break;
       case 4:
         side_matrix = 1
+        parent_id = (await MatrixSecond.findOne({where:{parent_id:ancestor_id, side_matrix:0}}) ).id
         break;
       case 5:
         side_matrix = 0
+        parent_id = (await MatrixSecond.findOne({where:{parent_id:ancestor_id, side_matrix:1}})).id
         break;
       case 6:
         side_matrix = 1
+        parent_id = (await MatrixSecond.findOne({where:{parent_id:ancestor_id, side_matrix:1}})).id
         break;
     }
     const matrixItem = MatrixSecond.create({
       date: new Date,
-      parent_id: ancestor_id,
+      parent_id: parent_id,
       userId: user.id,
       side_matrix
     })
 
     const matrixTableItem = await Matrix_TableSecond.create({
-      matrixSecondId: ancestor_id,
+      matrixSecondId: parent_id,
       typeMatrixSecondId: type.typeMatrixSecondId , 
       userId: user.id,
       count: 0
@@ -266,9 +276,10 @@ class MatrixController {
       const secondChildes = await childNode(firstChildes[0]?.id)
       const thirdChildes = await childNode(firstChildes[1]?.id)
 
+
       let result = {
         0: {
-          id: rootUserId.parent_id,
+          id: matrix_id,
           userName: rootUser.username,
           photo: rootUser.avatar,
           typeId: null, 
@@ -277,86 +288,49 @@ class MatrixController {
         },
       };
 
-      if (firstChildes?.length > 0) {
-          result[1] = {
-            id: firstChildes[0].id,
-            userName: firstChildes[0].user.username,
-            photo: firstChildes[0].user.avatar,
+      if (firstChildes && firstChildes[1]){
+        firstChildes[1].map((i, index)=>{
+          result[i.side_matrix + 1] = {
+            id: firstChildes[0][index].id,
+            userName: firstChildes[0][index].user.username,
+            photo: firstChildes[0][index].user.avatar,
             typeId: null,
             place: 0,
-            createdAt: firstChildes[0].user.createdAt,
-          };
-          if (firstChildes[1]){
-            result[2] = {
-              id: firstChildes[1].id,
-              userName: firstChildes[1].user.username,
-              photo: firstChildes[1].user.avatar,
-              typeId: null,
-              place: 0,
-              createdAt: firstChildes[1].user.createdAt,
-            };
-          } else {
-            result[2] = null
-            result[5] = null
-            result[6] = null
+            createdAt: firstChildes[0][index].user.createdAt,
           }
-      } else {
-        for (let i = 1; i < 7; i++) {
-          result[i] = null       
-        }
-      }
-
-      if (secondChildes?.length > 0){
-        result[3] = {
-          id: secondChildes[0].id,
-          userName: secondChildes[0].user.username,
-          photo: secondChildes[0].user.avatar,
-          typeId: null,
-          place: 0,
-          createdAt: secondChildes[0].user.createdAt,
-        };
-        if (secondChildes[1]){
-          result[4] = {
-            id: secondChildes[1].id,
-            userName: secondChildes[1].user.username,
-            photo: secondChildes[1].user.avatar,
+        })
+      } 
+      if (secondChildes && secondChildes[1]){
+        secondChildes[1].map((i, index)=>{
+          result[i.side_matrix + 3] = {
+            id: secondChildes[0][index].id,
+            userName: secondChildes[0][index].user.username,
+            photo: secondChildes[0][index].user.avatar,
             typeId: null,
             place: 0,
-            createdAt: secondChildes[1].user.createdAt,
-          };
-        } else {
-          result[4] = null
-        }
-      } else {
-        result[3] = null
-        result[4] = null
-      }
-
-      if (thirdChildes?.length > 0){
-        result[5] = {
-          id: thirdChildes[0].id,
-          userName: thirdChildes[0].user.username,
-          photo: thirdChildes[0].user.avatar,
-          typeId: null,
-          place: 0,
-          createdAt: thirdChildes[0].user.createdAt,
-        };
-        if (secondChildes[1]){
-          result[4] = {
-            id: thirdChildes[1].id,
-            userName: thirdChildes[1].user.username,
-            photo: thirdChildes[1].user.avatar,
+            createdAt: secondChildes[0][index].user.createdAt,
+          }
+        })
+      } 
+      if (thirdChildes && thirdChildes[1]){
+        thirdChildes[1].map((i, index)=>{
+          result[i.side_matrix + 5] = {
+            id: thirdChildes[0][index].id,
+            userName: thirdChildes[0][index].user.username,
+            photo: thirdChildes[0][index].user.avatar,
             typeId: null,
             place: 0,
-            createdAt: thirdChildes[1].user.createdAt,
-          };
-        } else {
-          result[6] = null
-        }
-      } else {
-        result[5] = null
-        result[6] = null
+            createdAt: thirdChildes[0][index].user.createdAt,
+          }
+        })
+      } 
+
+      for (let i = 0; i < 7; i++) {
+          if (!result[i]){
+            result[i] = null
+          }
       }
+      
       
       return res.json({ items: result });
     }
@@ -378,7 +352,7 @@ class MatrixController {
 
       let result = {
         0: {
-          id: root_matrix_tables.matrixSecondId,
+          id: root_matrix_tables.id,
           userName: root_matrix_tables.user.username,
           photo: root_matrix_tables.user.avatar,
           typeId: null,
@@ -386,90 +360,61 @@ class MatrixController {
           createdAt: root_matrix_tables.createdAt,
         },
       };
-      const firstChildes = await childNode(root_matrix_tables.id)
-      const secondChildes = await childNode(firstChildes[0]?.id)
-      const thirdChildes = await childNode(firstChildes[1]?.id)
+      let firstChildes = await childNode(root_matrix_tables.id)
+      let secondChildes
+      let thirdChildes 
+      if (firstChildes[1][0].side_matrix === 0){
+        secondChildes = await childNode(firstChildes[0][0]?.id)
+        thirdChildes = await childNode(firstChildes[0][1]?.id)
+      } else {
+        secondChildes = await childNode(firstChildes[0][1]?.id)
+        thirdChildes = await childNode(firstChildes[0][0]?.id)
+      }
 
-      if (firstChildes?.length > 0) {
-        result[1] = {
-          id: firstChildes[0].id,
-          userName: firstChildes[0].user.username,
-          photo: firstChildes[0].user.avatar,
-          typeId: null,
-          place: 0,
-          createdAt: firstChildes[0].user.createdAt,
-        };
-        if (firstChildes[1]){
-          result[2] = {
-            id: firstChildes[1].id,
-            userName: firstChildes[1].user.username,
-            photo: firstChildes[1].user.avatar,
+      if (firstChildes && firstChildes[1]){
+        firstChildes[1].map((i, index)=>{
+          result[i.side_matrix + 1] = {
+            id: firstChildes[0][index].id,
+            userName: firstChildes[0][index].user.username,
+            photo: firstChildes[0][index].user.avatar,
             typeId: null,
             place: 0,
-            createdAt: firstChildes[1].user.createdAt,
-          };
-        } else {
-          result[2] = null
-          result[5] = null
-          result[6] = null
-        }
-    } else {
-      for (let i = 1; i < 7; i++) {
-        result[i] = null       
-      }
-    }
+            createdAt: firstChildes[0][index].user.createdAt,
+          }
+        })
+      } 
+      if (secondChildes && secondChildes[1]){
+        secondChildes[1].map((i, index)=>{
+          result[i.side_matrix + 3] = {
+            id: secondChildes[0][index].id,
+            userName: secondChildes[0][index].user.username,
+            photo: secondChildes[0][index].user.avatar,
+            typeId: null,
+            place: 0,
+            createdAt: secondChildes[0][index].user.createdAt,
+          }
+        })
+      } 
+      if (thirdChildes && thirdChildes[1]){
+        thirdChildes[1].map((i, index)=>{
+          result[i.side_matrix + 5] = {
+            id: thirdChildes[0][index].id,
+            userName: thirdChildes[0][index].user.username,
+            photo: thirdChildes[0][index].user.avatar,
+            typeId: null,
+            place: 0,
+            createdAt: thirdChildes[0][index].user.createdAt,
+          }
+        })
+      } 
 
-    if (secondChildes?.length > 0){
-      result[3] = {
-        id: secondChildes[0].id,
-        userName: secondChildes[0].user.username,
-        photo: secondChildes[0].user.avatar,
-        typeId: null,
-        place: 0,
-        createdAt: secondChildes[0].user.createdAt,
-      };
-      if (secondChildes[1]){
-        result[4] = {
-          id: secondChildes[1].id,
-          userName: secondChildes[1].user.username,
-          photo: secondChildes[1].user.avatar,
-          typeId: null,
-          place: 0,
-          createdAt: secondChildes[1].user.createdAt,
-        };
-      } else {
-        result[4] = null
+      for (let i = 0; i < 7; i++) {
+          if (!result[i]){
+            result[i] = null
+          }
       }
-    } else {
-      result[3] = null
-      result[4] = null
-    }
-
-    if (thirdChildes?.length > 0){
-      result[5] = {
-        id: thirdChildes[0].id,
-        userName: thirdChildes[0].user.username,
-        photo: thirdChildes[0].user.avatar,
-        typeId: null,
-        place: 0,
-        createdAt: thirdChildes[0].user.createdAt,
-      };
-      if (secondChildes[1]){
-        result[4] = {
-          id: thirdChildes[1].id,
-          userName: thirdChildes[1].user.username,
-          photo: thirdChildes[1].user.avatar,
-          typeId: null,
-          place: 0,
-          createdAt: thirdChildes[1].user.createdAt,
-        };
-      } else {
-        result[6] = null
-      }
-    } else {
-      result[5] = null
-      result[6] = null
-    }
+      
+      // return res.json({ items: {firstChildes, secondChildes, thirdChildes} });
       return res.json({ items: result });
     }
 
