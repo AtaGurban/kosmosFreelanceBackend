@@ -97,10 +97,53 @@ class MatrixController {
     const user = await User.findOne({ where: { username } });
     const count = await Matrix_TableSecond.findOne({where:{userId:user.id, typeMatrixSecondId:matrix_type}});
     if (count?.count){
-      return res.json(count.count);
+      return res.json({count: count.count});
     } else {
       return res.json(null);
     }
+  }
+  async targetClone(req, res, next) {
+    const {place, ancestor_id} = req.body
+    const token = authorization.slice(7);
+    const { username } = jwt_decode(token);
+    const user = await User.findOne({ where: { username } });
+    const type = await Matrix_TableSecond.findAll({where:{matrixSecondId :ancestor_id}});
+    let side_matrix
+    switch (place) {
+      case 1:
+        side_matrix = 0
+        break;
+      case 2:
+        side_matrix = 1
+        break;
+      case 3:
+        side_matrix = 0
+        break;
+      case 4:
+        side_matrix = 1
+        break;
+      case 5:
+        side_matrix = 0
+        break;
+      case 6:
+        side_matrix = 1
+        break;
+    }
+    const matrixItem = MatrixSecond.create({
+      date: new Date,
+      parent_id: ancestor_id,
+      userId: user.id,
+      side_matrix
+    })
+
+    const matrixTableItem = await Matrix_TableSecond.create({
+      matrixSecondId: ancestor_id,
+      typeMatrixSecondId: type.typeMatrixSecondId , 
+      userId: user.id,
+      count: 0
+    })
+    return res.json(matrixTableItem)
+
   }
   async getType(req, res, next) {
     const { authorization } = req.headers;
