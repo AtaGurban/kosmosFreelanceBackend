@@ -1,6 +1,6 @@
 const ApiError = require("../error/ApiError");
 const jwt_decode = require("jwt-decode");
-const { Op, where } = require("sequelize");
+const { Op } = require("sequelize");
 
 const {
   CloneStatSecond,
@@ -13,10 +13,19 @@ const {
   Matrix_TableSecond,
 } = require("../models/models");
 
-const childNode = async (node) => {
+const childNode = async (node, type_matrix_id) => {
   if (!node) {
     return null;
   }
+  let matrix = await MatrixSecond.findAll({
+      where: { parent_id: node },
+      include: {
+        model: User,
+        as: "user",
+        // where: { id: { [Op.not]: 1 } },
+      },
+    });
+  
   // const childes = await Matrix_TableSecond.findAll({
   //   where: { matrixSecondId: node },
   //   include: {
@@ -26,14 +35,7 @@ const childNode = async (node) => {
   //   },
   // });
 
-  const matrix = await MatrixSecond.findAll({
-    where: { parent_id: node },
-    include: {
-      model: User,
-      as: "user",
-      where: { id: { [Op.not]: 1 } },
-    },
-  });
+
   return matrix;
 };
 
@@ -130,10 +132,17 @@ class MatrixController {
     const token = authorization.slice(7);
     const { username } = jwt_decode(token);
     const user = await User.findOne({ where: { username } });
-    const type = await Matrix_TableSecond.findOne({
-      where: { id: ancestor_id },
-    });
-    let side_matrix;
+    const matrixData = await MatrixSecond.findOne({where:{id:ancestor_id}})
+    const matrixTableData = await Matrix_TableSecond.findOne({where:{userId:user.id, matrixSecondId:(matrixData.parent_id ? matrixData.parent_id : matrixData.id)}})
+    if (matrixTableData.count < 1){
+      return next(ApiError.badRequest("Недостатосно count"));
+    }
+    let update = {count: matrixTableData.count - 1};
+    await Matrix_TableSecond.update(update, {where:{id: matrixTableData.id}})
+    // const type = await Matrix_TableSecond.findOne({
+    //   where: { id: ancestor_id },
+    // });
+    let side_matrix
     let parent_id;
     switch (place) {
       case 1:
@@ -273,7 +282,7 @@ class MatrixController {
       });
 
       const matrixTableItem = await Matrix_TableSecond.create({
-        matrixSecondId: parentId,
+        matrixSecondId: parentId ? parentId : matrixItem.id,
         typeMatrixSecondId: matrix_id,
         userId: user.id,
         count: 0,
@@ -411,38 +420,38 @@ class MatrixController {
 
       const user = await User.findOne({ where: { username } });
 
-      const matrixItems = await MatrixSecond.findAll({
-        where: {  userId: user.dataValues.id },
-        include: {
+      const root_matrix_tables = await MatrixSecond.findAll({
+        where: { userId: user.dataValues.id },
+        include: [{
           model: User,
           as: "user",
-        },
-        include: {
+        }, {
           model: Matrix_TableSecond,
           as: "matrix_table",
-          where:{typeMatrixSecondId:matrix_type}
-        },
+          where: { typeMatrixSecondId: (+matrix_type) }
+        }],
       });
-      const root_matrix_tables = matrixItems.filter((i)=>{
-        console.log(i.matrix_table.typeMatrixSecondId);
-        return i.matrix_table.typeMatrixSecondId === matrix_type
-      })
-      return res.json(matrixItems)
+      // return res.json(matrixItems)
+      // return res.json(matrixItems)
+      // const root_matrix_tables = matrixItems.filter((i)=>{
+      //   return i.user.matrix_table_two[0].typeMatrixSecondId === (+matrix_type)
+      // })
 
       let result = {
         0: {
-          id: root_matrix_tables.id,
-          userName: root_matrix_tables.user.username,
-          photo: root_matrix_tables.user.avatar,
+          id: root_matrix_tables[0].id,
+          userName: root_matrix_tables[0].user.username,
+          photo: root_matrix_tables[0].user.avatar,
           typeId: null,
           place: 0,
-          createdAt: root_matrix_tables.createdAt,
+          createdAt: root_matrix_tables[0].createdAt,
         },
       };
-      let firstChildes = await childNode(root_matrix_tables.id);
+      let firstChildes = await childNode(root_matrix_tables[0].id);
       let secondChildes;
       let thirdChildes;
-      if (firstChildes[0]) {
+      // return res.json(firstChildes)
+      if (firstChildes && firstChildes[0]) {
         if (firstChildes[0].side_matrix === 0) {
           secondChildes = await childNode(firstChildes[0]?.id);
           thirdChildes = await childNode(firstChildes[1]?.id);
@@ -452,7 +461,6 @@ class MatrixController {
           thirdChildes = await childNode(firstChildes[0]?.id)
         }
       }
-
       if (firstChildes?.length > 0) {
         firstChildes.map((i, index) => {
           result[i.side_matrix + 1] = {
