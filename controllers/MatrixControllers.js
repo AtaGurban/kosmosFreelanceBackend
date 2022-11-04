@@ -442,7 +442,7 @@ class MatrixController {
       const user = await User.findOne({ where: { username } });
       const dataMatrixTable = await Matrix_TableSecond.findOne({where:{userId:user?.id, typeMatrixSecondId:matrix_type}})
       if (!dataMatrixTable){
-        let result
+        let result = {}
         for (let i = 0; i < 7; i++) {
           if (!result[i]) {
             result[i] = null;
