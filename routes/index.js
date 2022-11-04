@@ -13,7 +13,7 @@ const CasinoRouter = require('./casinoRouter')
 
    
 router.use('/user', userRouter)
-router.use('/matrix', matrixRouter)
+router.use('/matrix', matrixRouter) 
 router.use('/news', newsRouter)
 router.use('/structure', structureRouter)
 router.use('/wallet', walletRouter)

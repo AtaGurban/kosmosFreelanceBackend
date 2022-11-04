@@ -274,7 +274,7 @@ class MatrixController {
       }
       // console.log(result);
 
-      const matrixItem = MatrixSecond.create({
+      const matrixItem = await MatrixSecond.create({
         date: new Date(),
         parent_id: parentId,
         userId: user.id,
@@ -428,7 +428,7 @@ class MatrixController {
         }, {
           model: Matrix_TableSecond,
           as: "matrix_table",
-          where: { typeMatrixSecondId: (+matrix_type) }
+          // where: { typeMatrixSecondId: (+matrix_type) }
         }],
       });
       // return res.json(matrixItems)

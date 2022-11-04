@@ -15,14 +15,7 @@ const {
 const updateOrCreate = async function (model, where, newItem) {
     // First try to find the record
     await model.findOne({ where: where }).then(function (foundItem) {
-        if (!foundItem) {
-            // Item not found, create a new one
-            const item = model.create(newItem)
-        } else {
-            // Found an item, update it
-            model.update(newItem, { where: where })
-                ;
-        }
+        (!foundItem) ?  ( model.create(newItem)) : (async()=>await model.update(newItem, { where: where }))
     })
 }
 
@@ -39,7 +32,6 @@ const summColumnStatistic = async () => {
             sequelize.fn("sum", sequelize.col(`count`)), "all_count",
         ]]
     })
-    // console.log('dfsfsdfsdfsdfsdfsdfsdfsdf', resp);
     return resp
 }
 
@@ -57,7 +49,6 @@ const checkForLevel = async (parentId, level) => {
         const matrix = matrixTemp.filter((i, index) => {
             return ((i.matrix_table[0]?.typeMatrixId === level + 1))
         })
-        // console.log(matrix);
         let parentIdForLevel
         if (matrix.length === 0) {
             parentIdForLevel = matrixTemp.length + 1
@@ -157,7 +148,7 @@ class StarControllers {
         // console.log('matrixTemp', matrixTemp);
         // console.log('matrix', matrix); 
         const matrixParentId = Math.ceil(matrixTable / 3)
-        const parentId = matrix[matrixParentId - 1].id
+        const parentId = (matrix[matrixParentId - 1]?.id) ? matrix[matrixParentId - 1]?.id : null
         // console.log(parentId);   
         // console.log(matrix);
         const matrixItem = await Matrix.create({
@@ -181,7 +172,7 @@ class StarControllers {
         // const allComet = userItemsInMAtrixTable.reduce((a, b) => {
         //     if (b.count > 0) {
         //         console.log(b.count + 1);
-        //         a = a + b.count
+        //         a = a + b.count 
         //     }
         //     return a 
         // }, 0);
