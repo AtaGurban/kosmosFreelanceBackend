@@ -200,7 +200,7 @@ class StarControllers {
         let statisticItemsAll = await Statistic.findOne()
         const active = await Matrix_Table.count({ where: { count: { [Op.gt]: 0 } } })
         if (!statisticItems) {
-            return res.json({ allPlanet: statisticItemsAll.all_planet, myPlanet: 0, allComet: statisticItemsAll.all_comet, myComet: 0, firstPlanet: 0, structurePlanet: 0, myInventoryIncome: 0, active })
+            return res.json({ allPlanet: ((statisticItemsAll?.all_planet) ? statisticItemsAll?.all_planet : 0), myPlanet: 0, allComet: ((statisticItemsAll?.all_comet) ? statisticItemsAll?.all_comet : 0), myComet: 0, firstPlanet: 0, structurePlanet: 0, myInventoryIncome: 0, active })
         }
         const result = { allPlanet: statisticItems.all_planet, myPlanet: statisticItems.my_planet, allComet: statisticItems.all_comet, myComet: statisticItems.my_comet, firstPlanet: 0, structurePlanet: 0, myInventoryIncome: 0, active }
 

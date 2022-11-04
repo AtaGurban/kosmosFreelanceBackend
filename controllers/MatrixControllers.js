@@ -440,8 +440,17 @@ class MatrixController {
       const { username } = jwt_decode(token);
 
       const user = await User.findOne({ where: { username } });
-      const dataMatrixTable = await Matrix_TableSecond.findOne({where:{userId:user.id, typeMatrixSecondId:matrix_type}})
-      const root_matrix_tables = await MatrixSecond.findOne({where:{id:dataMatrixTable.matrixSecondId}, include:{model:User, as:'user'}})
+      const dataMatrixTable = await Matrix_TableSecond.findOne({where:{userId:user?.id, typeMatrixSecondId:matrix_type}})
+      if (!dataMatrixTable){
+        let result
+        for (let i = 0; i < 7; i++) {
+          if (!result[i]) {
+            result[i] = null;
+          }
+        }
+        return res.json({ items: result });
+      }
+      const root_matrix_tables = await MatrixSecond.findOne({where:{id:dataMatrixTable?.matrixSecondId}, include:{model:User, as:'user'}})
       // const root_matrix_tables = await MatrixSecond.findAll({
       //   where: { userId: user.dataValues.id },
       //   include: [{
