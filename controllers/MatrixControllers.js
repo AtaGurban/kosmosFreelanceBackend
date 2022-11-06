@@ -11,6 +11,7 @@ const {
   TypeMatrixSecond,
   MatrixSecond,
   Matrix_TableSecond,
+  Transaction,
 } = require("../models/models");
 
 const childNode = async (node, type_matrix_id) => {
@@ -91,16 +92,29 @@ const marketingCheckCount = async (parentId) => {
 };
 
 const marketingGift = async (count, parentId, typeMatrix) => {
-  console.log(count, parentId, typeMatrix);
   const matrixTableData = await MatrixSecond.findOne({
     where: { id: parentId },
   });
   const user = await User.findOne({ where: { id: matrixTableData.userId } });
   switch (typeMatrix) {
     case 1:
-      if (count === 4) {
-        let update = { balance: `${(+user.balance) + 500}.00000000` };
-        await User.update(update, { where: { id: user.id } });
+      if (count >= 4) {
+        const transactionCheck = await Transaction.findOne({where:{parent_matrix_id:parentId,  transaction_type: 11,}})
+        if (transactionCheck){
+          return false
+        } else {
+          let update = { balance: `${(+user.balance) + 500}.00000000` };
+          await User.update(update, { where: { id: user.id } });
+          const transaction = await Transaction.create({
+            comment:'Выплата за 4 место',
+            date_of_transaction: new Date(),
+            position: 3,
+            transaction_type: 11,
+            value:500,
+            parent_matrix_id:parentId,
+            userId:user.id
+          })
+        }
       }
       if (count === 7) {
         const checkMatrixTable = await Matrix_TableSecond.findOne({where:{userId:user.id, typeMatrixSecondId: 2}})
@@ -108,7 +122,7 @@ const marketingGift = async (count, parentId, typeMatrix) => {
           const referalId = user.referal_id;
           let parentId, side_matrix;
           const parentIdForCheck = await findParentId(
-            typeMatrix,
+            2,
             referalId,
             user.id
           );
@@ -116,7 +130,7 @@ const marketingGift = async (count, parentId, typeMatrix) => {
             const resultFuncCheckCountParentId = await checkCountParentId(
               parentIdForCheck,
               user.id, 
-              1
+              2
             );
             parentId = resultFuncCheckCountParentId.parentId;
             side_matrix = resultFuncCheckCountParentId.side_matrix;
@@ -138,8 +152,23 @@ const marketingGift = async (count, parentId, typeMatrix) => {
             count: 0,
           });
         } else {
-          let update = {count: checkMatrixTable.count + 1}
-          await Matrix_TableSecond.update(update, {where:{id:checkMatrixTable.id}})
+          const transactionCheck = await Transaction.findOne({where:{parent_matrix_id:checkMatrixTable.matrixSecondId,  transaction_type: 12,}})
+          if (transactionCheck){
+            return false
+          } else {
+            let update = {count: checkMatrixTable.count + 1}
+            await Matrix_TableSecond.update(update, {where:{id:checkMatrixTable.id}})
+            const transaction = await Transaction.create({
+              comment:'Выплата за 6 место',
+              date_of_transaction: new Date(),
+              position: 6,
+              transaction_type: 12,
+              value:1000,
+              parent_matrix_id:checkMatrixTable.matrixSecondId,
+              userId:checkMatrixTable.userId
+            })
+            return transaction
+          }
         }
       }
       break;
@@ -348,9 +377,9 @@ class MatrixController {
             ));
           }
         })
-        return res.json(marketingCheck); 
         
       }
+      return res.json(marketingCheck); 
     // const matrixTableItem = await Matrix_TableSecond.create({
     //   matrixSecondId: parent_id,
     //   typeMatrixSecondId: type.typeMatrixSecondId ,
@@ -451,8 +480,8 @@ class MatrixController {
         marketingCheck.map(async (i)=>{
           if (i.count){
             marketingGiftResult.push(await marketingGift(
-            marketingCheck.count,
-            marketingCheck.parentId,
+            i.count,
+            i.parentId,
             matrix_id
           ));
           }
