@@ -27,40 +27,73 @@ const childNode = async (node, type_matrix_id) => {
   return matrix;
 };
 
-const marketingCheckCount = async (parentId) => {
-  if (!parentId) {
-    return false;
+const marketingInsideCheck = async (node)=>{
+  if (!node){
+    return false
   }
-  const parentOneStep = await MatrixSecond.findOne({ where: { id: parentId } });
-  if (!parentOneStep.parent_id) {
-    return false;
-  }
-  const parentTwoStep = await MatrixSecond.findOne({
-    where: { id: parentOneStep.parent_id },
+  const countNode = await MatrixSecond.findAll({
+    where: { parent_id: node.id },
   });
-  const countParentTwoStep = await MatrixSecond.findAll({
-    where: { parent_id: parentTwoStep.id },
-  });
-  if (countParentTwoStep.length < 2) {
+  if (countNode.length < 2) {
     return false;
   }
   let count = 3;
   const countRightMatrix = await MatrixSecond.count({
-    where: { parent_id: countParentTwoStep[0].id },
+    where: { parent_id: countNode[0].id },
   });
   const countLeftMatrix = await MatrixSecond.count({
-    where: { parent_id: countParentTwoStep[1].id },
+    where: { parent_id: countNode[1].id },
   });
+  if (countRightMatrix == 0){
+    return false
+  } else if (countRightMatrix == 1){
+    return {count: 4, parentId:node.id}
+  }
   return {
     count: count + countRightMatrix + countLeftMatrix,
-    parentId: parentTwoStep.id,
+    parentId: node.id,
   };
+}
+
+const marketingCheckCount = async (parentId) => {
+  if (!parentId) {
+    return [];
+  }
+  const parentOneStep = await MatrixSecond.findOne({ where: { id: parentId } });
+  // if (!parentOneStep.parent_id) {
+  //   return false;
+  // }
+  const parentTwoStep = await MatrixSecond.findOne({
+    where: { id: parentOneStep.parent_id },
+  });
+  // const countParentTwoStep = await MatrixSecond.findAll({
+  //   where: { parent_id: parentTwoStep.id },
+  // });
+  // if (countParentTwoStep.length < 2) {
+  //   return false;
+  // }
+  // let count = 3;
+  // const countRightMatrix = await MatrixSecond.count({
+  //   where: { parent_id: countParentTwoStep[0].id },
+  // });
+  // const countLeftMatrix = await MatrixSecond.count({
+  //   where: { parent_id: countParentTwoStep[1].id },
+  // });
+  // return {
+  //   count: count + countRightMatrix + countLeftMatrix,
+  //   parentId: parentTwoStep.id,
+  // };
+
+  let result = [];
+  result[0] = await marketingInsideCheck(parentOneStep)
+  result[1] = await marketingInsideCheck(parentTwoStep)
+  return result
 };
 
 const marketingGift = async (count, parentId, typeMatrix) => {
-  console.log(parentId);
-  const matrixTableData = await Matrix_TableSecond.findOne({
-    where: { matrixSecondId: parentId },
+  console.log(count, parentId, typeMatrix);
+  const matrixTableData = await MatrixSecond.findOne({
+    where: { id: parentId },
   });
   const user = await User.findOne({ where: { id: matrixTableData.userId } });
   switch (typeMatrix) {
@@ -69,8 +102,8 @@ const marketingGift = async (count, parentId, typeMatrix) => {
         let update = { balance: `${(+user.balance) + 500}.00000000` };
         await User.update(update, { where: { id: user.id } });
       }
-      if (count === 6) {
-        const checkMatrixTable = await Matrix_TableSecond.findOne({where:{userId:user.id, typeMatrixSecondId: 1}})
+      if (count === 7) {
+        const checkMatrixTable = await Matrix_TableSecond.findOne({where:{userId:user.id, typeMatrixSecondId: 2}})
         if (!checkMatrixTable){
           const referalId = user.referal_id;
           let parentId, side_matrix;
@@ -82,7 +115,7 @@ const marketingGift = async (count, parentId, typeMatrix) => {
           if (parentIdForCheck) {
             const resultFuncCheckCountParentId = await checkCountParentId(
               parentIdForCheck,
-              user.id,
+              user.id, 
               1
             );
             parentId = resultFuncCheckCountParentId.parentId;
@@ -177,7 +210,7 @@ const findRealUser = async (id, userId) => {
 };
 
 const checkCountParentId = async (parentId, userId, typeMatrixSecondId) => {
-  const itemsParentId = await MatrixSecond.findAll({
+  const itemsParentId = await MatrixSecond.findAll({ 
     where: { parent_id: parentId },
   });
   if (itemsParentId.length > 1) {
@@ -224,13 +257,13 @@ class MatrixController {
       where: { userId: user.id, typeMatrixSecondId: matrix_type },
     });
     if (count?.count) {
-      return res.json({ count: count.count });
+      return res.json({ count: count.count }); 
     } else {
       return res.json(null);
     }
   }
   async targetClone(req, res, next) {
-    const { place, ancestor_id } = req.body;
+    let { place, ancestor_id } = req.body;
     const { authorization } = req.headers;
     const token = authorization.slice(7);
     const { username } = jwt_decode(token);
@@ -248,6 +281,7 @@ class MatrixController {
     const typeMatrix = (
       await Matrix_TableSecond.findOne({ where: { id: matrixTableData.id } })
     ).typeMatrixSecondId;
+    place = +place
     // const type = await Matrix_TableSecond.findOne({
     //   where: { id: ancestor_id },
     // });
@@ -303,21 +337,26 @@ class MatrixController {
     });
 
     const marketingCheck = await marketingCheckCount(parent_id);
-    let marketingGiftResult;
-    if (marketingCheck) {
-      marketingGiftResult = await marketingGift(
-        marketingCheck.count,
-        marketingCheck.parentId,
-        typeMatrix
-      );
-    }
+    let marketingGiftResult = [];
+    if (marketingCheck.length > 0) {
+      marketingCheck.map(async(i)=>{
+        if (i.count){
+          marketingGiftResult.push(await marketingGift(
+            i.count,
+            i.parentId,
+            typeMatrix
+            ));
+          }
+        })
+        return res.json(marketingCheck); 
+        
+      }
     // const matrixTableItem = await Matrix_TableSecond.create({
     //   matrixSecondId: parent_id,
     //   typeMatrixSecondId: type.typeMatrixSecondId ,
     //   userId: user.id,
     //   count: 0
     // })
-    return res.json(marketingGiftResult);
   }
   async getType(req, res, next) {
     const { authorization } = req.headers;
@@ -407,15 +446,20 @@ class MatrixController {
         count: 0,
       });
       const marketingCheck = await marketingCheckCount(parentId);
-      let marketingGiftResult;
-      if (marketingCheck) {
-        marketingGiftResult = await marketingGift(
-          marketingCheck.count,
-          marketingCheck.parentId,
-          matrix_id
-        );
+      let marketingGiftResult = [];
+      if (marketingCheck.length > 0) {
+        marketingCheck.map(async (i)=>{
+          if (i.count){
+            marketingGiftResult.push(await marketingGift(
+            marketingCheck.count,
+            marketingCheck.parentId,
+            matrix_id
+          ));
+          }
+        })
+
+        return res.json(marketingGiftResult);
       }
-      return res.json(marketingGiftResult);
     } else {
       let updateTable = { count: checkMatrixTable.count + 1 };
       await Matrix_TableSecond.update(updateTable, {
