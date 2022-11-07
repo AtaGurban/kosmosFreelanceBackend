@@ -36,7 +36,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/user", express.static(path.resolve(__dirname, "files", "images")));
 app.use(fileUpload({}));
-app.use("/api", router);   
+app.use("/api", router);
 // app.use(express.static(path.resolve(__dirname, "files")))
 // app.use('/sign-in',express.static(path.resolve(__dirname, "files")))
 // app.use('/leader',express.static(path.resolve(__dirname, "files")))

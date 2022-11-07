@@ -1,6 +1,6 @@
 const ApiError = require("../error/ApiError");
 const jwt_decode = require("jwt-decode");
-const { Op, where } = require("sequelize");
+const { Op } = require("sequelize");
 
 const {
   CloneStatSecond,
@@ -28,8 +28,8 @@ const childNode = async (node, type_matrix_id) => {
   return matrix;
 };
 
-const marketingInsideCheck = async (node)=>{
-  if (!node){
+const marketingInsideCheck = async (node) => {
+  if (!node) {
     return false
   }
   const countNode = await MatrixSecond.findAll({
@@ -39,24 +39,27 @@ const marketingInsideCheck = async (node)=>{
     return false;
   }
   let count = 3;
-  const rightNode = countNode.filter((i)=>{
+  const rightNode = countNode.filter((i) => {
     return i.side_matrix === 0
   })
-  const leftNode = countNode.filter((i)=>{
+  const leftNode = countNode.filter((i) => {
     return i.side_matrix === 1
   })
   const countRightMatrix = await MatrixSecond.count({
     where: { parent_id: rightNode[0].id },
   });
-  console.log(countRightMatrix);
-  console.log(countNode);
+
   const countLeftMatrix = await MatrixSecond.count({
     where: { parent_id: leftNode[0].id },
   });
-  if (countRightMatrix == 0){
+  if (countRightMatrix == 0) {
     return false
-  } else if (countRightMatrix == 1){
-    return {count: 4, parentId:node.id}
+  } else if (countRightMatrix == 1) {
+    return { count: 4, parentId: node.id }
+  } else if ((countRightMatrix == 2) && (countLeftMatrix == 0)) {
+    return { count: 5, parentId: node.id }
+  } else if ((countLeftMatrix == 1) && (countRightMatrix == 2)) {
+    return { count: 6, parentId: node.id }
   }
   return {
     count: count + countRightMatrix + countLeftMatrix,
@@ -75,24 +78,6 @@ const marketingCheckCount = async (parentId) => {
   const parentTwoStep = await MatrixSecond.findOne({
     where: { id: parentOneStep.parent_id },
   });
-  // const countParentTwoStep = await MatrixSecond.findAll({
-  //   where: { parent_id: parentTwoStep.id },
-  // });
-  // if (countParentTwoStep.length < 2) {
-  //   return false;
-  // }
-  // let count = 3;
-  // const countRightMatrix = await MatrixSecond.count({
-  //   where: { parent_id: countParentTwoStep[0].id },
-  // });
-  // const countLeftMatrix = await MatrixSecond.count({
-  //   where: { parent_id: countParentTwoStep[1].id },
-  // });
-  // return {
-  //   count: count + countRightMatrix + countLeftMatrix,
-  //   parentId: parentTwoStep.id,
-  // };
-
   let result = [];
   result[0] = await marketingInsideCheck(parentOneStep)
   result[1] = await marketingInsideCheck(parentTwoStep)
@@ -107,26 +92,26 @@ const marketingGift = async (count, parentId, typeMatrix) => {
   switch (typeMatrix) {
     case 1:
       if (count >= 4) {
-        const transactionCheck = await Transaction.findOne({where:{parent_matrix_id:parentId,  transaction_type: 11,}})
-        if (!transactionCheck){
+        const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 11, } })
+        if (!transactionCheck) {
           let update = { balance: `${(+user.balance) + 500}.00000000` };
           await User.update(update, { where: { id: user.id } });
           const transaction = await Transaction.create({
-            comment:'Выплата за 4 место',
+            comment: 'Выплата за 4 место',
             date_of_transaction: new Date(),
             position: 3,
             transaction_type: 11,
-            value:500,
-            parent_matrix_id:parentId,
-            userId:user.id
+            value: 500,
+            parent_matrix_id: parentId,
+            userId: user.id
           })
         }
       }
       if (count === 7) {
-        const checkMatrixTable = await Matrix_TableSecond.findOne({where:{userId:user.id, typeMatrixSecondId: 2}})
-        if (!checkMatrixTable){
+        const checkMatrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 2 } })
+        if (!checkMatrixTable) {
           const referalId = user.referal_id;
-          let parentId, side_matrix;
+          let parentIdMatrix, side_matrix;
           const parentIdForCheck = await findParentId(
             2,
             referalId,
@@ -135,22 +120,22 @@ const marketingGift = async (count, parentId, typeMatrix) => {
           if (parentIdForCheck) {
             const resultFuncCheckCountParentId = await checkCountParentId(
               parentIdForCheck,
-              user.id, 
+              user.id,
               2
             );
-            parentId = resultFuncCheckCountParentId.parentId;
+            parentIdMatrix = resultFuncCheckCountParentId.parentId;
             side_matrix = resultFuncCheckCountParentId.side_matrix;
           } else {
-            parentId = null;
+            parentIdMatrix = null;
             side_matrix = null;
           }
           const matrixItem = await MatrixSecond.create({
             date: new Date(),
-            parent_id: parentId,
+            parent_id: parentIdMatrix,
             userId: user.id,
             side_matrix,
           });
-  
+
           const matrixTableItem = await Matrix_TableSecond.create({
             matrixSecondId: matrixItem.id,
             typeMatrixSecondId: 2,
@@ -158,30 +143,28 @@ const marketingGift = async (count, parentId, typeMatrix) => {
             count: 0,
           });
           const transaction = await Transaction.create({
-            comment:'Выплата за 6 место',
+            comment: 'Выплата за 6 место',
             date_of_transaction: new Date(),
             position: 6,
             transaction_type: 12,
-            value:1000,
-            parent_matrix_id:parentId,
-            userId:matrixItem.userId
+            value: 1000,
+            parent_matrix_id: parentId,
+            userId: matrixItem.userId
           })
         } else {
-          const transactionCheck = await Transaction.findOne({where:{parent_matrix_id:parentId,  transaction_type: 12,}})
-          console.log(checkMatrixTable);
-          console.log(transactionCheck);
-          if (!transactionCheck){
+          const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 12, } })
+          if (!transactionCheck) {
             console.log('work');
-            let update = {count: checkMatrixTable.count + 1}
-            await Matrix_TableSecond.update(update, {where:{id:checkMatrixTable.id}})
+            let update = { count: checkMatrixTable.count + 1 }
+            await Matrix_TableSecond.update(update, { where: { id: checkMatrixTable.id } })
             const transaction = await Transaction.create({
-              comment:'Выплата за 6 место',
+              comment: 'Выплата за 6 место',
               date_of_transaction: new Date(),
               position: 6,
               transaction_type: 12,
-              value:1000,
-              parent_matrix_id:parentId,
-              userId:checkMatrixTable.userId
+              value: 1000,
+              parent_matrix_id: parentId,
+              userId: checkMatrixTable.userId
             })
             return transaction
           }
@@ -189,6 +172,124 @@ const marketingGift = async (count, parentId, typeMatrix) => {
       }
       break;
     case 2:
+      if (count >= 4) {
+        const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 21, } })
+        if (!transactionCheck) {
+          let update = { balance: `${(+user.balance) + 500}.00000000` };
+          await User.update(update, { where: { id: user.id } });
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 4 место',
+            date_of_transaction: new Date(),
+            position: 3,
+            transaction_type: 21,
+            value: 500,
+            parent_matrix_id: parentId,
+            userId: user.id
+          })
+        }
+      }
+      if (count >= 5) {
+        const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 22, } })
+        if (!transactionCheck) {
+          const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
+          let update = { count: matrixTable.count + 1 }
+          await Matrix_TableSecond.update(update, { where: { id: matrixTable.id } })
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 5 место',
+            date_of_transaction: new Date(),
+            position: 4,
+            transaction_type: 22,
+            value: 500,
+            parent_matrix_id: parentId,
+            userId: user.id
+          })
+        }
+      }
+      if (count >= 6) {
+        const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 23, } })
+        if (!transactionCheck) {
+          const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
+          let update = { count: matrixTable.count + 1 }
+          await Matrix_TableSecond.update(update, { where: { id: matrixTable.id } })
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 6 место',
+            date_of_transaction: new Date(),
+            position: 5,
+            transaction_type: 23,
+            value: 500,
+            parent_matrix_id: parentId,
+            userId: user.id
+          })
+        }
+      }
+      if (count === 7) {
+        const checkMatrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 3 } })
+        if (!checkMatrixTable) {
+          const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
+          let update = { count: matrixTable.count + 1 }
+          await Matrix_TableSecond.update(update, { where: { id: matrixTable.id } })
+          const referalId = user.referal_id;
+          let parentIdMatrix, side_matrix;
+          const parentIdForCheck = await findParentId(
+            3,
+            referalId,
+            user.id
+          );
+          if (parentIdForCheck) {
+            const resultFuncCheckCountParentId = await checkCountParentId(
+              parentIdForCheck,
+              user.id,
+              3
+            );
+            parentIdMatrix = resultFuncCheckCountParentId.parentId;
+            side_matrix = resultFuncCheckCountParentId.side_matrix;
+          } else {
+            parentIdMatrix = null;
+            side_matrix = null;
+          }
+          const matrixItem = await MatrixSecond.create({
+            date: new Date(),
+            parent_id: parentIdMatrix,
+            userId: user.id,
+            side_matrix,
+          });
+
+          const matrixTableItem = await Matrix_TableSecond.create({
+            matrixSecondId: matrixItem.id,
+            typeMatrixSecondId: 3,
+            userId: user.id,
+            count: 0,
+          });
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 7 место',
+            date_of_transaction: new Date(),
+            position: 6,
+            transaction_type: 24,
+            value: 1000,
+            parent_matrix_id: parentId,
+            userId: matrixItem.userId
+          })
+        } else {
+          const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 24, } })
+          if (!transactionCheck) {
+            const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
+            let updateMatrix = { count: matrixTable.count + 1 }
+            await Matrix_TableSecond.update(updateMatrix, { where: { id: matrixTable.id } })
+            let update = { count: checkMatrixTable.count + 1 }
+            await Matrix_TableSecond.update(update, { where: { id: checkMatrixTable.id } })
+            const transaction = await Transaction.create({
+              comment: 'Выплата за 7 место',
+              date_of_transaction: new Date(),
+              position: 6,
+              transaction_type: 24,
+              value: 1000,
+              parent_matrix_id: parentId,
+              userId: checkMatrixTable.userId
+            })
+            return transaction
+          }
+        }
+      }
       break;
     case 3:
       break;
@@ -255,7 +356,7 @@ const findRealUser = async (id, userId) => {
 };
 
 const checkCountParentId = async (parentId, userId, typeMatrixSecondId) => {
-  const itemsParentId = await MatrixSecond.findAll({ 
+  const itemsParentId = await MatrixSecond.findAll({
     where: { parent_id: parentId },
   });
   if (itemsParentId.length > 1) {
@@ -302,7 +403,7 @@ class MatrixController {
       where: { userId: user.id, typeMatrixSecondId: matrix_type },
     });
     if (count?.count) {
-      return res.json({ count: count.count }); 
+      return res.json({ count: count.count });
     } else {
       return res.json(null);
     }
@@ -384,24 +485,18 @@ class MatrixController {
     const marketingCheck = await marketingCheckCount(parent_id);
     let marketingGiftResult = [];
     if (marketingCheck.length > 0) {
-      marketingCheck.map(async(i)=>{
-        if (i.count){
+      marketingCheck.map(async (i) => {
+        if (i.count) {
           marketingGiftResult.push(await marketingGift(
             i.count,
             i.parentId,
             typeMatrix
-            ));
-          }
-        })
-        
-      }
-      return res.json(marketingCheck); 
-    // const matrixTableItem = await Matrix_TableSecond.create({
-    //   matrixSecondId: parent_id,
-    //   typeMatrixSecondId: type.typeMatrixSecondId ,
-    //   userId: user.id,
-    //   count: 0
-    // })
+          ));
+        }
+      })
+
+    }
+    return res.json(marketingCheck);
   }
   async getType(req, res, next) {
     const { authorization } = req.headers;
@@ -493,13 +588,13 @@ class MatrixController {
       const marketingCheck = await marketingCheckCount(parentId);
       let marketingGiftResult = [];
       if (marketingCheck.length > 0) {
-        marketingCheck.map(async (i)=>{
-          if (i.count){
+        marketingCheck.map(async (i) => {
+          if (i.count) {
             marketingGiftResult.push(await marketingGift(
-            i.count,
-            i.parentId,
-            matrix_id
-          ));
+              i.count,
+              i.parentId,
+              matrix_id
+            ));
           }
         })
 
@@ -741,8 +836,6 @@ class MatrixController {
           result[i] = null;
         }
       }
-
-      // return res.json({ items: {firstChildes, secondChildes, thirdChildes} });
       return res.json({ items: result });
     }
   }
