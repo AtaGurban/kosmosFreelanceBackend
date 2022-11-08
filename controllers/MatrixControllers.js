@@ -972,6 +972,7 @@ const marketingGift = async (count, parentId, typeMatrix) => {
             referalId,
             user.id
           );
+          console.log('dsadas');
           if (parentIdForCheck) {
             const resultFuncCheckCountParentId = await checkCountParentId(
               parentIdForCheck,
