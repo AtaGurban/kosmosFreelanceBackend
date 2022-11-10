@@ -1164,12 +1164,422 @@ const marketingGift = async (count, parentId, typeMatrix) => {
       }
       break;
     case 9:
+      if (count >= 4) {
+        const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 91, } })
+        if (!transactionCheck) {
+          let updateBalance = { balance: `${(+user.balance) + 20000}.00000000` };
+          await User.update(updateBalance, { where: { id: user.id } });
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 4 место',
+            date_of_transaction: new Date(),
+            position: 3,
+            transaction_type: 91,
+            value: 20000,
+            parent_matrix_id: parentId,
+            userId: user.id
+          })
+        }
+      }
+      if (count >= 5) {
+        const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 92, } })
+        if (!transactionCheck) {
+          let updateBalance = { balance: `${(+user.balance) + 20000}.00000000` };
+          await User.update(updateBalance, { where: { id: user.id } });
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 5 место',
+            date_of_transaction: new Date(),
+            position: 4,
+            transaction_type: 92,
+            value: 20000,
+            parent_matrix_id: parentId,
+            userId: user.id
+          })
+        }
+      }
+      if (count >= 6) {
+        const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 93, } })
+        if (!transactionCheck) {
+          let updateBalance = { balance: `${(+user.balance) + 15000}.00000000` };
+          await User.update(updateBalance, { where: { id: user.id } });
+          const matrixPegasCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
+          if (matrixPegasCheckReferal){
+            const referalUser = await User.findOne({where:{id:user.referal_id}})
+            let updateBalanceReferal = {balance: `${(+referalUser.balance) + 5000}.00000000`}
+            await User.update(updateBalanceReferal, { where: { id: referalUser.id } });
+          }
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 6 место',
+            date_of_transaction: new Date(),
+            position: 5,
+            transaction_type: 93,
+            value: 20000,
+            parent_matrix_id: parentId,
+            userId: user.id
+          })
+        }
+      }
+      if (count === 7) {
+        const checkMatrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 10 } })
+        if (!checkMatrixTable) {
+          const referalId = user.referal_id;
+          let parentIdMatrix, side_matrix;
+          const parentIdForCheck = await findParentId(
+            10,
+            referalId,
+            user.id
+          );
+          if (parentIdForCheck) {
+            const resultFuncCheckCountParentId = await checkCountParentId(
+              parentIdForCheck,
+              user.id,
+              10
+            );
+            parentIdMatrix = resultFuncCheckCountParentId.parentId;
+            side_matrix = resultFuncCheckCountParentId.side_matrix;
+          } else {
+            parentIdMatrix = null;
+            side_matrix = null;
+          }
+          const matrixItem = await MatrixSecond.create({
+            date: new Date(),
+            parent_id: parentIdMatrix,
+            userId: user.id,
+            side_matrix,
+          });
+          const matrixTableItem = await Matrix_TableSecond.create({
+            matrixSecondId: matrixItem.id,
+            typeMatrixSecondId: 10,
+            userId: user.id,
+            count: 0,
+          });
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 7 место',
+            date_of_transaction: new Date(),
+            position: 6,
+            transaction_type: 94,
+            value: 0,
+            parent_matrix_id: parentId,
+            userId: matrixItem.userId
+          })
+        } else {
+          const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 94, } })
+          if (!transactionCheck) {
+            let update = { count: checkMatrixTable.count + 1 }
+            await Matrix_TableSecond.update(update, { where: { id: checkMatrixTable.id } })
+            const transaction = await Transaction.create({
+              comment: 'Выплата за 7 место',
+              date_of_transaction: new Date(),
+              position: 6,
+              transaction_type: 94,
+              value: 0,
+              parent_matrix_id: parentId,
+              userId: checkMatrixTable.userId
+            })
+            return transaction
+          }
+        }
+      }
       break;
     case 10:
+      if (count >= 4) {
+        const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 101, } })
+        if (!transactionCheck) {
+          let updateBalance = { balance: `${(+user.balance) + 25000}.00000000` };
+          await User.update(updateBalance, { where: { id: user.id } });
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 4 место',
+            date_of_transaction: new Date(),
+            position: 3,
+            transaction_type: 101,
+            value: 25000,
+            parent_matrix_id: parentId,
+            userId: user.id
+          })
+        }
+      }
+      if (count >= 5) {
+        const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 102, } })
+        if (!transactionCheck) {
+          let updateBalance = { balance: `${(+user.balance) + 25000}.00000000` };
+          await User.update(updateBalance, { where: { id: user.id } });
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 5 место',
+            date_of_transaction: new Date(),
+            position: 4,
+            transaction_type: 102,
+            value: 25000,
+            parent_matrix_id: parentId,
+            userId: user.id
+          })
+        }
+      }
+      if (count >= 6) {
+        const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 103, } })
+        if (!transactionCheck) {
+          let updateBalance = { balance: `${(+user.balance) + 20000}.00000000` };
+          await User.update(updateBalance, { where: { id: user.id } });
+          const matrixPegasCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
+          if (matrixPegasCheckReferal){
+            const referalUser = await User.findOne({where:{id:user.referal_id}})
+            let updateBalanceReferal = {balance: `${(+referalUser.balance) + 5000}.00000000`}
+            await User.update(updateBalanceReferal, { where: { id: referalUser.id } });
+          }
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 6 место',
+            date_of_transaction: new Date(),
+            position: 5,
+            transaction_type: 103,
+            value: 20000,
+            parent_matrix_id: parentId,
+            userId: user.id
+          })
+        }
+      }
+      if (count === 7) {
+        const checkMatrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 11 } })
+        if (!checkMatrixTable) {
+          const referalId = user.referal_id;
+          let parentIdMatrix, side_matrix;
+          const parentIdForCheck = await findParentId(
+            11,
+            referalId,
+            user.id
+          );
+          if (parentIdForCheck) {
+            const resultFuncCheckCountParentId = await checkCountParentId(
+              parentIdForCheck,
+              user.id,
+              11
+            );
+            parentIdMatrix = resultFuncCheckCountParentId.parentId;
+            side_matrix = resultFuncCheckCountParentId.side_matrix;
+          } else {
+            parentIdMatrix = null;
+            side_matrix = null;
+          }
+          const matrixItem = await MatrixSecond.create({
+            date: new Date(),
+            parent_id: parentIdMatrix,
+            userId: user.id,
+            side_matrix,
+          });
+          const matrixTableItem = await Matrix_TableSecond.create({
+            matrixSecondId: matrixItem.id,
+            typeMatrixSecondId: 11,
+            userId: user.id,
+            count: 0,
+          });
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 7 место',
+            date_of_transaction: new Date(),
+            position: 6,
+            transaction_type: 104,
+            value: 0,
+            parent_matrix_id: parentId,
+            userId: matrixItem.userId
+          })
+        } else {
+          const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 104, } })
+          if (!transactionCheck) {
+            let update = { count: checkMatrixTable.count + 1 }
+            await Matrix_TableSecond.update(update, { where: { id: checkMatrixTable.id } })
+            const transaction = await Transaction.create({
+              comment: 'Выплата за 7 место',
+              date_of_transaction: new Date(),
+              position: 6,
+              transaction_type: 104,
+              value: 0,
+              parent_matrix_id: parentId,
+              userId: checkMatrixTable.userId
+            })
+            return transaction
+          }
+        }
+      }
       break;
     case 11:
+      if (count >= 4) {
+        const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 111, } })
+        if (!transactionCheck) {
+          let updateBalance = { balance: `${(+user.balance) + 30000}.00000000` };
+          await User.update(updateBalance, { where: { id: user.id } });
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 4 место',
+            date_of_transaction: new Date(),
+            position: 3,
+            transaction_type: 111,
+            value: 30000,
+            parent_matrix_id: parentId,
+            userId: user.id
+          })
+        }
+      }
+      if (count >= 5) {
+        const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 112, } })
+        if (!transactionCheck) {
+          let updateBalance = { balance: `${(+user.balance) + 30000}.00000000` };
+          await User.update(updateBalance, { where: { id: user.id } });
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 5 место',
+            date_of_transaction: new Date(),
+            position: 4,
+            transaction_type: 112,
+            value: 30000,
+            parent_matrix_id: parentId,
+            userId: user.id
+          })
+        }
+      }
+      if (count >= 6) {
+        const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 113, } })
+        if (!transactionCheck) {
+          let updateBalance = { balance: `${(+user.balance) + 25000}.00000000` };
+          await User.update(updateBalance, { where: { id: user.id } });
+          const matrixPegasCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
+          if (matrixPegasCheckReferal){
+            const referalUser = await User.findOne({where:{id:user.referal_id}})
+            let updateBalanceReferal = {balance: `${(+referalUser.balance) + 5000}.00000000`}
+            await User.update(updateBalanceReferal, { where: { id: referalUser.id } });
+          }
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 6 место',
+            date_of_transaction: new Date(),
+            position: 5,
+            transaction_type: 113,
+            value: 30000,
+            parent_matrix_id: parentId,
+            userId: user.id
+          })
+        }
+      }
+      if (count === 7) {
+        const checkMatrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 12 } })
+        if (!checkMatrixTable) {
+          const referalId = user.referal_id;
+          let parentIdMatrix, side_matrix;
+          const parentIdForCheck = await findParentId(
+            12,
+            referalId,
+            user.id
+          );
+          if (parentIdForCheck) {
+            const resultFuncCheckCountParentId = await checkCountParentId(
+              parentIdForCheck,
+              user.id,
+              12
+            );
+            parentIdMatrix = resultFuncCheckCountParentId.parentId;
+            side_matrix = resultFuncCheckCountParentId.side_matrix;
+          } else {
+            parentIdMatrix = null;
+            side_matrix = null;
+          }
+          const matrixItem = await MatrixSecond.create({
+            date: new Date(),
+            parent_id: parentIdMatrix,
+            userId: user.id,
+            side_matrix,
+          });
+          const matrixTableItem = await Matrix_TableSecond.create({
+            matrixSecondId: matrixItem.id,
+            typeMatrixSecondId: 12,
+            userId: user.id,
+            count: 0,
+          });
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 7 место',
+            date_of_transaction: new Date(),
+            position: 6,
+            transaction_type: 114,
+            value: 0,
+            parent_matrix_id: parentId,
+            userId: matrixItem.userId
+          })
+        } else {
+          const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 114, } })
+          if (!transactionCheck) {
+            let update = { count: checkMatrixTable.count + 1 }
+            await Matrix_TableSecond.update(update, { where: { id: checkMatrixTable.id } })
+            const transaction = await Transaction.create({
+              comment: 'Выплата за 7 место',
+              date_of_transaction: new Date(),
+              position: 6,
+              transaction_type: 114,
+              value: 0,
+              parent_matrix_id: parentId,
+              userId: checkMatrixTable.userId
+            })
+            return transaction
+          }
+        }
+      }
       break;
     case 12:
+      if (count >= 4) {
+        const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 121, } })
+        if (!transactionCheck) {
+          let updateBalance = { balance: `${(+user.balance) + 60000}.00000000` };
+          await User.update(updateBalance, { where: { id: user.id } });
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 4 место',
+            date_of_transaction: new Date(),
+            position: 3,
+            transaction_type: 121,
+            value: 60000,
+            parent_matrix_id: parentId,
+            userId: user.id
+          })
+        }
+      }
+      if (count >= 5) {
+        const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 122, } })
+        if (!transactionCheck) {
+          let updateBalance = { balance: `${(+user.balance) + 60000}.00000000` };
+          await User.update(updateBalance, { where: { id: user.id } });
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 5 место',
+            date_of_transaction: new Date(),
+            position: 4,
+            transaction_type: 122,
+            value: 60000,
+            parent_matrix_id: parentId,
+            userId: user.id
+          })
+        }
+      }
+      if (count >= 6) {
+        const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 123, } })
+        if (!transactionCheck) {
+          let updateBalance = { balance: `${(+user.balance) + 60000}.00000000` };
+          await User.update(updateBalance, { where: { id: user.id } });
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 6 место',
+            date_of_transaction: new Date(),
+            position: 5,
+            transaction_type: 123,
+            value: 60000,
+            parent_matrix_id: parentId,
+            userId: user.id
+          })
+        }
+      }
+      if (count === 7) {
+        const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 124, } })
+        if (!transactionCheck) {
+          const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
+          let updateCount = { count: matrixTable.count + 12 }
+          await Matrix_TableSecond.update(updateCount, { where: { id: matrixTable.id } })
+          const transaction = await Transaction.create({
+            comment: 'Выплата за 6 место',
+            date_of_transaction: new Date(),
+            position: 5,
+            transaction_type: 124,
+            value: 0,
+            parent_matrix_id: parentId,
+            userId: user.id
+          })
+        }
+      }
       break;
   }
 };

@@ -15,14 +15,14 @@ const {
 const updateOrCreate = async function (model, where, newItem) {
     // First try to find the record
     await model.findOne({ where: where }).then(function (foundItem) {
-        (!foundItem) ?  ( model.create(newItem)) : (async()=>await model.update(newItem, { where: where }))
+        (!foundItem) ? (model.create(newItem)) : (async () => await model.update(newItem, { where: where }))
     })
 }
 
 const updateStatistic = async (all_comet, all_planet) => {
-    let update = {all_comet, all_planet}
+    let update = { all_comet, all_planet }
 
-    const allItems = await Statistic.update( update, {where: { id: { [Op.not]: 0 } } })
+    const allItems = await Statistic.update(update, { where: { id: { [Op.not]: 0 } } })
 }
 
 
@@ -36,28 +36,27 @@ const summColumnStatistic = async () => {
 }
 
 const checkForLevel = async (parentId, level) => {
-    let countRows = await Matrix_Table.count({
-        where: { matrixId: parentId, id: { [Op.not]: 1 }, typeMatrixId: level }
+    let countRows = await Matrix.count({
+        where: { parent_id: parentId }
     })
-
-
     if (countRows < 3) {
         return false
     } else {
         const matrixTemp = await Matrix.findAll({ include: { model: Matrix_Table, as: "matrix_table" } })
-        const mTable = await Matrix_Table.findAll()
+        // const mTable = await Matrix_Table.findAll()
         const matrix = matrixTemp.filter((i, index) => {
             return ((i.matrix_table[0]?.typeMatrixId === level + 1))
         })
         let parentIdForLevel
         if (matrix.length === 0) {
-            parentIdForLevel = matrixTemp.length + 1
+            parentIdForLevel = null
         } else {
             const matrixParentId = Math.ceil(matrix.length / 3)
             parentIdForLevel = matrix[matrixParentId - 1]?.id || null
         }
 
-        const user = await Matrix.findOne({ id: parentId })
+        const user = await Matrix.findOne({where: {id: parentId} })
+
         const matrixItem = await Matrix.create({
             date: new Date,
             parent_id: parentIdForLevel,
@@ -67,13 +66,13 @@ const checkForLevel = async (parentId, level) => {
         //     matrixId: parentIdForLevel,
         //     typeMatrixId: level + 1,
         // }
-        // console.log(update);
+        // console.log(update);  
 
 
         const matrixTableCount = await Matrix_Table.findOne({
             where: { typeMatrixId: level, matrixId: parentId }
         })
-        matrixTableCount.matrixId = parentIdForLevel;
+        matrixTableCount.matrixId = matrixItem.id;
         matrixTableCount.typeMatrixId = level + 1
         await matrixTableCount.save()
         // const matrixTableItem = await Matrix_Table.update(update, {
@@ -89,8 +88,9 @@ const checkForLevel = async (parentId, level) => {
 
         //     }
         // }
-
-        return checkForLevel(parentIdForLevel, level + 1)
+        if(parentIdForLevel){
+            return checkForLevel(parentIdForLevel, level + 1)
+        }
     }
 
 }
@@ -106,7 +106,7 @@ class StarControllers {
         const user = await User.findOne({
             where: { username: decodeToken.username },
         });
-        if (user.balance < 2000) {
+        if (user.balance < 2160) {
             return next(ApiError.badRequest("Недостаточно средств"));
         }
         let update = { balance: `${((+ user.balance) - 2160)}.00000000` }
@@ -114,8 +114,6 @@ class StarControllers {
         let temp = await User.update(update, { where: { username: decodeToken.username } })
 
         const level = 1;
-
-
         // const matrixCheck = await Matrix.findOne({
         //     where:{userId:user.id}
         // })
@@ -145,19 +143,16 @@ class StarControllers {
         })
         const matrixTable = await Matrix_Table.count()
 
-        // console.log('matrixTemp', matrixTemp);
-        // console.log('matrix', matrix); 
         const matrixParentId = Math.ceil(matrixTable / 3)
         const parentId = (matrix[matrixParentId - 1]?.id) ? matrix[matrixParentId - 1]?.id : null
-        // console.log(parentId);   
-        // console.log(matrix);
+
         const matrixItem = await Matrix.create({
             date: new Date,
             parent_id: parentId,
             userId: user.id
         })
         const matrixTableItem = await Matrix_Table.create({
-            matrixId: parentId,
+            matrixId: matrixItem.id,
             typeMatrixId: level,
             userId: user.id,
             count: 2160
@@ -244,8 +239,8 @@ class StarControllers {
             let tempMatrix = await Matrix_Table.update(updatedMatrix, { where: { id: id } })
         })
         let statisticItems = await Statistic.findOne({ where: { userId: user.id, } })
-        let updateData = {my_comet: statisticItems.my_comet + summ}
-        const updatedStatistic = await Statistic.update(updateData,{where:{userId: user.id,}})
+        let updateData = { my_comet: statisticItems.my_comet + summ }
+        const updatedStatistic = await Statistic.update(updateData, { where: { userId: user.id, } })
         let allPlanet = statisticItems.all_planet;
         let allComet = statisticItems.all_comet + summ;
         updateStatistic(allComet, allPlanet)
