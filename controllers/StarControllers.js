@@ -152,6 +152,9 @@ const summColumnStatistic = async () => {
 }
 
 const checkForLevel = async (parentId, level) => {
+    if (!parentId){
+        return false
+    }
     let countRows = await Matrix.count({
         where: { parent_id: parentId }
     })
@@ -165,11 +168,12 @@ const checkForLevel = async (parentId, level) => {
         })
         let parentIdForLevel
         if (matrix.length === 0) {
-            parentIdForLevel = null
+            parentIdForLevel = null 
         } else {
-            const matrixParentId = Math.ceil(matrix.length / 3)
-            parentIdForLevel = matrix[matrixParentId - 1]?.id || null
-        }
+            // const matrixParentId = Math.ceil(matrix.length / 3)
+            // parentIdForLevel = matrix[matrixParentId - 1]?.id || null
+            parentIdForLevel = matrix[0].id
+        } 
 
         const user = await Matrix.findOne({where: {id: parentId} })
 
@@ -177,7 +181,8 @@ const checkForLevel = async (parentId, level) => {
             date: new Date,
             parent_id: parentIdForLevel,
             userId: user.userId
-        })
+        }) 
+        // console.log(level, parentId);
         const matrixTableCount = await Matrix_Table.findOne({
             where: { typeMatrixId: level, matrixId: parentId }
         })
@@ -239,13 +244,14 @@ class StarControllers {
         // const matrixTemp = await Matrix.findAll({ include: { model: Matrix_Table, as: "matrix_table" } })
         const matrixTemp = await Matrix.findAll({ include: { model: Matrix_Table, as: "matrix_table" } })
         const matrix = matrixTemp.filter((i, index) => {
-            return ((i.matrix_table.length === 0) || ((i.matrix_table[0]?.typeMatrixId === 1)))
+            return (((i.matrix_table[0]?.typeMatrixId === 1)))
+            // return ((i.matrix_table.length === 0) || ((i.matrix_table[0]?.typeMatrixId === 1)))
         })
-        const matrixTable = await Matrix_Table.count()
-
-        const matrixParentId = Math.ceil(matrixTable / 3)
-        const parentId = (matrix[matrixParentId - 1]?.id) ? matrix[matrixParentId - 1]?.id : null
-
+        // const matrixTable = await Matrix_Table.count()
+        
+        // const matrixParentId = Math.ceil(matrixTable / 3)
+        // const parentId = (matrix[matrixParentId - 1]?.id) ? matrix[matrixParentId - 1]?.id : null
+        const parentId = matrix[0]?.id
         const matrixItem = await Matrix.create({
             date: new Date,
             parent_id: parentId,
