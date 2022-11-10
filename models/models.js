@@ -203,7 +203,7 @@ const Statistic = sequelize.define(
     all_planet: {  type: DataTypes.INTEGER, allowNull: false, defaultValue:0 },
     first_planet: {  type: DataTypes.INTEGER, allowNull: false, defaultValue:0 },
     my_comet: {  type: DataTypes.INTEGER, allowNull: false, defaultValue:0 },
-    my_inventory_income: {  type: DataTypes.INTEGER, allowNull: false, defaultValue:0 },
+    myInviterIncome: {  type: DataTypes.INTEGER, allowNull: false, defaultValue:0 },
     my_planet: {  type: DataTypes.INTEGER, allowNull: false, defaultValue:0 },
     structure_planet: {  type: DataTypes.INTEGER, allowNull: false, defaultValue:0 },
   }

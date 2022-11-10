@@ -13,7 +13,8 @@ const {
     Matrix_Table,
     Statistic,
     InvestBox,
-    Matrix_TableSecond
+    Matrix_TableSecond,
+    MatrixSecond
 } = require("../models/models");
 
 const updateOrCreate = async function (model, where, newItem) {
@@ -28,8 +29,11 @@ const giftMarketing = async function (level, matrixTableData){
     switch (level) {
         case 6:
             //woznograzdeniya
-            let update = { balance: `${(+user.balance) + 2160}.00000000` };
-            await User.update(update, { where: { id: user.id } });
+            let updateBalance = { balance: `${(+user.balance) + 2160}.00000000` };
+            await User.update(updateBalance, { where: { id: user.id } });
+            const statisticData = await Statistic.findOne({where:{userId:user.id}})
+            let updateStatisticInventory = {myInviterIncome:statisticData.myInviterIncome + 2160}
+            await Statistic.update(updateStatisticInventory, {where:{id:statisticData.id}})
             //referal woznograzdeniya
             const referalMatrix = await Matrix_Table.findOne({where:{userId:user.referal_id}})
             if (referalMatrix){
@@ -41,11 +45,11 @@ const giftMarketing = async function (level, matrixTableData){
             for (let i = 0; i < 1; i++) {
                 const matrixTemp = await Matrix.findAll({ include: { model: Matrix_Table, as: "matrix_table" } })
                 const matrix = matrixTemp.filter((i, index) => {
-                    return ((i.matrix_table.length === 0) || ((i.matrix_table[0]?.typeMatrixId === 1)))
+                    return (((i.matrix_table[0]?.typeMatrixId === 1)))
                 })
-                const matrixTable = await Matrix_Table.count()
-                const matrixParentId = Math.ceil(matrixTable / 3)
-                const parentId = (matrix[matrixParentId - 1]?.id) ? matrix[matrixParentId - 1]?.id : null
+                // const matrixTable = await Matrix_Table.count()
+                // const matrixParentId = Math.ceil(matrixTable / 3)
+                const parentId = matrix[0]?.id
                 const matrixItem = await Matrix.create({
                     date: new Date,
                     parent_id: parentId,
@@ -112,7 +116,7 @@ const giftMarketing = async function (level, matrixTableData){
                   matrixSecondId: matrixItem.id,
                   typeMatrixSecondId: 1,
                   userId: user.id,
-                  count: 0,
+                  count: 0, 
                 });
                 const marketingCheck = await marketingCheckCount(parentIdPegas);
                 let marketingGiftResult = [];
@@ -177,7 +181,7 @@ const checkForLevel = async (parentId, level) => {
 
         const user = await Matrix.findOne({where: {id: parentId} })
 
-        const matrixItem = await Matrix.create({
+        const matrixItem = await Matrix.create({ 
             date: new Date,
             parent_id: parentIdForLevel,
             userId: user.userId
@@ -211,7 +215,7 @@ class StarControllers {
         const user = await User.findOne({
             where: { username: decodeToken.username },
         });
-        if (user.balance < 2160) {
+        if (user.balance < 2160) { 
             return next(ApiError.badRequest("Недостаточно средств"));
         }
         let update = { balance: `${((+ user.balance) - 2160)}.00000000` }
