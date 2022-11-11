@@ -51,6 +51,10 @@ app.use("/api", router);
 // app.use('/table/:id',express.static(path.resolve(__dirname, "files")))
 app.use(ErrorHandlingMiddleware);
 
+const typeMatrixSecondSumm = [
+  500, 1000, 1500, 2000, 2500, 3000, 5000, 6000, 8000, 9000, 10000, 12000
+]
+ 
 const start = async () => {
   const httpServer = http.createServer(app);
   // const httpsServer = https.createServer(credentials, app);
@@ -60,6 +64,23 @@ const start = async () => {
     httpServer.listen(80, () => console.log(`server started on port 80`));
     // httpsServer.listen(443, () => console.log(`server started on port 443`));
     // app.listen(PORT, ()=> console.log(`server started on port ${PORT}`))
+    const typeMatrixSecondCount = await models.TypeMatrixSecond.count()
+    if (typeMatrixSecondCount === 0){
+      for (let i = 0; i < 12; i++) {
+        await models.TypeMatrixSecond.create({
+          summ:typeMatrixSecondSumm[i]
+        })
+      } 
+    }
+    const cloneStatCount = await models.CloneStatSecond.count()
+    if (cloneStatCount === 0){
+      for (let i = 0; i < 12; i++) {
+        await models.CloneStatSecond.create({
+          count: 0,
+          level: i + 1
+        }) 
+      }
+    }
   } catch (error) {
     console.log(error);
   }
