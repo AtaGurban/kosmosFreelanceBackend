@@ -44,7 +44,7 @@ const giftMatrixMilkyWay = async(user, count)=>{
     for (let i = 0; i < count; i++) {
         const matrixTemp = await Matrix.findAll({ include: { model: Matrix_Table, as: "matrix_table" } })
         const matrix = matrixTemp.filter((i, index) => {
-            return (((i.matrix_table[0]?.typeMatrixId === 1)))
+            return ((i.matrix_table[0]?.typeMatrixId === 1) && (i.matrix_table[0]?.count > 6))
         })
         const parentId = matrix[0]?.id
         const matrixItem = await Matrix.create({
@@ -292,7 +292,7 @@ const checkForLevel = async (parentId, level) => {
     } else {
         const matrixTemp = await Matrix.findAll({ include: { model: Matrix_Table, as: "matrix_table" } })
         const matrix = matrixTemp.filter((i, index) => {
-            return ((i.matrix_table[0]?.typeMatrixId === level + 1))
+            return ((i.matrix_table[0]?.typeMatrixId === level + 1) && (i.matrix_table[0]?.count > 6))
         })
         let parentIdForLevel
         if (matrix.length === 0) {

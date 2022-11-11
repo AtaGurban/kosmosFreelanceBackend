@@ -64,7 +64,7 @@ const writeOffMatrixTableCount = async () => {
       (!foundItem) ? (await models.Statistic.create(newItem)) : (await models.Statistic.update(newItem, { where: where }))
     })
   }
-  const matrices = await models.Matrix_Table.findAll()
+  const matrices = await models.Matrix_Table.findAll({where: {count:{[Op.gte]: 6,}}})
   for (let i = 0; i < matrices.length; i++) {
     let updateCount = { count: matrices[i].count - 6 }
     await models.Matrix_Table.update(updateCount, { where: { id: matrices[i].id } })

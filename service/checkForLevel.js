@@ -19,7 +19,7 @@ module.exports = async (parentId, level)=>{
     } else {
         const matrixTemp = await Matrix.findAll({ include: { model: Matrix_Table, as: "matrix_table" } })
         const matrix = matrixTemp.filter((i, index) => {
-            return ((i.matrix_table[0]?.typeMatrixId === level + 1))
+            return ((i.matrix_table[0]?.typeMatrixId === level + 1) && (i.matrix_table[0]?.count > 6))
         })
         let parentIdForLevel
         if (matrix.length === 0) {
