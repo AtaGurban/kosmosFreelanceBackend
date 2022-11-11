@@ -66,9 +66,9 @@ const giftMatrixMilkyWay = async(user, count)=>{
         const allComet = (await summColumnStatistic())[0].dataValues.all_count
         const my_planet = await Matrix_Table.count({ where: { userId: user.id } })
         let newItem = { all_comet: allComet, all_planet: allPlanet, first_planet: 0, my_comet: myComet, my_planet, structure_planet: 0, userId: user.id }
-        updateOrCreate(Statistic, { userId: user.id }, newItem)
-        checkForLevel(parentId, 1)
-        updateStatistic(allComet, allPlanet)  
+        await updateOrCreate(Statistic, { userId: user.id }, newItem)
+        await checkForLevel(parentId, 1)
+        await updateStatistic(allComet, allPlanet)  
     }
 }
 
@@ -379,9 +379,9 @@ class StarControllers {
         const allComet = (await summColumnStatistic())[0].dataValues.all_count
         const my_planet = await Matrix_Table.count({ where: { userId: user.id } })
         let newItem = { all_comet: allComet, all_planet: allPlanet, first_planet: 0, my_comet: myComet, my_planet, structure_planet: 0, userId: user.id }
-        updateOrCreate(Statistic, { userId: user.id }, newItem)
-        checkForLevel(parentId, level)
-        updateStatistic(allComet, allPlanet)
+        await updateOrCreate(Statistic, { userId: user.id }, newItem)
+        await checkForLevel(parentId, level)
+        await updateStatistic(allComet, allPlanet)
         return res.json(true);
 
     }

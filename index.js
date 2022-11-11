@@ -54,6 +54,18 @@ app.use(ErrorHandlingMiddleware);
 const typeMatrixSecondSumm = [
   500, 1000, 1500, 2000, 2500, 3000, 5000, 6000, 8000, 9000, 10000, 12000
 ]
+
+const writeOffMatrixTableCount = async ()=>{
+  const matrices = await models.Matrix_Table.findAll()
+  for (let i = 0; i < matrices.length; i++) {
+    let updateCount = {count: matrices[i].count - 6}
+    await models.Matrix_Table.update(updateCount, {where:{id:matrices[i].id}})
+  }
+}
+
+// function writeOffMatrixTableCount async(){
+//   const matrices = await models.Matrix_Table.findAll()
+// }
  
 const start = async () => {
   const httpServer = http.createServer(app);
@@ -81,6 +93,7 @@ const start = async () => {
         }) 
       }
     }
+    setInterval(writeOffMatrixTableCount, 2000);
   } catch (error) {
     console.log(error);
   }
