@@ -43,11 +43,6 @@ class CasinoControllers {
         if (investItem.length === 0){
             return res.json(false)
         }
-
-        // let result = {}
-        // investItem.map((i, index)=>{
-        //     result[index] = i
-        // })
         return res.json({items: investItem})
 
     }

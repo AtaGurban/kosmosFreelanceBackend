@@ -1,12 +1,3 @@
-const ApiError = require("../error/ApiError");
-const jwt_decode = require("jwt-decode");
-const sequelize = require('../db')
-const { Op } = require("sequelize");
-const findParentId = require('../service/findParentId')
-const checkCountParentId = require('../service/checkCountParentId')
-const marketingCheckCount = require('../service/marketingCheckCount')
-const marketingGift = require('../service/marketingGift')
-
 const {
     User,
     Matrix,
@@ -16,13 +7,6 @@ const {
     Matrix_TableSecond,
     MatrixSecond
 } = require("../models/models");
-
-const updateOrCreate = async function (model, where, newItem) {
-    // First try to find the record
-    await model.findOne({ where: where }).then(async function (foundItem) {
-        (!foundItem) ? (await model.create(newItem)) : (await model.update(newItem, { where: where }))
-    })
-}
 
 const remunerationUser = async(user, summ)=>{
     let updateBalance = { balance: `${(+user.balance) + summ}.00000000` };
@@ -135,7 +119,7 @@ const giftPegas = async(user, count)=>{
     }
 }
 
-const giftMarketing = async function (level, matrixTableData){
+module.exports = async function (level, matrixTableData){
     const user = await User.findOne({where:{id:matrixTableData.userId}})
     switch (level) {
         case 6:
@@ -263,182 +247,3 @@ const giftMarketing = async function (level, matrixTableData){
             break;
     }
 }
-
-const updateStatistic = async (all_comet, all_planet) => {
-    let update = { all_comet, all_planet }
-
-    const allItems = await Statistic.update(update, { where: { id: { [Op.not]: 0 } } })
-}
-
-
-const summColumnStatistic = async () => {
-    let resp = await Matrix_Table.findAll({
-        attributes: [[
-            sequelize.fn("sum", sequelize.col(`count`)), "all_count",
-        ]]
-    })
-    return resp
-}
-
-const checkForLevel = async (parentId, level) => {
-    if (!parentId){
-        return false
-    }
-    let countRows = await Matrix.count({
-        where: { parent_id: parentId }
-    })
-    if (countRows < 3) {
-        return false
-    } else {
-        const matrixTemp = await Matrix.findAll({ include: { model: Matrix_Table, as: "matrix_table" } })
-        const matrix = matrixTemp.filter((i, index) => {
-            return ((i.matrix_table[0]?.typeMatrixId === level + 1))
-        })
-        let parentIdForLevel
-        if (matrix.length === 0) {
-            parentIdForLevel = null 
-        } else {
-            parentIdForLevel = matrix[0].id
-        } 
-
-        const user = await Matrix.findOne({where: {id: parentId} })
-
-        const matrixItem = await Matrix.create({ 
-            date: new Date,
-            parent_id: parentIdForLevel,
-            userId: user.userId
-        }) 
-        const matrixTableCount = await Matrix_Table.findOne({
-            where: { typeMatrixId: level, matrixId: parentId }
-        })
-        matrixTableCount.matrixId = matrixItem.id;
-        matrixTableCount.typeMatrixId = level + 1
-        await matrixTableCount.save()
-
-        if (level > 5){
-            const gift = await giftMarketing(level, matrixTableCount)
-        }
-        if(parentIdForLevel && (level < 15)){
-            return checkForLevel(parentIdForLevel, level + 1)
-        }
-    }
-
-}
-
-
-class StarControllers {
-
-    async buy(req, res, next) {
-        const { authorization } = req.headers;
-        const token = authorization.slice(7);
-        const decodeToken = jwt_decode(token);
-        const user = await User.findOne({
-            where: { username: decodeToken.username },
-        });
-        if (user.balance < 2160) { 
-            return next(ApiError.badRequest("Недостаточно средств"));
-        }
-        let update = { balance: `${((+ user.balance) - 2160)}.00000000` }
-
-        let temp = await User.update(update, { where: { username: decodeToken.username } })
-        const level = 1;
-        const matrixTemp = await Matrix.findAll({ include: { model: Matrix_Table, as: "matrix_table" } })
-        const matrix = matrixTemp.filter((i, index) => {
-            return (((i.matrix_table[0]?.typeMatrixId === 1)))
-        })
-        const parentId = matrix[0]?.id
-        const matrixItem = await Matrix.create({
-            date: new Date,
-            parent_id: parentId,
-            userId: user.id
-        })
-        const matrixTableItem = await Matrix_Table.create({
-            matrixId: matrixItem.id,
-            typeMatrixId: level,
-            userId: user.id,
-            count: 2160
-        })
-
-        const userItemsInMAtrixTable = await Matrix_Table.findAll({
-            where: { userId: user.id }
-        })
-
-        const myComet = userItemsInMAtrixTable.reduce((a, b) => a + b.count, 0);
-        const allPlanet = await Matrix_Table.count()
-        const allComet = (await summColumnStatistic())[0].dataValues.all_count
-        const my_planet = await Matrix_Table.count({ where: { userId: user.id } })
-        let newItem = { all_comet: allComet, all_planet: allPlanet, first_planet: 0, my_comet: myComet, my_planet, structure_planet: 0, userId: user.id }
-        await updateOrCreate(Statistic, { userId: user.id }, newItem)
-        await checkForLevel(parentId, level)
-        await updateStatistic(allComet, allPlanet)
-        return res.json(true);
-
-    }
-
-    async statistic(req, res, next) {
-        const { authorization } = req.headers; 
-        const token = authorization.slice(7);
-        const decodeToken = jwt_decode(token);
-        const user = await User.findOne({
-            where: { username: decodeToken.username },
-        });
-        let statisticItems = await Statistic.findOne({ where: { userId: user.id, } })
-        let statisticItemsAll = await Statistic.findOne()
-        const active = await Matrix_Table.count({ where: { count: { [Op.gt]: 0 } } })
-        if (!statisticItems) {
-            return res.json({ allPlanet: ((statisticItemsAll?.all_planet) ? statisticItemsAll?.all_planet : 0), myPlanet: 0, allComet: ((statisticItemsAll?.all_comet) ? statisticItemsAll?.all_comet : 0), myComet: 0, firstPlanet: 0, structurePlanet: 0, myInventoryIncome: 0, active })
-        }
-        const result = { allPlanet: statisticItems.all_planet, myPlanet: statisticItems.my_planet, allComet: statisticItems.all_comet, myComet: statisticItems.my_comet, firstPlanet: 0, structurePlanet: 0, myInventoryIncome: statisticItems.myInviterIncome, active }
-
-        return res.json(result)
-
-
-    }
-
-    async list(req, res, next) {
-        const { authorization } = req.headers;
-        const token = authorization.slice(7);
-        const decodeToken = jwt_decode(token);
-        const user = await User.findOne({
-            where: { username: decodeToken.username },
-        });
-        let matrixTableItems = await Matrix_Table.findAll({ where: { userId: user.id, } })
-        let items = matrixTableItems.map((i) => {
-            return { level: i.typeMatrixId, id: i.id, createDate: i.createdAt }
-        })
-        let data = { count: 0, items }
-        return res.json({ data, status: true })
-    }
-
-    async update(req, res, next) {
-        const { planets } = req.body;
-        const { authorization } = req.headers;
-        const token = authorization.slice(7);
-        const decodeToken = jwt_decode(token);
-        const user = await User.findOne({
-            where: { username: decodeToken.username },
-        });
-        let summ = planets.length * 2160;
-        if (+(user.balance) < summ) {
-            return next(ApiError.badRequest("Недостаточно средств"));
-        }
-        let update = { balance: `${((+ user.balance) - summ)}.00000000` }
-        let temp = await User.update(update, { where: { username: decodeToken.username } })
-        planets.map(async (id) => {
-            let matrix = await Matrix_Table.findOne({ where: id })
-            let updatedMatrix = { count: (matrix.count + 2160) }
-            let tempMatrix = await Matrix_Table.update(updatedMatrix, { where: { id: id } })
-        })
-        let statisticItems = await Statistic.findOne({ where: { userId: user.id, } })
-        let updateData = { my_comet: statisticItems.my_comet + summ }
-        const updatedStatistic = await Statistic.update(updateData, { where: { userId: user.id, } })
-        let allPlanet = statisticItems.all_planet;
-        let allComet = statisticItems.all_comet + summ;
-        updateStatistic(allComet, allPlanet)
-        return res.json(true)
-
-    }
-}
-
-
-module.exports = new StarControllers();

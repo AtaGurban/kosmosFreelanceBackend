@@ -104,7 +104,6 @@ class UserController {
       referal_id: referralUser.id,
       activation_date: new Date()
     });
-    // const basket = await Basket.create({userId: user.id})
     const access_token = generateJwt(
       user.id,
       user.email,
@@ -184,43 +183,6 @@ class UserController {
         where: { userId: user.id },
       });
       let referal = await User.findOne({ where: { id: user.referal_id } });
-      // const parent = await User.findOne({ where: { id: user.referal_id } });
-      // const parentSecond =
-      //   parent.id === parent.referal_id
-      //     ? parent
-      //     : await User.findOne({ where: { id: parent.referal_id } });
-      // const parentThird =
-      //   parentSecond.id === parentSecond.referal_id
-      //     ? parentSecond
-      //     : await User.findOne({
-      //         where: { id: parentSecond.referal_id },
-      //       });
-      // const parentFour =
-      //   parentThird.id === parentThird.referal_id
-      //     ? parentSecond
-      //     : await User.findOne({
-      //         where: { id: parentThird.referal_id },
-      //       });
-      // switch (matrixUser.length) {
-      //   case 0:
-      //     referal = parent;
-      //     break;
-      //   case 1:
-      //     referal = parentSecond;
-      //     break;
-      //   case 2:
-      //     referal = parentThird;
-      //     break;
-      //   case 3:
-      //     referal = parentFour;
-      //     break;
-      //   case 4:
-      //     referal = parent;
-      //     break;
-      //   default:
-      //     break;
-      // }
-
       user.dataValues.referal = referal;
       return res.json(user);
     } catch (error) {
@@ -313,19 +275,6 @@ class UserController {
     return res.json(updatedUser)
   }
 
-  // async restorePassword(req, res, next){
-  //   const {password} = req.body;
-  //   console.log(req.body);
-  //   const { authorization } = req.headers;
-  //   const token = authorization.slice(7);
-  //   const decodeToken = jwt_decode(token);
-  //   const user = await User.findOne({
-  //     where: { username: decodeToken.username },
-  //   });
-  //   const hashPassword = await bcrypt.hash(password, 5);
-  //   let update = {password:hashPassword}
-  //   await User.update(update, { where: { id: user.id } });
-  // }
 }
 
 module.exports = new UserController();

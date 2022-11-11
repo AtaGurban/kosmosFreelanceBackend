@@ -24,7 +24,8 @@ const router = require("./routes/index");
 const ErrorHandlingMiddleware = require("./middleware/ErrorHandlingMiddleware");
 const path = require("path");
 const app = express();
-
+const { Op } = require("sequelize");
+const createFakeMatrices = require("./service/createFakeMatrices");
 
 // const credentials = {
 //   key: privateKey,
@@ -36,37 +37,53 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/user", express.static(path.resolve(__dirname, "files", "images")));
 app.use(fileUpload({}));
-app.use("/api", router);   
-// app.use(express.static(path.resolve(__dirname, "files")))
-// app.use('/sign-in',express.static(path.resolve(__dirname, "files")))
-// app.use('/leader',express.static(path.resolve(__dirname, "files")))
-// app.use('/sign-up',express.static(path.resolve(__dirname, "files")))
-// app.use('/finances',express.static(path.resolve(__dirname, "files")))
-// app.use('/dashboard',express.static(path.resolve(__dirname, "files")))
-// app.use('/news',express.static(path.resolve(__dirname, "files")))
-// app.use('/tables',express.static(path.resolve(__dirname, "files")))
-// app.use('/personal-table/:id',express.static(path.resolve(__dirname, "files")))
-// app.use('/team',express.static(path.resolve(__dirname, "files")))
-// app.use('/settings',express.static(path.resolve(__dirname, "files")))
-// app.use('/table/:id',express.static(path.resolve(__dirname, "files")))
+app.use("/api", router);
 app.use(ErrorHandlingMiddleware);
 
 const typeMatrixSecondSumm = [
-  500, 1000, 1500, 2000, 2500, 3000, 5000, 6000, 8000, 9000, 10000, 12000
+  500, 1500, 4000, 7000, 10000, 16000, 20000, 30000, 30000, 90000, 260000, 540000
 ]
 
-const writeOffMatrixTableCount = async ()=>{
+const writeOffMatrixTableCount = async () => {
+  const updateStatistic = async (all_comet, all_planet) => {
+    let update = { all_comet, all_planet }
+    const allItems = await models.Statistic.update(update, { where: { id: { [Op.not]: 0 } } })
+  }
+
+  const summColumnStatistic = async () => {
+    let resp = await models.Matrix_Table.findAll({
+      attributes: [[
+        sequelize.fn("sum", sequelize.col(`count`)), "all_count",
+      ]]
+    })
+    return resp
+  }
+
+  const updateOrCreate = async function (where, newItem) {
+    await models.Statistic.findOne({ where: where }).then(async function (foundItem) {
+      (!foundItem) ? (await models.Statistic.create(newItem)) : (await models.Statistic.update(newItem, { where: where }))
+    })
+  }
   const matrices = await models.Matrix_Table.findAll()
   for (let i = 0; i < matrices.length; i++) {
-    let updateCount = {count: matrices[i].count - 6}
-    await models.Matrix_Table.update(updateCount, {where:{id:matrices[i].id}})
+    let updateCount = { count: matrices[i].count - 6 }
+    await models.Matrix_Table.update(updateCount, { where: { id: matrices[i].id } })
+    await updateOrCreate({ userId: matrices[i].userId }, { my_comet: updateCount.count })
+    await createFakeMatrices()
+  }
+  if (matrices.length > 0){
+    const fakeMatrices = await models.Matrix.findAll({where:{matrix_essence:11}})
+    for (let j = 0; j < fakeMatrices.length; j++) {
+      await models.Matrix.destroy({where:{id:fakeMatrices[j].id}})    
+    }
+    const allPlanet = await models.Matrix_Table.count()
+    const allComet = (await summColumnStatistic())[0].dataValues.all_count
+    await updateStatistic(allComet, allPlanet)
   }
 }
 
-// function writeOffMatrixTableCount async(){
-//   const matrices = await models.Matrix_Table.findAll()
-// }
- 
+
+
 const start = async () => {
   const httpServer = http.createServer(app);
   // const httpsServer = https.createServer(credentials, app);
@@ -77,26 +94,26 @@ const start = async () => {
     // httpsServer.listen(443, () => console.log(`server started on port 443`));
     // app.listen(PORT, ()=> console.log(`server started on port ${PORT}`))
     const typeMatrixSecondCount = await models.TypeMatrixSecond.count()
-    if (typeMatrixSecondCount === 0){
+    if (typeMatrixSecondCount === 0) {
       for (let i = 0; i < 12; i++) {
         await models.TypeMatrixSecond.create({
-          summ:typeMatrixSecondSumm[i]
+          summ: typeMatrixSecondSumm[i]
         })
-      } 
+      }
     }
     const cloneStatCount = await models.CloneStatSecond.count()
-    if (cloneStatCount === 0){
+    if (cloneStatCount === 0) {
       for (let i = 0; i < 12; i++) {
         await models.CloneStatSecond.create({
           count: 0,
           level: i + 1
-        }) 
+        })
       }
     }
-    setInterval(writeOffMatrixTableCount, 2000);
+    setInterval(writeOffMatrixTableCount, 2 * 60 * 60 * 1000);
   } catch (error) {
     console.log(error);
   }
-}; 
+};
 
 start();
