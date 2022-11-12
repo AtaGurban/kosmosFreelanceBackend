@@ -8,7 +8,8 @@ module.exports = async ()=>{
     const level = 1;
     const matrixTemp = await Matrix.findAll({ include: { model: Matrix_Table, as: "matrix_table" } })
     const matrix = matrixTemp.filter((i, index) => {
-        return (((i.matrix_table[0]?.typeMatrixId === 1)))
+        return ((i.matrix_table[0]?.typeMatrixId === 1) && (i.matrix_table[0]?.count > 6))
+
     })
     const parentId = matrix[0]?.id
     const matrixItem = await Matrix.create({

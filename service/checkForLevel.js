@@ -11,9 +11,16 @@ module.exports = async (parentId, level)=>{
     if (!parentId){
         return false
     }
+    console.log(parentId, level);
     let countRows = await Matrix.count({
         where: { parent_id: parentId }
     })
+    const matrixTableEmpty = await Matrix_Table.count({
+        matrixId:parentId
+    })
+    if (matrixTableEmpty < 1){
+        return false
+    }
     if (countRows < 3) {
         return false
     } else {
@@ -22,7 +29,7 @@ module.exports = async (parentId, level)=>{
             return ((i.matrix_table[0]?.typeMatrixId === level + 1) && (i.matrix_table[0]?.count > 6))
         })
         let parentIdForLevel
-        if (matrix.length === 0) {
+        if (matrix.length === 0) { 
             parentIdForLevel = null 
         } else {
             parentIdForLevel = matrix[0].id
@@ -42,15 +49,18 @@ module.exports = async (parentId, level)=>{
         if (matrixTableCount){
             matrixTableCount.matrixId = matrixItem.id; 
             matrixTableCount.typeMatrixId = level + 1
-            await matrixTableCount.save()
+            await matrixTableCount.save() 
         
             if (level > 5){
                 const gift = await giftMarketingMilkyway(level, matrixTableCount)
+            }
+            if(parentIdForLevel && (level < 15)){
+                return  await checkForLevel(parentIdForLevel, level + 1)
             }
         }
 
     }
     
 }
-checkForLevel(parentId, level)
+await checkForLevel(parentId, level)
 }
