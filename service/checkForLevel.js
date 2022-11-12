@@ -11,7 +11,6 @@ module.exports = async (parentId, level)=>{
     if (!parentId){
         return false
     }
-    console.log(parentId, level);
     let countRows = await Matrix.count({
         where: { parent_id: parentId }
     })

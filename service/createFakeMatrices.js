@@ -5,7 +5,8 @@ const {
 const checkForLevel = require("./checkForLevel");
 
 module.exports = async ()=>{
-    const level = 1;
+    const level = await Matrix_Table.min('typeMatrixId')
+    console.log(level);
     const matrixTemp = await Matrix.findAll({ include: { model: Matrix_Table, as: "matrix_table" } })
     const matrix = matrixTemp.filter((i, index) => {
         return ((i.matrix_table[0]?.typeMatrixId === 1) && (i.matrix_table[0]?.count > 6))
@@ -21,3 +22,4 @@ module.exports = async ()=>{
 
     await checkForLevel(parentId, level)
 }        
+ 
