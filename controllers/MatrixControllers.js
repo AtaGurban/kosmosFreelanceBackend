@@ -267,21 +267,24 @@ class MatrixController {
     const { matrix_id } = req.query;
 
     if (matrix_id) {
-      const rootUserId = await Matrix.findOne({ where: { id: matrix_id } });
+      const rootUserId = await MatrixSecond.findOne({ where: { id: matrix_id } });
       const rootUser = await User.findOne({ where: { id: rootUserId.userId } });
-      const downUsers = await Matrix_Table.findAll({
-        where: { matrix_parent_id: matrix_id },
-        include: {
-          model: User,
-          as: "user",
-          where: { id: { [Op.not]: 1 } },
-          include: { model: Matrix, as: "matrix" },
-        },
-      });
-
+      const firstChildes = await childNode(matrix_id);
+      let secondChildes;
+      let thirdChildes;
+      if (firstChildes && firstChildes[0]) {
+        if (firstChildes[0].side_matrix === 0) {
+          secondChildes = await childNode(firstChildes[0]?.id);
+          thirdChildes = await childNode(firstChildes[1]?.id);
+        } else {
+          secondChildes = await childNode(firstChildes[1]?.id);
+          thirdChildes = await childNode(firstChildes[0]?.id);
+        }
+      }
+      // return res.json(firstChildes)
       let result = {
         0: {
-          id: rootUserId.parent_id,
+          id: matrix_id,
           username: rootUser.username,
           avatar: rootUser.avatar,
           typeId: null,
@@ -289,20 +292,47 @@ class MatrixController {
           createdAt: rootUser.createdAt,
         },
       };
-
-      if (downUsers) {
-        downUsers.map((item, index) => {
-          result[index + 1] = {
-            id: downUsers[index].user.matrix[
-              downUsers[index].type_matrix_id - 1
-            ].id,
-            username: downUsers[index].user.username,
-            avatar: downUsers[index].user.avatar,
+      if (firstChildes?.length > 0) {
+        firstChildes.map((i, index) => {
+          result[i.side_matrix + 1] = {
+            id: firstChildes[index]?.id,
+            userName: firstChildes[index]?.user.username,
+            photo: firstChildes[index]?.user.avatar,
             typeId: null,
             place: 0,
-            createdAt: downUsers[index].user.createdAt,
+            createdAt: firstChildes[index]?.user.createdAt,
           };
         });
+      }
+      if (secondChildes?.length > 0) {
+        secondChildes.map((i, index) => {
+          result[i.side_matrix + 3] = {
+            id: secondChildes[index]?.id,
+            userName: secondChildes[index]?.user.username,
+            photo: secondChildes[index]?.user.avatar,
+            typeId: null,
+            place: 0,
+            createdAt: secondChildes[index]?.user.createdAt,
+          };
+        });
+      }
+      if (thirdChildes?.length > 0) {
+        thirdChildes.map((i, index) => {
+          result[i.side_matrix + 5] = {
+            id: thirdChildes[index]?.id,
+            userName: thirdChildes[index]?.user.username,
+            photo: thirdChildes[index]?.user.avatar,
+            typeId: null,
+            place: 0,
+            createdAt: thirdChildes[index]?.user.createdAt,
+          };
+        });
+      }
+
+      for (let i = 0; i < 7; i++) {
+        if (!result[i]) {
+          result[i] = null;
+        }
       }
 
       return res.json({ items: result });

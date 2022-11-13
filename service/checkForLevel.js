@@ -1,5 +1,5 @@
 const {
-    Matrix,
+    Matrix, 
     Matrix_Table,
 } = require("../models/models");
 const giftMarketingMilkyway = require("./giftMarketingMilkyway");
@@ -8,6 +8,7 @@ const giftMarketingMilkyway = require("./giftMarketingMilkyway");
 module.exports = async (parentId, level)=>{
 
     const checkForLevel = async (parentId, level) => {
+
     if (!parentId){
         return false
     }
@@ -33,7 +34,7 @@ module.exports = async (parentId, level)=>{
         } else {
             parentIdForLevel = matrix[0].id
         } 
-    
+
         const user = await Matrix.findOne({where: {id: parentId} })
     
         const matrixItem = await Matrix.create({ 

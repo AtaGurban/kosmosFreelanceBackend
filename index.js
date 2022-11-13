@@ -14,7 +14,7 @@ const http = require("http");
 //   "/etc/letsencrypt/live/tmcoder.ru/chain.pem",
 //   "utf8" 
 // );  
-const express = require("express");
+const express = require("express"); 
 const sequelize = require("./db");
 const models = require("./models/models");
 const PORT = process.env.PORT || 5000;
@@ -117,3 +117,4 @@ const start = async () => {
 };
 
 start();
+
