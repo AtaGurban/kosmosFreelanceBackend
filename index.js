@@ -26,6 +26,7 @@ const path = require("path");
 const app = express();
 const { Op } = require("sequelize");
 const createFakeMatrices = require("./service/createFakeMatrices");
+const { Market } = require("./models/TablesExchange/tableMarket");
 
 // const credentials = {
 //   key: privateKey,
@@ -81,7 +82,6 @@ const writeOffMatrixTableCount = async () => {
     await updateStatistic(allComet, allPlanet)
   }
 }
-
 
 
 const start = async () => {

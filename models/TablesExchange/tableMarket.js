@@ -21,7 +21,6 @@ const Market = sequelize.define("market", {
   });
 
 
-  
   module.exports = {
     Market
   }
