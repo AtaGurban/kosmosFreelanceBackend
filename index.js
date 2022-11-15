@@ -27,6 +27,8 @@ const app = express();
 const { Op } = require("sequelize");
 const createFakeMatrices = require("./service/createFakeMatrices");
 const { Market } = require("./models/TablesExchange/tableMarket");
+const { Coin } = require("./models/TablesExchange/tableCoin");
+const coinConst = require("./utils/coinConst");
 
 // const credentials = {
 //   key: privateKey,
@@ -109,6 +111,12 @@ const start = async () => {
           level: i + 1
         })
       }
+    }
+    const coinCount = await Coin.count()
+    if (coinCount === 0){
+      await sequelize.query(coinConst, {
+        type:sequelize.QueryTypes.INSERT
+      })
     }
     setInterval(writeOffMatrixTableCount, 2 * 60 * 60 * 1000);
   } catch (error) {
