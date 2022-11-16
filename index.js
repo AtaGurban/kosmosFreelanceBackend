@@ -29,6 +29,7 @@ const createFakeMatrices = require("./service/createFakeMatrices");
 const { Market } = require("./models/TablesExchange/tableMarket");
 const { Coin } = require("./models/TablesExchange/tableCoin");
 const coinConst = require("./utils/coinConst");
+const exchangeParser = require("./service/exchangeParser");
 
 // const credentials = {
 //   key: privateKey,
@@ -118,6 +119,7 @@ const start = async () => {
         type:sequelize.QueryTypes.INSERT
       })
     }
+    await exchangeParser
     setInterval(writeOffMatrixTableCount, 2 * 60 * 60 * 1000);
   } catch (error) {
     console.log(error);
