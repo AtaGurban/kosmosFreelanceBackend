@@ -9,6 +9,7 @@ const StarRouter = require('./starRouter')
 const GameRouter = require('./gameRouter')
 const InvestRouter = require('./InvestRouter')
 const CasinoRouter = require('./casinoRouter')
+const MarketRouter = require('./marketRouter')
 
 
    
@@ -21,6 +22,7 @@ router.use('/star-trek', StarRouter)
 router.use('/v2/invest_box', InvestRouter)
 router.use('/html5/evoplay', GameRouter)
 router.use('/casino', CasinoRouter)
+router.use('/marketslist', MarketRouter)
 
 
 

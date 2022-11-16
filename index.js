@@ -93,7 +93,7 @@ const start = async () => {
   try {
     await sequelize.authenticate();
     await sequelize.sync();
-    httpServer.listen(80, () => console.log(`server started on port 80`));
+    httpServer.listen(5000, () => console.log(`server started on port 80`));
     // httpsServer.listen(443, () => console.log(`server started on port 443`));
     // app.listen(PORT, ()=> console.log(`server started on port ${PORT}`))
     const typeMatrixSecondCount = await models.TypeMatrixSecond.count()
@@ -119,7 +119,10 @@ const start = async () => {
         type:sequelize.QueryTypes.INSERT
       })
     }
-    await exchangeParser
+    const marketCount = await Market.count()
+    if (marketCount === 0){
+      await exchangeParser() 
+    }
     setInterval(writeOffMatrixTableCount, 2 * 60 * 60 * 1000);
   } catch (error) {
     console.log(error);

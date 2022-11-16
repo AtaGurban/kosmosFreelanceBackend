@@ -1,31 +1,29 @@
 const cheerio = require('cheerio');
 const axios = require('axios');
-const fs = require('fs');
+const { Market } = require('../models/TablesExchange/tableMarket');
 
-const parse = async () => {
+module.exports = async () => {
   const getHTML = async (url) => {
     const { data } = await axios.get(url);
     return cheerio.load(data);
   };
 
   const $ = await getHTML(`https://yobit.net/ru/market/`);
-  console.log($('#market_table tbody tr')[0]);
-  console.log('dasdas');
-//   const pagesNumber = $('a.ui-kit-paginator--list-link').eq(-2).text();
-
-//   for (let i = 1; i < pagesNumber; i++) {
-//     const selector = await getHTML( 
-//       `https://kanobu.ru/games/ps-4/popular/?page=${i}`
-//     );
-//     selector('.c-game').each((i, element) => {
-//       const title = selector(element).find('div.h2').text();
-//       const link = `https://kanobu.ru${selector(element)
-//         .find('a')
-//         .attr('href')}`;
-
-//       fs.appendFileSync('./file.txt', `${title};${link}\n`);
-//     });
-//   }
+  const marketItems = $('#market_table tbody tr')
+  marketItems.each(async(i, element)=>{
+    const title = $(element).find('td a').text()
+    await Market.create({
+      pair:title,
+      last:0.0000004711,
+      lowestAsk:0.0000004710,
+      highestBid:0.0000004444,
+      percentChange:0.0700000000,
+      baseVolume:0.0037625969,
+      quoteVolume:8142.0000000000,
+      isFrozen:0,
+      postOnly:0,
+      high24hr:0.0000004711,
+      low24hr:0.0000004400
+    }) 
+  })
 }; 
-
-module.exports = parse();

@@ -5,7 +5,8 @@ const Market = sequelize.define("market", {
     id: {
       type: DataTypes.BIGINT,
       primaryKey: true,
-      allowNull: false,
+      // allowNull: false,
+      autoIncrement: true 
     },
     pair: { type: DataTypes.STRING, allowNull: false },
     last: { type: DataTypes.STRING, defaultValue: null },
