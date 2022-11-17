@@ -12,8 +12,9 @@ module.exports = async () => {
   const marketItems = $('#market_table tbody tr')
   marketItems.each(async(i, element)=>{
     const title = $(element).find('td a').text()
+    const pair = title.split('/').join('_')
     await Market.create({
-      pair:title,
+      pair,
       last:0.0000004711,
       lowestAsk:0.0000004710,
       highestBid:0.0000004444,
@@ -22,7 +23,7 @@ module.exports = async () => {
       quoteVolume:8142.0000000000,
       isFrozen:0,
       postOnly:0,
-      high24hr:0.0000004711,
+      high24hr:0.0000004711, 
       low24hr:0.0000004400
     }) 
   })
