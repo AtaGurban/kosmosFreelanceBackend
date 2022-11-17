@@ -7,6 +7,6 @@ const router = new Router()
 router.get('/public', MarketControllers.list)
 
 
-
+ 
 
 module.exports = router
