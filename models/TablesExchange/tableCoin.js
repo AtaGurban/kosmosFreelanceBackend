@@ -21,7 +21,7 @@ const Coin = sequelize.define("coin", {
     SortOrder: { type: DataTypes.INTEGER, defaultValue: null },
     Sponsored: { type: DataTypes.STRING, defaultValue: null },
     createdAt:{type:DataTypes.DATE, defaultValue:'2022-11-11'}, 
-    updatedAt:{type:DataTypes.DATE, defaultValue:'2022-11-11'}
+    updatedAt:{type:DataTypes.DATE, defaultValue:'2022-11-11'} 
   });
 
 

@@ -119,10 +119,10 @@ const start = async () => {
         type:sequelize.QueryTypes.INSERT
       })
     }
-    const marketCount = await Market.count()
-    if (marketCount === 0){
-      await exchangeParser() 
-    }
+    // const marketCount = await Market.count()
+    // if (marketCount === 0){
+    //   await exchangeParser() 
+    // }
     setInterval(writeOffMatrixTableCount, 2 * 60 * 60 * 1000);
   } catch (error) {
     console.log(error);

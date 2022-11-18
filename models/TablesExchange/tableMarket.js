@@ -9,7 +9,7 @@ const Market = sequelize.define("market", {
       autoIncrement: true 
     },
     pair: { type: DataTypes.STRING, allowNull: false },
-    last: { type: DataTypes.STRING, defaultValue: null },
+    last: { type: DataTypes.DOUBLE, defaultValue: null },
     lowestAsk: { type: DataTypes.DOUBLE, defaultValue: null },
     highestBid: { type: DataTypes.DOUBLE, defaultValue: null },
     percentChange: { type: DataTypes.FLOAT, defaultValue: null },

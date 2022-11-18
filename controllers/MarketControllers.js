@@ -9,38 +9,15 @@ const { Market } = require("../models/TablesExchange/tableMarket");
 class MarketControllers {
   async list(req, res, next) {
     const markets = await Market.findAll();
-    // let result = {};
     markets.map((i) => {
-      // let {
-      //   id,
-      //   last,
-      //   lowestAsk,
-      //   highestBid,
-      //   percentChange,
-      //   baseVolume,
-      //   quoteVolume,
-      //   isFrozen,
-      //   postOnly,
-      //   high24hr,
-      //   low24hr,
-      // } = i;
-      // result[i.pair] = {
-      //   id,
-      //   last,
-      //   lowestAsk,
-      //   highestBid,
-      //   percentChange,
-      //   baseVolume,
-      //   quoteVolume,
-      //   isFrozen,
-      //   postOnly,
-      //   high24hr,
-      //   low24hr,
-      // };
       let [market, coin] = i.pair.split('_')
       i.dataValues['market'] = market
       i.dataValues['coin']= coin
-      // console.log(i);
+      i['lowestAsk'] = i['lowestAsk'].toFixed(10)
+      i['highestBid'] = i['highestBid'].toFixed(10)
+      i['baseVolume'] = i['baseVolume'].toFixed(10)
+      i['high24hr'] = i['high24hr'].toFixed(10)
+      i['low24hr'] = i['low24hr'].toFixed(10)
     });
     return res.json(markets);
   }

@@ -5,6 +5,7 @@ const router = new Router()
 
 
 router.post('/create', OrderControllers.create)
+router.get('/public', OrderControllers.getAll)
 
 
  

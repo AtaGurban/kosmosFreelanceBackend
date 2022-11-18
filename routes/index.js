@@ -24,7 +24,7 @@ router.use('/v2/invest_box', InvestRouter)
 router.use('/html5/evoplay', GameRouter)
 router.use('/casino', CasinoRouter)
 router.use('/marketslist', MarketRouter)
-router.use('/order', OrderRouter)
+router.use('/orders', OrderRouter)
 
 
 

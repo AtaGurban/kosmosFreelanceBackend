@@ -5,7 +5,22 @@ const { OrderSale } = require("../models/TablesExchange/tableOrderSale");
 const { Market } = require("../models/TablesExchange/tableMarket");
 const { OrderSell } = require("../models/TablesExchange/tableOrdesSell");
 
-
+const findDublicatePrice = (arr)=>{
+  let res = []
+  arr.map((i, ind)=>{
+    for (let j = ind + 1; j < arr.length; j++) {
+        if (i.price === arr[j].price){
+          res.push([ind, j])
+        }    
+    }
+  })
+  res.map((k)=>{
+    arr[k[0]].amount = arr[k[0]].amount + arr[k[1]].amount
+    arr[k[0]].summ = arr[k[0]].summ + arr[k[1]].summ
+    arr.splice(k[1], 1)
+  })
+  return arr
+}
 class OrderControllers {
   async create(req, res, next) {
     const {amount, price, orderType, all, allCom, pair} = req.body
@@ -26,6 +41,25 @@ class OrderControllers {
             amount, price, marketId:market.id, userId:user.id, summ:allCom
         }) 
         return res.json(item)
+    }
+    
+  } 
+  async getAll(req, res, next) {
+    const {command, currencyPair, depth} = req.query
+    if (command === 'returnOrderBook'){
+      const market = await Market.findOne({where:{pair:currencyPair}})
+      const orderSale = await OrderSale.findAll({where:{marketId:market.id}})
+      const orderSell = await OrderSell.findAll({where:{marketId:market.id}})
+      const filteredOrdersSales = findDublicatePrice(orderSale)
+      const filteredOrdersSells = findDublicatePrice(orderSell)
+      let result = {asks:[], bids:[], "isFrozen": "0", "postOnly": "0", "seq": 4878868}
+      filteredOrdersSells.map((i)=>{
+        result.asks.push([`${i.price}`, `${i.amount}`, `${i.summ}`])
+      })
+      filteredOrdersSales.map((i)=>{
+        result.bids.push([`${i.price}`, `${i.amount}`, `${i.summ}`])
+      })
+      return res.json(result)
     }
     
   } 
