@@ -4,6 +4,8 @@ const { User } = require("../models/models");
 const { OrderSale } = require("../models/TablesExchange/tableOrderSale");
 const { Market } = require("../models/TablesExchange/tableMarket");
 const { OrderSell } = require("../models/TablesExchange/tableOrdesSell");
+const OrderClose = require("../service/OrderClose");
+const { Op } = require("sequelize");
 
 const findDublicatePrice = (arr)=>{
   let res = []
@@ -12,31 +14,43 @@ const findDublicatePrice = (arr)=>{
         if (i.price === arr[j].price){
           res.push([ind, j])
         }    
-    }
+    } 
   })
   res.map((k)=>{
-    arr[k[0]].amount = arr[k[0]].amount + arr[k[1]].amount
-    arr[k[0]].summ = arr[k[0]].summ + arr[k[1]].summ
-    arr.splice(k[1], 1)
+    if(arr[k[0]] && arr[k[1]]){
+      arr[k[0]].amount = arr[k[0]].amount + arr[k[1]].amount
+      arr[k[0]].summ = arr[k[0]].summ + arr[k[1]].summ
+      arr.splice(k[1], 1)
+    }
   })
   return arr
 }
 class OrderControllers {
   async create(req, res, next) {
     const {amount, price, orderType, all, allCom, pair} = req.body
+    if (!amount || !price || !orderType || !all || !allCom || !pair){
+      return next(ApiError.badRequest("Недостаточно средств"));
+    }
     const { authorization } = req.headers;
     const token = authorization.slice(7);
     const { username } = jwt_decode(token);
     const user = await User.findOne({ where: { username } });
-    console.log(pair);
     const market = await Market.findOne({where:{pair}})
     if (orderType === 'buy'){
-        const item = await OrderSale.create({
-            amount, price, marketId:market.id, userId:user.id, summ:allCom
-        }) 
-        return res.json(item)
+      const orderCheck = await OrderSell.findAll({where:{marketId:market.id, price: { [Op.lte]: price }}})
+      if (orderCheck.length > 0){
+        return await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom)
+      }
+      const item = await OrderSale.create({
+          amount, price, marketId:market.id, userId:user.id, summ:allCom
+      }) 
+      return res.json(item)
     }
     if (orderType === 'sell'){
+      const orderCheck = await OrderSale.findAll({where:{marketId:market.id, price: { [Op.gte]: price }}})
+      if (orderCheck.length > 0){
+        return await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom)
+      }
         const item = await OrderSell.create({
             amount, price, marketId:market.id, userId:user.id, summ:allCom
         }) 

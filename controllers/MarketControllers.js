@@ -23,4 +23,4 @@ class MarketControllers {
   }
 }
 
-module.exports = new MarketControllers();
+module.exports = new MarketControllers(); 

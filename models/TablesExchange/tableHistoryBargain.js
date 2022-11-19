@@ -1,8 +1,8 @@
 const sequelize = require("../../db");
 const { DataTypes } = require("sequelize");
 const { User } = require("../models");
-const { OrderPurchase } = require("./tableOrdesPurchase");
 const { OrderSale } = require("./tableOrderSale");
+const { OrderSell } = require("./tableOrdesSell");
 
 
 const HistoryBargain = sequelize.define("history-bargain", {
@@ -19,11 +19,11 @@ const HistoryBargain = sequelize.define("history-bargain", {
   User.hasMany(HistoryBargain, { as: "history-bargain" });
   HistoryBargain.belongsTo(User, { as: "user" });
 
-  OrderPurchase.hasMany(HistoryBargain, { as: "order-purchase" });
-  HistoryBargain.belongsTo(OrderPurchase, { as: "user" });
+  // OrderSell.hasMany(HistoryBargain, { as: "history-bargain" });
+  // HistoryBargain.belongsTo(OrderSell, { as: "order-sell" });
 
-  OrderSale.hasMany(HistoryBargain, { as: "order-sale" });
-  HistoryBargain.belongsTo(OrderSale, { as: "user" });
+  // OrderSale.hasMany(HistoryBargain, { as: "history-bargain" });
+  // HistoryBargain.belongsTo(OrderSale, { as: "order-sale" });
 
 
 
