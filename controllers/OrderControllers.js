@@ -65,8 +65,8 @@ class OrderControllers {
       const market = await Market.findOne({where:{pair:currencyPair}})
       const orderSale = await OrderSale.findAll({where:{marketId:market.id}})
       const orderSell = await OrderSell.findAll({where:{marketId:market.id}})
-      const filteredOrdersSales = findDublicatePrice(orderSale)
-      const filteredOrdersSells = findDublicatePrice(orderSell)
+      const filteredOrdersSales = findDublicatePrice(orderSale).sort((a, b)=>{return b.price - a.price})
+      const filteredOrdersSells = findDublicatePrice(orderSell).sort((a, b)=>{return a.price - b.price})
       let result = {asks:[], bids:[], "isFrozen": "0", "postOnly": "0", "seq": 4878868}
       filteredOrdersSells.map((i)=>{
         result.asks.push([`${i.price}`, `${i.amount}`, `${i.summ}`])

@@ -9,6 +9,11 @@ const { OrderSell } = require("../models/TablesExchange/tableOrdesSell");
 
 
 module.exports = async (orders, amount, orderType, userId, marketId, allCom, price)=>{
+    if (orderType === 'buy'){
+        orders.sort((a, b)=>{return b.price - a.price})
+    } else {
+        orders.sort((a, b)=>{return a.price - b.price})
+    }
     orders.map(async (i, index)=>{
         if ((amount >= i.amount) && (amount > 0)){
             //History
@@ -37,7 +42,7 @@ module.exports = async (orders, amount, orderType, userId, marketId, allCom, pri
             // })
             //Market
             const marketForUpdate = await Market.findOne({where:{id:marketId}})
-            const marketUpdate = {high24hr:i.price, baseVolume:totalAmount[0].total_amount, percentChange:((i.price * 100) / marketForUpdate.high24hr)}
+            const marketUpdate = {high24hr:i.price, last:i.price, baseVolume:totalAmount[0].total_amount, percentChange:((i.price * 100) / marketForUpdate.high24hr)}
             await Market.update(marketUpdate, {where:{id:marketId}})
             amount = (amount - i.amount).toFixed(10)
             i.destroy()
