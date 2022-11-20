@@ -11,7 +11,7 @@ const OrderSell = sequelize.define("order-sell", {
   });
 
   User.hasMany(OrderSell, { as: "order_sell" });
-  OrderSell.belongsTo(User, { as: "user" });
+  OrderSell.belongsTo(User, { as: "user" }); 
 
   Market.hasMany(OrderSell, { as: "order_sell" });
   OrderSell.belongsTo(Market, { as: "market" });

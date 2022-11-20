@@ -27,10 +27,11 @@ const findDublicatePrice = (arr)=>{
 }
 class OrderControllers {
   async create(req, res, next) {
-    const {amount, price, orderType, all, allCom, pair} = req.body
+    let {amount, price, orderType, all, allCom, pair} = req.body
     if (!amount || !price || !orderType || !all || !allCom || !pair){
       return next(ApiError.badRequest("Недостаточно средств"));
     }
+
     const { authorization } = req.headers;
     const token = authorization.slice(7);
     const { username } = jwt_decode(token);
@@ -39,7 +40,7 @@ class OrderControllers {
     if (orderType === 'buy'){
       const orderCheck = await OrderSell.findAll({where:{marketId:market.id, price: { [Op.lte]: price }}})
       if (orderCheck.length > 0){
-        return await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom)
+        return await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom, price)
       }
       const item = await OrderSale.create({
           amount, price, marketId:market.id, userId:user.id, summ:allCom
@@ -49,7 +50,7 @@ class OrderControllers {
     if (orderType === 'sell'){
       const orderCheck = await OrderSale.findAll({where:{marketId:market.id, price: { [Op.gte]: price }}})
       if (orderCheck.length > 0){
-        return await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom)
+        return await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom, price)
       }
         const item = await OrderSell.create({
             amount, price, marketId:market.id, userId:user.id, summ:allCom
