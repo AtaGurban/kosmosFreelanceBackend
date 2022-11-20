@@ -11,6 +11,7 @@ const InvestRouter = require('./InvestRouter')
 const CasinoRouter = require('./casinoRouter')
 const MarketRouter = require('./marketRouter')
 const OrderRouter = require('./orderRouter')
+const ChartRouter = require('./chartRouter')
 
 
    
@@ -25,6 +26,7 @@ router.use('/html5/evoplay', GameRouter)
 router.use('/casino', CasinoRouter)
 router.use('/marketslist', MarketRouter)
 router.use('/orders', OrderRouter)
+router.use('/charts', ChartRouter)
 
 
 
