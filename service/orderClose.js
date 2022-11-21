@@ -48,6 +48,7 @@ module.exports = async (orders, amount, orderType, userId, marketId, allCom, all
             const marketUpdate = {high24hr:i.price, last:i.price, baseVolume:totalAmount[0].total_amount, percentChange:((i.price * 100) / marketForUpdate.high24hr)}
             await Market.update(marketUpdate, {where:{id:marketId}})
             amount = (amount - i.amount).toFixed(10)
+            console.log('amount w konsedadasdsadsadasfdasdasdasdfasfasfasdasdasdasdasdasdas',amount);
             i.destroy()
             if ((orders.length === index + 1) && ((+amount) > 0)){
                 if (orderType === 'buy'){
