@@ -13,6 +13,7 @@ const HistoryBargain = sequelize.define("history-bargain", {
     type: { type: DataTypes.STRING, defaultValue:null },
     rate: { type: DataTypes.DOUBLE, defaultValue:null },
     amount: { type: DataTypes.DOUBLE, defaultValue:null },
+    price: { type: DataTypes.DOUBLE, defaultValue:null },
     total: { type: DataTypes.DOUBLE, defaultValue:null },
     totalWithCom: { type: DataTypes.DOUBLE, defaultValue:null },
   });

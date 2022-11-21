@@ -31,7 +31,6 @@ class OrderControllers {
     if (!amount || !price || !orderType || !all || !allCom || !pair){
       return next(ApiError.badRequest("Недостаточно средств"));
     }
-
     const { authorization } = req.headers;
     const token = authorization.slice(7);
     const { username } = jwt_decode(token);
@@ -39,6 +38,7 @@ class OrderControllers {
     const market = await Market.findOne({where:{pair}})
     if (orderType === 'buy'){
       const orderCheck = await OrderSell.findAll({where:{marketId:market.id, price: { [Op.lte]: price }}})
+      console.log(orderCheck.length);
       if (orderCheck.length > 0){
         return await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom, all, price)
       }

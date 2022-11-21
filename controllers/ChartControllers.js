@@ -7,7 +7,7 @@ class ChartControllers {
   async list(req, res, next) {
     const {command, currencyPair, start, end, period: period} = req.query
     // let periodMs = Math.round(((+period) * 1000) / 70)
-    let periodMs = period * 2
+    let periodMs = 60000
     if (command === 'returnChartData'){
         if (currencyPair && start && end && periodMs){
             const tradeID = (await Market.findOne({where:{pair:currencyPair}})).id
@@ -25,7 +25,7 @@ class ChartControllers {
                   })
                   // console.log(period.length);
                   if (periodArr.length > 0){
-                      periods.push({periodArr, date: periodEnd})
+                      periods.push({periodArr, date: periodStart})
                       periodStart += (+periodMs)
                       periodEnd += (+periodMs)
                       counter++
@@ -36,8 +36,8 @@ class ChartControllers {
                       periodStart += (+periodMs)
                       periodEnd += (+periodMs)    
                   }  
-                } while ((periodEnd < end) && (bool));  
-                // return res.json(periods)
+                } while ((periodStart < end) && (bool));  
+                console.log(periods)
                 return res.json(await chartPeriod(periods))
             }
         }
