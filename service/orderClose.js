@@ -8,22 +8,25 @@ const { OrderSell } = require("../models/TablesExchange/tableOrdesSell");
 
 
 
-module.exports = async (orders, amount, orderType, userId, marketId, allCom, price)=>{
+module.exports = async (orders, amount, orderType, userId, marketId, allCom, all, price)=>{
     if (orderType === 'buy'){
         orders.sort((a, b)=>{return b.price - a.price})
     } else {
         orders.sort((a, b)=>{return a.price - b.price})
     }
     orders.map(async (i, index)=>{
-        if ((amount >= i.amount) && (amount > 0)){
+        if (((+amount) >= (+i.amount)) && ((+amount) > 0)){
             //History
+            console.log('1');
+            console.log('amount', amount);
+            console.log('i.amount', i.amount);
             if (orderType !== 'buy'){
                 const historyItem = await HistoryBargain.create({
-                    tradeID:marketId, date: new Date(), type:'buy', rate: amount, amount:amount, total:allCom, userId, orderSaleId:i.id
+                    tradeID:marketId, date: new Date(), type:'buy', rate: i.amount, amount:i.amount, total:all, totalWithCom:allCom, userId, orderSaleId:i.id
                 })
             } else {
                 const historyItem = await HistoryBargain.create({
-                    tradeID:marketId, date: new Date(), type:'sell', rate: amount, amount:amount, total:allCom, userId, orderSellId:i.id
+                    tradeID:marketId, date: new Date(), type:'sell', rate: i.amount, amount:i.amount, total:all, totalWithCom:allCom, userId, orderSellId:i.id
                 })
             }
             const totalAmount = await HistoryBargain.findAll({
@@ -46,33 +49,39 @@ module.exports = async (orders, amount, orderType, userId, marketId, allCom, pri
             await Market.update(marketUpdate, {where:{id:marketId}})
             amount = (amount - i.amount).toFixed(10)
             i.destroy()
-            if ((orders.length === index + 1) && (amount > 0)){
+            if ((orders.length === index + 1) && ((+amount) > 0)){
                 if (orderType === 'buy'){
                     const item = await OrderSale.create({
-                        amount, price: price, marketId, userId, summ:allCom
+                        amount, price: price, marketId, userId, summ:(((+amount) * (+price)) * 1.02)
                     }) 
                     return (item)
                 } else {
                     const item = await OrderSell.create({
-                        amount, price: price, marketId, userId, summ:allCom
+                        amount, price: price, marketId, userId, summ:(((+amount) * (+price)) * 0.98)
                     }) 
-                    const historyItem = await HistoryBargain.create({
-                        tradeID:marketId, date: new Date(), type:'sell', rate: amount, amount:amount, total:allCom, userId, orderSellId:i.id
-                    })
+                    // const historyItem = await HistoryBargain.create({
+                    //     tradeID:marketId, date: new Date(), type:'sell', rate: amount, amount:amount, total:allCom, userId, orderSellId:i.id
+                    // })
                     return (item)
                 }
             } else{
                 return true
             }
         }else{
-            let update = {amount: (i.amount - amount).toFixed(10), summ:((i.amount - amount).toFixed(10) * i.price)}
-            console.log(update);
+            console.log('2');
+            console.log('amount', amount);
+            console.log('i.amount', i.amount);
             if (orderType !== 'buy'){
                 const historyItem = await HistoryBargain.create({
-                    tradeID:marketId, date: new Date(), type:'buy', rate: amount, amount:amount, total:allCom, userId, orderSaleId:i.id
+                    tradeID:marketId, date: new Date(), type:'buy', rate: i.amount, amount:i.amount, total:allCom, totalWithCom:allCom, userId, orderSaleId:i.id
                 })
+                let update = {amount: ((+i.amount) - (+amount)).toFixed(10), summ:((((+i.amount) - amount).toFixed(10) * (+i.price)) * 0.98)}
                 await OrderSale.update(update, {where:{id:i.id}})
             }else{
+                const historyItem = await HistoryBargain.create({
+                    tradeID:marketId, date: new Date(), type:'sell', rate: i.amount, amount:i.amount, total:allCom, totalWithCom:allCom, userId, orderSaleId:i.id
+                })
+                let update = {amount: ((+i.amount) - (+amount)).toFixed(10), summ:((((+i.amount) - amount).toFixed(10) * (+i.price)) * 1.02)}
                 await OrderSell.update(update, {where:{id:i.id}})
             }
             const totalAmount = await HistoryBargain.findAll({

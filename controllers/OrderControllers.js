@@ -11,7 +11,7 @@ const findDublicatePrice = (arr)=>{
   let res = []
   arr.map((i, ind)=>{
     for (let j = ind + 1; j < arr.length; j++) {
-        if (i.price === arr[j].price){
+        if ((+i.price) === (+arr[j].price)){
           res.push([ind, j])
         }    
     } 
@@ -24,7 +24,7 @@ const findDublicatePrice = (arr)=>{
     }
   })
   return arr
-}
+} 
 class OrderControllers {
   async create(req, res, next) {
     let {amount, price, orderType, all, allCom, pair} = req.body
@@ -40,7 +40,7 @@ class OrderControllers {
     if (orderType === 'buy'){
       const orderCheck = await OrderSell.findAll({where:{marketId:market.id, price: { [Op.lte]: price }}})
       if (orderCheck.length > 0){
-        return await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom, price)
+        return await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom, all, price)
       }
       const item = await OrderSale.create({
           amount, price, marketId:market.id, userId:user.id, summ:allCom
@@ -50,7 +50,7 @@ class OrderControllers {
     if (orderType === 'sell'){
       const orderCheck = await OrderSale.findAll({where:{marketId:market.id, price: { [Op.gte]: price }}})
       if (orderCheck.length > 0){
-        return await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom, price)
+        return await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom, all, price)
       }
         const item = await OrderSell.create({
             amount, price, marketId:market.id, userId:user.id, summ:allCom

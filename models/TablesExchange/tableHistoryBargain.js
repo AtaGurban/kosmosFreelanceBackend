@@ -14,6 +14,7 @@ const HistoryBargain = sequelize.define("history-bargain", {
     rate: { type: DataTypes.DOUBLE, defaultValue:null },
     amount: { type: DataTypes.DOUBLE, defaultValue:null },
     total: { type: DataTypes.DOUBLE, defaultValue:null },
+    totalWithCom: { type: DataTypes.DOUBLE, defaultValue:null },
   });
 
   User.hasMany(HistoryBargain, { as: "history-bargain" });

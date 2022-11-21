@@ -107,7 +107,7 @@ const start = async () => {
     const cloneStatCount = await models.CloneStatSecond.count()
     if (cloneStatCount === 0) {
       for (let i = 0; i < 12; i++) {
-        await models.CloneStatSecond.create({
+        await models.CloneStatSecond.create({ 
           count: 0,
           level: i + 1
         })
