@@ -126,7 +126,7 @@ const start = async () => {
     // }
     setInterval(writeOffMatrixTableCount, 2 * 60 * 60 * 1000);
     // setInterval(async ()=>{await exchangeBot()}, 10 * 60 * 1000);
-    await exchangeBot()
+    // await exchangeBot()
   } catch (error) {
     console.log(error);
   }
