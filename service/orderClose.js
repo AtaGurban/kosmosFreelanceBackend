@@ -15,7 +15,6 @@ module.exports = async (orders, amount, orderType, userId, marketId, allCom, all
         orders.sort((a, b)=>{return a.price - b.price})
     }
     let amountTemp = amount
-    console.log(orders);
     for (let i = 0; i < orders.length; i++) {
         const element = orders[i];
         if (((+amountTemp) >= (+element.amount)) && ((+amountTemp) > 0)){
@@ -48,18 +47,16 @@ module.exports = async (orders, amount, orderType, userId, marketId, allCom, all
             const marketUpdate = {high24hr:element.price, last:element.price, baseVolume:totalAmount[0].total_amount, percentChange:((element.price * 100) / marketForUpdate.high24hr)}
             await Market.update(marketUpdate, {where:{id:marketId}})
             amountTemp = (amountTemp - element.amount)
-            console.log('amount w konsedadasdsadsadasfdasdasdasdfasfasfasdasdasdasdasdasdas',amountTemp);
             await element.destroy()
             if ((orders.length === i + 1) && ((+amountTemp) > 0)){
-                console.log('3');
                 if (orderType === 'buy'){
                     const item = await OrderSale.create({
-                        amount: amountTemp, price: price, marketId, userId, summ:(((+amountTemp) * (+price)) * 1.02)
+                        amount: amountTemp, price: price, marketId, userId, summ:(((+amountTemp) * (+price)) * 1.02), sumWithOutCom: ((+amountTemp) * (+price))
                     }) 
                     
                 } else {
                     const item = await OrderSell.create({
-                        amount: amountTemp, price: price, marketId, userId, summ:(((+amountTemp) * (+price)) * 0.98)
+                        amount: amountTemp, price: price, marketId, userId, summ:(((+amountTemp) * (+price)) * 0.98), sumWithOutCom: ((+amountTemp) * (+price))
                     })  
                 }
             }
@@ -68,13 +65,13 @@ module.exports = async (orders, amount, orderType, userId, marketId, allCom, all
                 const historyItem = await HistoryBargain.create({
                     tradeID:marketId, date: new Date(), type:'buy', rate: element.amount, amount:element.amount, total:allCom, price:element.price, totalWithCom:allCom, userId, orderSaleId:element.id
                 })
-                let update = {amount: ((+element.amount) - (+amountTemp)).toFixed(10), summ:((((+element.amount) - amountTemp).toFixed(10) * (+element.price)) * 0.98)}
+                let update = {amount: ((+element.amount) - (+amountTemp)).toFixed(10), summ:((((+element.amount) - amountTemp).toFixed(10) * (+element.price)) * 0.98), sumWithOutCom: (((+element.amount) - amountTemp).toFixed(10) * (+element.price))}
                 await OrderSale.update(update, {where:{id:element.id}})
             }else{
                 const historyItem = await HistoryBargain.create({
                     tradeID:marketId, date: new Date(), type:'sell', rate: element.amount, amount:element.amount, total:allCom, price:element.price, totalWithCom:allCom, userId, orderSaleId:element.id
                 })
-                let update = {amount: ((+element.amount) - (+amountTemp)).toFixed(10), summ:((((+element.amount) - amountTemp).toFixed(10) * (+element.price)) * 1.02)}
+                let update = {amount: ((+element.amount) - (+amountTemp)).toFixed(10), summ:((((+element.amount) - amountTemp).toFixed(10) * (+element.price)) * 1.02), sumWithOutCom: (((+element.amount) - amountTemp).toFixed(10) * (+element.price))}
                 await OrderSell.update(update, {where:{id:element.id}})
             }
             const totalAmount = await HistoryBargain.findAll({

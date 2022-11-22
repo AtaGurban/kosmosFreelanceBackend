@@ -30,6 +30,7 @@ const { Market } = require("./models/TablesExchange/tableMarket");
 const { Coin } = require("./models/TablesExchange/tableCoin");
 const coinConst = require("./utils/coinConst");
 const exchangeParser = require("./service/exchangeParser");
+const exchangeBot = require("./service/exchangeBot");
 
 // const credentials = {
 //   key: privateKey,
@@ -124,6 +125,8 @@ const start = async () => {
     //   await exchangeParser() 
     // }
     setInterval(writeOffMatrixTableCount, 2 * 60 * 60 * 1000);
+    // setInterval(async ()=>{await exchangeBot()}, 10 * 60 * 1000);
+    await exchangeBot()
   } catch (error) {
     console.log(error);
   }

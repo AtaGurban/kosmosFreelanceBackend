@@ -38,12 +38,11 @@ class OrderControllers {
     const market = await Market.findOne({where:{pair}})
     if (orderType === 'buy'){
       const orderCheck = await OrderSell.findAll({where:{marketId:market.id, price: { [Op.lte]: price }}})
-      console.log(orderCheck.length);
       if (orderCheck.length > 0){
         return await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom, all, price)
       }
       const item = await OrderSale.create({
-          amount, price, marketId:market.id, userId:user.id, summ:allCom
+          amount, price, marketId:market.id, userId:user.id, summ:allCom, sumWithOutCom:all
       }) 
       return res.json(item)
     }
@@ -53,7 +52,7 @@ class OrderControllers {
         return await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom, all, price)
       }
         const item = await OrderSell.create({
-            amount, price, marketId:market.id, userId:user.id, summ:allCom
+            amount, price, marketId:market.id, userId:user.id, summ:allCom, sumWithOutCom:all
         }) 
         return res.json(item)
     }
@@ -69,10 +68,10 @@ class OrderControllers {
       const filteredOrdersSells = findDublicatePrice(orderSell).sort((a, b)=>{return a.price - b.price})
       let result = {asks:[], bids:[], "isFrozen": "0", "postOnly": "0", "seq": 4878868}
       filteredOrdersSells.map((i)=>{
-        result.asks.push([`${i.price}`, `${i.amount}`, `${i.summ}`])
+        result.asks.push([`${(i.price).toFixed(8)}`, `${i.amount.toFixed(8)}`, `${i.summ.toFixed(8)}`])
       })
       filteredOrdersSales.map((i)=>{
-        result.bids.push([`${i.price}`, `${i.amount}`, `${i.summ}`])
+        result.bids.push([`${i.price.toFixed(8)}`, `${i.amount.toFixed(8)}`, `${i.summ.toFixed(8)}`])
       })
       return res.json(result)
     }

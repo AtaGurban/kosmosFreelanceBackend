@@ -8,7 +8,7 @@ class ExchangeHistoryControllers {
   async list(req, res, next) {
     const {command, currencyPair, start, end} = req.query
     if (command === 'returnTradeHistory'){
-      if (currencyPair && start && end){
+      if ((currencyPair.split('').length > 3) && start && end){
         const tradeID = (await Market.findOne({where:{pair:currencyPair}})).id
         // const historyItems = await HistoryBargain.findAll({where : {date : {[Op.between] : [new Date(+start), new Date(+end)]},tradeID }})
         const historyItems = await HistoryBargain.findAll({where : {tradeID }})

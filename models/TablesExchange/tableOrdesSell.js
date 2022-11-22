@@ -7,6 +7,7 @@ const OrderSell = sequelize.define("order-sell", {
     id: { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },
     price: { type: DataTypes.DOUBLE, allowNull: false },
     amount: { type: DataTypes.DOUBLE, allowNull: false },
+    sumWithOutCom: { type: DataTypes.DOUBLE, allowNull: false },
     summ: { type: DataTypes.DOUBLE, allowNull: false },
   });
 
