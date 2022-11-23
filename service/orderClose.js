@@ -89,5 +89,5 @@ module.exports = async (orders, amount, orderType, userId, marketId, allCom, all
            
         } 
     }
-
+    return true
 }

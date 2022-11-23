@@ -10,15 +10,16 @@ const { Op } = require('sequelize');
 module.exports = async () => {
   const getHTML = async (url) => {
     const { data } = await axios.get(url);
-    return cheerio.load(data);
+    return cheerio.load(data); 
   };
 
-  // const markets = await Market.findAll()
-  const $ = await getHTML(`https://yobit.net/ru/trade/BTC/RUR`);
+  const markets = await Market.findAll()  
+  markets.map(async (i)=>{
+      let pair = i.pair.split('_').reverse().join('/');
+      const $ = await getHTML(`https://yobit.net/ru/trade/${pair}`);
       const bestSell = $('#label_bestsell').text()
-      // const bestSell = 200000000
       const bestBuy = $('#label_bestbuy').text()
-      let marketId = 963;
+      let marketId = i.id; 
       let amount = 0.001
       const orderCheckBuyNull = await OrderSale.findAll({where: {marketId, price: { [Op.gt]: (+bestSell) }}})
       orderCheckBuyNull.map(async(i)=>{
@@ -35,8 +36,7 @@ module.exports = async () => {
         })
       }
       const orderCheckSellNull = await OrderSell.findAll({where: {marketId, price: { [Op.lt]: bestBuy }}})
-      console.log(bestBuy);
-      console.log(orderCheckSellNull);
+
       orderCheckSellNull.map(async(i)=>{
         await OrderClose([i], amount, 'sell', 1, marketId, ((bestBuy * amount) * 1.02), (bestBuy * amount), bestBuy)
       })
@@ -51,6 +51,42 @@ module.exports = async () => {
           amount, price: bestBuy, marketId, userId: 1, summ: ((bestBuy * amount) * 0.98), sumWithOutCom:(bestBuy * amount)
         })
       }
+  })
+  // const $ = await getHTML(`https://yobit.net/ru/trade/BTC/RUR`);
+  //     const bestSell = $('#label_bestsell').text()
+  //     const bestBuy = $('#label_bestbuy').text()
+  //     let marketId = 963;
+  //     let amount = 0.001
+  //     const orderCheckBuyNull = await OrderSale.findAll({where: {marketId, price: { [Op.gt]: (+bestSell) }}})
+  //     orderCheckBuyNull.map(async(i)=>{
+  //       await OrderClose([i], amount, 'sell', 1, marketId, ((bestSell * amount) * 0.98), (bestSell * amount), bestSell)
+  //     })
+  //     const orderCheckBuyFirst = await OrderSale.findOne({ where: { marketId: marketId, price: bestSell } })
+  //     if (!orderCheckBuyFirst) {
+  //       const orderCheckBuy = await OrderSell.findAll({ where: { marketId: marketId, price: { [Op.lte]: bestSell } } })
+  //       if (orderCheckBuy.length > 0) {
+  //         await OrderClose(orderCheckBuy, amount, 'buy', 1, marketId, ((bestSell * amount) * 1.02), (bestSell * amount), bestSell)
+  //       }
+  //       const itemBuy = await OrderSale.create({
+  //         amount, price: bestSell, marketId, userId: 1, summ: ((bestSell * amount) * 1.02), sumWithOutCom:(bestSell * amount)
+  //       })
+  //     }
+  //     const orderCheckSellNull = await OrderSell.findAll({where: {marketId, price: { [Op.lt]: bestBuy }}})
+
+  //     orderCheckSellNull.map(async(i)=>{
+  //       await OrderClose([i], amount, 'sell', 1, marketId, ((bestBuy * amount) * 1.02), (bestBuy * amount), bestBuy)
+  //     })
+
+  //     const orderCheckSellFirst = await OrderSell.findOne({ where: { marketId, price: bestBuy } })
+  //     if (!orderCheckSellFirst) {
+  //       const orderCheckSell = await OrderSale.findAll({ where: { marketId, price: { [Op.gte]: bestBuy } } })
+  //       if (orderCheckSell.length > 0) {
+  //         await OrderClose(orderCheckSell, amount, 'sell', 1, marketId, ((bestBuy * amount) * 0.98), (bestBuy * amount), bestBuy)
+  //       }
+  //       const itemBuy = await OrderSell.create({
+  //         amount, price: bestBuy, marketId, userId: 1, summ: ((bestBuy * amount) * 0.98), sumWithOutCom:(bestBuy * amount)
+  //       })
+  //     }
   // markets.map(async (i)=>{
   //     let pair = i.pair.split('_').reverse().join('/');
   //     const $ = await getHTML(`https://yobit.net/ru/trade/${pair}`);

@@ -15,8 +15,6 @@ module.exports = async (periods) => {
         let high = sortedPrices[0]
         let low = sortedPrices[sortedPrices.length - 1]
         result.push({ date: `${i.date}`, open: `${open}`, close: `${close}`, high:`${high}`, low:`${low}`, volume:`${volume}` })
-        console.log(prices);
     })
-    console.log(result);
     return result    
 }
