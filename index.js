@@ -124,11 +124,14 @@ const start = async () => {
     // if (marketCount === 0){
     //   await exchangeParser() 
     // }
-    exchangeParser('all') 
+    // exchangeParser('all') 
     // await exchangeParser('top')  
     setInterval(writeOffMatrixTableCount, 2 * 60 * 60 * 1000);
-    // setInterval(async ()=>{await exchangeParser('all')}, 5000);
-    setInterval(async ()=>{exchangeParser('top')  }, 5000);
+    setInterval(async ()=>{exchangeParser('all')}, 6 * 60 * 60 * 1000);
+    while (true) {
+      await exchangeParser('top')
+    }
+    // setInterval(async ()=>{exchangeParser('top')  }, 5000);
     // await exchangeBot()
   } catch (error) {
     console.log(error);  

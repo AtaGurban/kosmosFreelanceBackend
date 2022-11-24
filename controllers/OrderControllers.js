@@ -4,8 +4,9 @@ const { User } = require("../models/models");
 const { OrderSale } = require("../models/TablesExchange/tableOrderSale");
 const { Market } = require("../models/TablesExchange/tableMarket");
 const { OrderSell } = require("../models/TablesExchange/tableOrdesSell");
-const OrderClose = require("../service/OrderClose");
 const { Op } = require("sequelize");
+const OrderClose = require("../service/orderClose");
+
 
 const findDublicatePrice = (arr)=>{
   let res = []

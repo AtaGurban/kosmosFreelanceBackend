@@ -16,6 +16,9 @@ class ExchangeHistoryControllers {
         historyItems.map((i)=>{
           result.push({globalTradeID:tradeID, tradeID, date:i.date, type:i.type, rate:i.rate, amount:i.amount, total:i.total, orderNumber:null})
         })
+        result.sort(function (a,b){
+          return new Date(b.date) - new Date(a.date);
+        })
         return res.json(result)
       }
     }

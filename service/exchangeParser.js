@@ -2,7 +2,7 @@ const cheerio = require('cheerio');
 const axios = require('axios');
 
 const { Market } = require('../models/TablesExchange/tableMarket');
-const OrderClose = require('./OrderClose');
+const OrderClose = require('./orderClose');
 const { OrderSale } = require('../models/TablesExchange/tableOrderSale');
 const { OrderSell } = require('../models/TablesExchange/tableOrdesSell');
 const { Op } = require('sequelize');

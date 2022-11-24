@@ -2,7 +2,7 @@ const { Op } = require("sequelize")
 const { Market } = require("../models/TablesExchange/tableMarket")
 const { OrderSale } = require("../models/TablesExchange/tableOrderSale")
 const { OrderSell } = require("../models/TablesExchange/tableOrdesSell")
-const OrderClose = require("./OrderClose")
+const OrderClose = require("./orderClose")
 
 
 
