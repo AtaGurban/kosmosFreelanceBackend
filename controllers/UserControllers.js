@@ -190,7 +190,7 @@ class UserController {
       user.dataValues.balanceCrypto = {};
       
       balanceCrypto.map((i)=>{
-        user.dataValues.balanceCrypto[`${i.wallet.name}`] = i.balance
+        user.dataValues.balanceCrypto[`${i.wallet.name}`] = i.balance.toFixed(8)
       })
       return res.json(user);
     } catch (error) {

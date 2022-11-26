@@ -6,7 +6,7 @@ const chartPeriod = require("../service/chartPeriod");
 class ChartControllers {
   async list(req, res, next) {
     const {command, currencyPair, start, end, period: period} = req.query
-    let periodMs = 60000
+    let periodMs = 10 * 60 * 1000
     if (command === 'returnChartData'){ 
         if ((currencyPair.split('').length > 3) && start && end && periodMs){
             const tradeID = (await Market.findOne({where:{pair:currencyPair}}))?.id
