@@ -13,10 +13,10 @@ const BalanceCrypto = sequelize.define("balance-crypto", {
   User.hasMany(BalanceCrypto, { as: "balance-crypto" });
   BalanceCrypto.belongsTo(User, { as: "user" });
 
-  Coin.hasMany(BalanceCrypto, { as: "balance-crypto" });
-  BalanceCrypto.belongsTo(Coin, { as: "coin" });
+  // Coin.hasMany(BalanceCrypto, { as: "balance-crypto" });
+  // BalanceCrypto.belongsTo(Coin, { as: "coin" });
 
-  Wallet.hasMany(BalanceCrypto, { as: "balance-crypto" });
+  // Wallet.hasMany(BalanceCrypto, { as: "balance-crypto" }); 
   BalanceCrypto.belongsTo(Wallet, { as: "wallet" });
 
   module.exports = {

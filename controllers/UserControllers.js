@@ -6,6 +6,8 @@ const fs = require("fs");
 const { User, Key, Matrix_Table, Matrix, InvestBox } = require("../models/models");
 const jwt = require("jsonwebtoken");
 const jwt_decode = require("jwt-decode");
+const { BalanceCrypto } = require("../models/TablesExchange/tableBalanceCrypto");
+const { Wallet } = require("../models/TablesExchange/tableWallet");
 
 const generateJwt = (id, email, username, first_name, last_name, referral) => {
   return jwt.sign(
@@ -183,7 +185,13 @@ class UserController {
         where: { userId: user.id },
       });
       let referal = await User.findOne({ where: { id: user.referal_id } });
+      let balanceCrypto = await BalanceCrypto.findAll({where:{userId:user.id}, include:{model: Wallet, as:'wallet'}})
       user.dataValues.referal = referal;
+      user.dataValues.balanceCrypto = {};
+      
+      balanceCrypto.map((i)=>{
+        user.dataValues.balanceCrypto[`${i.wallet.name}`] = i.balance
+      })
       return res.json(user);
     } catch (error) {
       console.log(error);

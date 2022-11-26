@@ -127,10 +127,10 @@ const start = async () => {
     // exchangeParser('all') 
     // await exchangeParser('top')  
     setInterval(writeOffMatrixTableCount, 2 * 60 * 60 * 1000);
-    setInterval(async ()=>{exchangeParser('all')}, 6 * 60 * 60 * 1000);
-    while (true) {
-      await exchangeParser('top')
-    }
+    // setInterval(async ()=>{exchangeParser('all')}, 6 * 60 * 60 * 1000);
+    // while (true) {
+    //   await exchangeParser('top')
+    // }
     // setInterval(async ()=>{exchangeParser('top')  }, 5000);
     // await exchangeBot()
   } catch (error) {
