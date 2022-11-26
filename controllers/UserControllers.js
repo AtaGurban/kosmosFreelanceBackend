@@ -8,6 +8,8 @@ const jwt = require("jsonwebtoken");
 const jwt_decode = require("jwt-decode");
 const { BalanceCrypto } = require("../models/TablesExchange/tableBalanceCrypto");
 const { Wallet } = require("../models/TablesExchange/tableWallet");
+const { Market } = require("../models/TablesExchange/tableMarket");
+const { OrderSell } = require("../models/TablesExchange/tableOrdesSell");
 
 const generateJwt = (id, email, username, first_name, last_name, referral) => {
   return jwt.sign(
@@ -184,14 +186,20 @@ class UserController {
       const matrixUser = await Matrix_Table.findAll({
         where: { userId: user.id },
       });
+      let allBalances = (+user.balance)
       let referal = await User.findOne({ where: { id: user.referal_id } });
       let balanceCrypto = await BalanceCrypto.findAll({where:{userId:user.id}, include:{model: Wallet, as:'wallet'}})
       user.dataValues.referal = referal;
       user.dataValues.balanceCrypto = {};
       
-      balanceCrypto.map((i)=>{
-        user.dataValues.balanceCrypto[`${i.wallet.name}`] = i.balance.toFixed(8)
-      })
+      for (let i = 0; i < balanceCrypto.length; i++) {
+        const market  = await Market.findOne({where:{pair:`RUR_${balanceCrypto[i].wallet.name}`}})
+        const orderSell = await OrderSell.findOne({where:{marketId:market.id}})
+        allBalances += balanceCrypto[i].balance * orderSell.price
+        console.log(allBalances);
+        user.dataValues.balanceCrypto[`${balanceCrypto[i].wallet.name}`] = balanceCrypto[i].balance.toFixed(8)
+        user.dataValues.allBalances = allBalances
+      }
       return res.json(user);
     } catch (error) {
       console.log(error);
