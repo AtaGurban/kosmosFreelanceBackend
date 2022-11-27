@@ -112,7 +112,7 @@ const start = async () => {
     }
     if (typeMatrixThirdCount === 0) {
       for (let i = 0; i < 12; i++) {
-        await models.TypeMatrixSecond.create({
+        await models.TypeMatrixThird.create({
           summ: typeMatrixThirdSumm[i]
         })
       }

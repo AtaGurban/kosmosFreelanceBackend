@@ -13,6 +13,19 @@ const {
   MatrixThird,
 } = require("../models/models");
 
+const marketingPegasUnoCheck = async(parent_id)=>{
+  const countNode = await MatrixThird.count({where:{parent_id}})
+  if (countNode == 2 ){
+    return true
+  } else {
+    return false
+  }
+}
+
+const marketingGift = async(parentId, type_matrix_id)=>{
+
+}
+
 const childNode = async (node, type_matrix_id) => {
   if (!node) {
     return null;
@@ -66,7 +79,6 @@ class PegasUnoControllers {
     let checkMatrixTable = await Matrix_TableThird.findOne({
       where: { userId: user.id, typeMatrixThirdId: matrix_id },
     });
-    console.log('dsdsd');
     if (!checkMatrixTable) {
       const referalId = user.referal_id;
       let parentId, side_matrix;
@@ -101,7 +113,10 @@ class PegasUnoControllers {
         userId: user.id,
         count: 0,
       });
-    //   const marketingCheck = await marketingCheckCount(parentId);
+      const marketingCheck = await marketingPegasUnoCheck(parentId);
+      if (marketingCheck){
+        const gift = await marketingGift(parentId, matrix_id)
+      }
     //   let marketingGiftResult = [];
     //   if (marketingCheck.length > 0) {
     //     marketingCheck.map(async (i) => {

@@ -254,6 +254,8 @@ class MatrixController {
         })
 
         return res.json(marketingGiftResult);
+      } else {
+        return true 
       }
     } else {
       let updateTable = { count: checkMatrixTable.count + 1 };
