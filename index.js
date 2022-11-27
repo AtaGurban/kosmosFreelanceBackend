@@ -49,6 +49,10 @@ const typeMatrixSecondSumm = [
   500, 1500, 4000, 7000, 10000, 16000, 20000, 30000, 30000, 90000, 260000, 540000
 ]
 
+const typeMatrixThirdSumm = [
+  150, 300, 600, 1200, 2400, 4400, 8800, 14000, 24000, 38000, 56000, 75000
+]
+
 const writeOffMatrixTableCount = async () => {
   const updateStatistic = async (all_comet, all_planet) => {
     let update = { all_comet, all_planet }
@@ -98,6 +102,7 @@ const start = async () => {
     // httpsServer.listen(443, () => console.log(`server started on port 443`));
     // app.listen(PORT, ()=> console.log(`server started on port ${PORT}`))
     const typeMatrixSecondCount = await models.TypeMatrixSecond.count()
+    const typeMatrixThirdCount = await models.TypeMatrixThird.count()
     if (typeMatrixSecondCount === 0) {
       for (let i = 0; i < 12; i++) {
         await models.TypeMatrixSecond.create({
@@ -105,10 +110,26 @@ const start = async () => {
         })
       }
     }
-    const cloneStatCount = await models.CloneStatSecond.count()
-    if (cloneStatCount === 0) {
+    if (typeMatrixThirdCount === 0) {
+      for (let i = 0; i < 12; i++) {
+        await models.TypeMatrixSecond.create({
+          summ: typeMatrixThirdSumm[i]
+        })
+      }
+    }
+    const cloneStatSecondCount = await models.CloneStatSecond.count()
+    const cloneStatThirdCount = await models.CloneStatThird.count()
+    if (cloneStatSecondCount === 0) {
       for (let i = 0; i < 12; i++) {
         await models.CloneStatSecond.create({ 
+          count: 0,
+          level: i + 1
+        })
+      }
+    }
+    if (cloneStatThirdCount === 0) {
+      for (let i = 0; i < 12; i++) {
+        await models.CloneStatThird.create({ 
           count: 0,
           level: i + 1
         })
@@ -127,7 +148,7 @@ const start = async () => {
 
     setInterval(writeOffMatrixTableCount, 2 * 60 * 60 * 1000);
     // setInterval(async ()=>{exchangeParser('all')}, 6 * 60 * 60 * 1000);
-    // while (true) {
+    // while (true) {Second
     //   await exchangeParser('top')
     // }
 

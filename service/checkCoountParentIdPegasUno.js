@@ -1,9 +1,9 @@
 const {
-    MatrixSecond,
+     MatrixThird,
   } = require("../models/models");
 
   const checkCountParentId = async (parentId, userId, typeMatrixSecondId) => {
-    const itemsParentId = await MatrixSecond.findAll({
+    const itemsParentId = await MatrixThird.findAll({
       where: { parent_id: parentId },
     });
     if (itemsParentId.length > 1) {
@@ -11,10 +11,10 @@ const {
       // const rightItem = itemsParentId[1].userId;
       let one = await checkCountParentId(itemsParentId[0].id, userId);
       let two = await checkCountParentId(itemsParentId[1].id, userId);
-      let countOne = await MatrixSecond.count({
+      let countOne = await MatrixThird.count({
         where: { parent_id: one.parentId },
       });
-      let countTwo = await MatrixSecond.count({
+      let countTwo = await MatrixThird.count({
         where: { parent_id: two.parentId },
       });
       if (countOne > countTwo) {

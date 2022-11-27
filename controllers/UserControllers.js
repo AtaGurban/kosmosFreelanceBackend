@@ -196,7 +196,6 @@ class UserController {
         const market  = await Market.findOne({where:{pair:`RUR_${balanceCrypto[i].wallet.name}`}})
         const orderSell = await OrderSell.findOne({where:{marketId:market.id}})
         allBalances += balanceCrypto[i].balance * orderSell.price
-        console.log(allBalances);
         user.dataValues.balanceCrypto[`${balanceCrypto[i].wallet.name}`] = balanceCrypto[i].balance.toFixed(8)
         user.dataValues.allBalances = allBalances
       }

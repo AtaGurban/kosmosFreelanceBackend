@@ -1,8 +1,8 @@
 const ApiError = require("../error/ApiError");
 const jwt_decode = require("jwt-decode");
 const { Op } = require("sequelize");
-const findParentId = require('../service/findParentId')
-const checkCountParentId = require('../service/checkCountParentId')
+const {findParentId} = require('../service/findParentId')
+const {checkCountParentId} = require('../service/checkCountParentId')
 const marketingGift = require('../service/marketingGift')
 const marketingCheckCount = require('../service/marketingCheckCount')
 
