@@ -288,7 +288,7 @@ class MatrixController {
       let result = {
         0: {
           id: matrix_id,
-          username: rootUser.username,
+          userName: rootUser.username,
           avatar: rootUser.avatar,
           typeId: null,
           place: 0,
