@@ -135,7 +135,7 @@ class UserController {
       user.username,
       user.first_name,
       user.last_name,
-      user.referral
+      user.referral 
     );
     const w = user.id;
     return res.json({ access_token, w });

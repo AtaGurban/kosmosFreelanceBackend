@@ -237,14 +237,16 @@ class PegasUnoControllers {
     const { matrix_id } = req.query;
 
     if (matrix_id) {
-      const rootUserId = await MatrixThird.findOne({ where: { id: matrix_id } });
+      const temp = await MatrixThird.findOne({ where: { id: matrix_id } });
+      const rootUserId = await MatrixThird.findOne({ where: { id: temp.parent_id } });
       const rootUser = await User.findOne({ where: { id: rootUserId.userId } });
-      const firstChildes = await childNode(matrix_id);
+      const firstChildes = await childNode(rootUserId.id);
 
+      // return res.json(firstChildes)
       let result = {
         0: {
           id: matrix_id,
-          username: rootUser.username,
+          userName: rootUser.username,
           avatar: rootUser.avatar,
           typeId: null,
           place: 0,
