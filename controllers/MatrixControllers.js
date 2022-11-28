@@ -269,9 +269,10 @@ class MatrixController {
     const { matrix_id } = req.query;
 
     if (matrix_id) {
-      const rootUserId = await MatrixSecond.findOne({ where: { id: matrix_id } });
+      const temp = await MatrixSecond.findOne({ where: { id: matrix_id } });
+      const rootUserId = await MatrixSecond.findOne({ where: { id: temp.parent_id } });
       const rootUser = await User.findOne({ where: { id: rootUserId.userId } });
-      const firstChildes = await childNode(matrix_id);
+      const firstChildes = await childNode(rootUserId.id);
       let secondChildes;
       let thirdChildes;
       if (firstChildes && firstChildes[0]) {
