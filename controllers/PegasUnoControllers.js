@@ -14,8 +14,8 @@ const {
 } = require("../models/models");
 
 const marketingPegasUnoCheck = async (parent_id) => {
-  if (!parent_id){
-    return false
+  if (!parent_id) {
+    return false;
   }
   const countNode = await MatrixThird.count({ where: { parent_id } });
   if (countNode == 2) {
@@ -25,12 +25,19 @@ const marketingPegasUnoCheck = async (parent_id) => {
   }
 };
 
+const giftReferalUser = async (referalId, summ) => {
+  const checkMatrixReferal = await MatrixThird.findOne({
+    where: { userId: referalId },
+  });
+  if (checkMatrixReferal) {
+    const referalUser = await User.findOne({ where: { id: referalId } });
+    let updateBalance = { balance: referalUser.balance + summ };
+    await User.update(updateBalance, { where: { id: referalId } });
+  }
+};
+
 const transitionToHighLevel = async (matrixId, level, user) => {
   let nextLevel = level + 1;
-  // const matrixItemThree = await MatrixThird.findOne({
-  //   where: { id: matrixId },
-  // });
-  // const user = await User.findOne({ where: { id: matrixItemThree.userId } });
   const referalId = user.referal_id;
   let parentId, side_matrix;
   const parentIdForCheck = await findParentId(nextLevel, referalId, user.id);
@@ -71,7 +78,7 @@ const marketingGift = async (parentId, type_matrix_id) => {
     where: { id: parentId },
   });
   const user = await User.findOne({ where: { id: matrixItemThree.userId } });
-  let updateBalance
+  let updateBalance;
   switch (type_matrix_id) {
     case 1:
       await transitionToHighLevel(parentId, type_matrix_id, user);
@@ -87,22 +94,45 @@ const marketingGift = async (parentId, type_matrix_id) => {
       break;
     case 5:
       await transitionToHighLevel(parentId, type_matrix_id, user);
-      updateBalance = {balance:user.balance + 400}
-      await User.update(updateBalance, {where:{id:user.id}})
+      updateBalance = { balance: user.balance + 400 };
+      await User.update(updateBalance, { where: { id: user.id } });
       break;
     case 6:
+      await transitionToHighLevel(parentId, type_matrix_id, user);
       break;
     case 7:
+      await transitionToHighLevel(parentId, type_matrix_id, user);
+      updateBalance = { balance: user.balance + 3500 };
+      await User.update(updateBalance, { where: { id: user.id } });
+      await giftReferalUser(user.referal_id, 100);
       break;
     case 8:
+      await transitionToHighLevel(parentId, type_matrix_id, user);
+      updateBalance = { balance: user.balance + 4000 };
+      await User.update(updateBalance, { where: { id: user.id } });
       break;
     case 9:
+      await transitionToHighLevel(parentId, type_matrix_id, user);
+      updateBalance = { balance: user.balance + 9000 };
+      await User.update(updateBalance, { where: { id: user.id } });
+      await giftReferalUser(user.referal_id, 1000);
       break;
     case 10:
+      await transitionToHighLevel(parentId, type_matrix_id, user);
+      updateBalance = { balance: user.balance + 18000 };
+      await User.update(updateBalance, { where: { id: user.id } });
+      await giftReferalUser(user.referal_id, 2000);
       break;
     case 11:
+      await transitionToHighLevel(parentId, type_matrix_id, user);
+      updateBalance = { balance: user.balance + 30000 };
+      await User.update(updateBalance, { where: { id: user.id } });
+      await giftReferalUser(user.referal_id, 7000);
       break;
     case 12:
+      updateBalance = { balance: user.balance + 130000 };
+      await User.update(updateBalance, { where: { id: user.id } });
+      await giftReferalUser(user.referal_id, 20000);
       break;
 
     default:
