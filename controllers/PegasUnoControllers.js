@@ -13,18 +13,102 @@ const {
   MatrixThird,
 } = require("../models/models");
 
-const marketingPegasUnoCheck = async(parent_id)=>{
-  const countNode = await MatrixThird.count({where:{parent_id}})
-  if (countNode == 2 ){
-    return true
-  } else {
+const marketingPegasUnoCheck = async (parent_id) => {
+  if (!parent_id){
     return false
   }
-}
+  const countNode = await MatrixThird.count({ where: { parent_id } });
+  if (countNode == 2) {
+    return true;
+  } else {
+    return false;
+  }
+};
 
-const marketingGift = async(parentId, type_matrix_id)=>{
+const transitionToHighLevel = async (matrixId, level, user) => {
+  let nextLevel = level + 1;
+  // const matrixItemThree = await MatrixThird.findOne({
+  //   where: { id: matrixId },
+  // });
+  // const user = await User.findOne({ where: { id: matrixItemThree.userId } });
+  const referalId = user.referal_id;
+  let parentId, side_matrix;
+  const parentIdForCheck = await findParentId(nextLevel, referalId, user.id);
+  if (parentIdForCheck) {
+    const resultFuncCheckCountParentId = await checkCountParentId(
+      parentIdForCheck,
+      user.id,
+      nextLevel
+    );
+    parentId = resultFuncCheckCountParentId.parentId;
+    side_matrix = resultFuncCheckCountParentId.side_matrix;
+  } else {
+    parentId = null;
+    side_matrix = null;
+  }
 
-}
+  const matrixItem = await MatrixThird.create({
+    date: new Date(),
+    parent_id: parentId,
+    userId: user.id,
+    side_matrix,
+  });
+
+  const matrixTableItem = await Matrix_TableThird.create({
+    matrixThirdId: matrixItem.id,
+    typeMatrixThirdId: nextLevel,
+    userId: user.id,
+    count: 0,
+  });
+  const marketingCheck = await marketingPegasUnoCheck(parentId);
+  if (marketingCheck) {
+    const gift = await marketingGift(parentId, nextLevel);
+  }
+};
+
+const marketingGift = async (parentId, type_matrix_id) => {
+  const matrixItemThree = await MatrixThird.findOne({
+    where: { id: parentId },
+  });
+  const user = await User.findOne({ where: { id: matrixItemThree.userId } });
+  let updateBalance
+  switch (type_matrix_id) {
+    case 1:
+      await transitionToHighLevel(parentId, type_matrix_id, user);
+      break;
+    case 2:
+      await transitionToHighLevel(parentId, type_matrix_id, user);
+      break;
+    case 3:
+      await transitionToHighLevel(parentId, type_matrix_id, user);
+      break;
+    case 4:
+      await transitionToHighLevel(parentId, type_matrix_id, user);
+      break;
+    case 5:
+      await transitionToHighLevel(parentId, type_matrix_id, user);
+      updateBalance = {balance:user.balance + 400}
+      await User.update(updateBalance, {where:{id:user.id}})
+      break;
+    case 6:
+      break;
+    case 7:
+      break;
+    case 8:
+      break;
+    case 9:
+      break;
+    case 10:
+      break;
+    case 11:
+      break;
+    case 12:
+      break;
+
+    default:
+      break;
+  }
+};
 
 const childNode = async (node, type_matrix_id) => {
   if (!node) {
@@ -97,7 +181,7 @@ class PegasUnoControllers {
         side_matrix = resultFuncCheckCountParentId.side_matrix;
       } else {
         parentId = null;
-        side_matrix = null;  
+        side_matrix = null;
       }
 
       const matrixItem = await MatrixThird.create({
@@ -114,24 +198,12 @@ class PegasUnoControllers {
         count: 0,
       });
       const marketingCheck = await marketingPegasUnoCheck(parentId);
-      if (marketingCheck){
-        const gift = await marketingGift(parentId, matrix_id)
+      if (marketingCheck) {
+        const gift = await marketingGift(parentId, matrix_id);
       }
-    //   let marketingGiftResult = [];
-    //   if (marketingCheck.length > 0) {
-    //     marketingCheck.map(async (i) => {
-    //       if (i.count) {
-    //         marketingGiftResult.push(
-    //           await marketingGift(i.count, i.parentId, matrix_id)
-    //         );
-    //       }
-    //     });
-
-        // return res.json(marketingGiftResult);
-    //   }
-    return res.json(true);
+      return res.json(true);
     } else {
-        return next(ApiError.badRequest("Вы больше не можете купить"));
+      return next(ApiError.badRequest("Вы больше не можете купить"));
     }
   }
   async structure(req, res, next) {
@@ -235,10 +307,12 @@ class PegasUnoControllers {
   }
   async structureUpper(req, res, next) {
     const { matrix_id } = req.query;
- 
+
     if (matrix_id) {
       const temp = await MatrixThird.findOne({ where: { id: matrix_id } });
-      const rootUserId = await MatrixThird.findOne({ where: { id: temp.parent_id } });
+      const rootUserId = await MatrixThird.findOne({
+        where: { id: temp.parent_id },
+      });
       const rootUser = await User.findOne({ where: { id: rootUserId.userId } });
       const firstChildes = await childNode(rootUserId.id);
 
