@@ -1,6 +1,7 @@
 require("dotenv").config();
 const fs = require("fs");
 const http = require("http");
+const { Server } = require("socket.io");
 // const https = require("https");
 // const privateKey = fs.readFileSync(
 //   "/etc/letsencrypt/live/tmcoder.ru/privkey.pem",
@@ -31,6 +32,8 @@ const { Coin } = require("./models/TablesExchange/tableCoin");
 const coinConst = require("./utils/coinConst");
 const exchangeParser = require("./service/exchangeParser");
 const exchangeBot = require("./service/exchangeBot");
+const walletBtc = require("./service/walletBtc");
+const { ChatTable } = require("./models/chatTable");
 
 // const credentials = {
 //   key: privateKey,
@@ -44,6 +47,15 @@ app.use("/api/user", express.static(path.resolve(__dirname, "files", "images")))
 app.use(fileUpload({}));
 app.use("/api", router);
 app.use(ErrorHandlingMiddleware);
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  },
+});
+
+
 
 const typeMatrixSecondSumm = [
   500, 1500, 4000, 7000, 10000, 16000, 20000, 30000, 30000, 90000, 260000, 540000
@@ -93,12 +105,12 @@ const writeOffMatrixTableCount = async () => {
 
 
 const start = async () => {
-  const httpServer = http.createServer(app);
+  // const httpServer = http.createServer(app);
   // const httpsServer = https.createServer(credentials, app);
   try {
     await sequelize.authenticate();
     await sequelize.sync();
-    httpServer.listen(5000, () => console.log(`server started on port 5000`));
+    server.listen(5000, () => console.log(`server started on port 5000`));
     // httpsServer.listen(443, () => console.log(`server started on port 443`));
     // app.listen(PORT, ()=> console.log(`server started on port ${PORT}`))
     const typeMatrixSecondCount = await models.TypeMatrixSecond.count()
@@ -151,6 +163,38 @@ const start = async () => {
     // while (true) {Second
     //   await exchangeParser('top')
     // }
+
+    // walletBtc()
+    io.on("connection", async(socket) => {
+
+      socket.on("join_room", (data) => {
+        socket.join(data);
+        console.log(`User with ID: ${socket.id} joined room: ${data}`);
+      });
+
+      console.log(`User Connected: ${socket.id}`);
+      const allMessage = await ChatTable.findAll()
+      // console.log(allMessage);
+      socket.emit("getOldMessage", allMessage);
+      socket.on("join_room", (data) => {
+        socket.join(data);
+        console.log(`User with ID: ${socket.id} joined room: ${data}`);
+      });
+      
+      socket.on("send_message", async (data) => {
+        console.log(data);
+        socket.to(data.room).emit("receive_message", data);
+        const item = await ChatTable.create({
+          date: data.time, 
+          message: data.message,
+          author: data.author
+        })
+      });
+    
+      socket.on("disconnect", () => {
+        console.log("User Disconnected", socket.id);
+      });
+    });
 
   } catch (error) {
     console.log(error);  

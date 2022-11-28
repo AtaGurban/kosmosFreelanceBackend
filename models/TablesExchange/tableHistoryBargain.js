@@ -1,8 +1,7 @@
 const sequelize = require("../../db");
 const { DataTypes } = require("sequelize");
 const { User } = require("../models");
-const { OrderSale } = require("./tableOrderSale");
-const { OrderSell } = require("./tableOrdesSell");
+
 
 
 const HistoryBargain = sequelize.define("history-bargain", {

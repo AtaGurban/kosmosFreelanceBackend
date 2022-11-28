@@ -5,7 +5,7 @@ const { Market } = require("./tableMarket");
 
 const PriceMarketsTable = sequelize.define("price-markets-table", {
     id: { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },
-    date: { type: DataTypes.BIGINT, allowNull: false },
+    date: { type: DataTypes.DATE, allowNull: false },
     priceBuy: { type: DataTypes.DOUBLE, allowNull: false },
     priceSell: { type: DataTypes.DOUBLE, allowNull: false },
   });
