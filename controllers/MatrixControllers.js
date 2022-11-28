@@ -287,7 +287,7 @@ class MatrixController {
       // return res.json(firstChildes)
       let result = {
         0: {
-          id: matrix_id,
+          id: rootUserId.id,
           userName: rootUser.username,
           avatar: rootUser.avatar,
           typeId: null,

@@ -235,7 +235,7 @@ class PegasUnoControllers {
   }
   async structureUpper(req, res, next) {
     const { matrix_id } = req.query;
-
+ 
     if (matrix_id) {
       const temp = await MatrixThird.findOne({ where: { id: matrix_id } });
       const rootUserId = await MatrixThird.findOne({ where: { id: temp.parent_id } });
@@ -245,7 +245,7 @@ class PegasUnoControllers {
       // return res.json(firstChildes)
       let result = {
         0: {
-          id: matrix_id,
+          id: rootUserId.id,
           userName: rootUser.username,
           avatar: rootUser.avatar,
           typeId: null,
