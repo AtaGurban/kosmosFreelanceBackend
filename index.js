@@ -171,8 +171,7 @@ const start = async () => {
         socket.join(data);
       });
 
-      const allMessage = await ChatTable.findAll()
-      allMessage.reverse()
+      const allMessage = await ChatTable.findAll({include: {model: models.User ,as: "user"}})
       socket.on("join_room", (data) => {
         socket.join(data);
         socket.emit("getOldMessage", allMessage);
@@ -183,7 +182,8 @@ const start = async () => {
         const item = await ChatTable.create({
           time: data.time, 
           message: data.message,
-          author: data.author
+          author: data.author,
+          userId:data.userId
         })
       });
     
