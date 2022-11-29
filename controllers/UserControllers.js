@@ -1,8 +1,10 @@
 const ApiError = require("../error/ApiError");
 const bcrypt = require("bcrypt");
 const uuid = require("uuid");
+const { testnet, mainnet } = require("bitcore-lib/lib/networks");
 const path = require("path");
 const fs = require("fs");
+const moment = require('moment')
 const { User, Key, Matrix_Table, Matrix, InvestBox } = require("../models/models");
 const jwt = require("jsonwebtoken");
 const jwt_decode = require("jwt-decode");
@@ -10,6 +12,7 @@ const { BalanceCrypto } = require("../models/TablesExchange/tableBalanceCrypto")
 const { Wallet } = require("../models/TablesExchange/tableWallet");
 const { Market } = require("../models/TablesExchange/tableMarket");
 const { OrderSell } = require("../models/TablesExchange/tableOrdesSell");
+const { createHDWallet } = require("../service/walletCrypto");
 
 const generateJwt = (id, email, username, first_name, last_name, referral) => {
   return jwt.sign(
@@ -108,6 +111,16 @@ class UserController {
       referal_id: referralUser.id,
       activation_date: new Date()
     });
+    const btcWallet = createHDWallet(mainnet)
+    const btcWalletItem = await BalanceCrypto.create({
+      xpub:btcWallet.xpub,
+      privateKey:btcWallet.privateKey,
+      address:btcWallet.address,
+      mnemonic:btcWallet.mnemonic,
+      userId:user.id,
+      walletId: 1
+    })
+
     const access_token = generateJwt(
       user.id,
       user.email,
@@ -191,7 +204,7 @@ class UserController {
       let balanceCrypto = await BalanceCrypto.findAll({where:{userId:user.id}, include:{model: Wallet, as:'wallet'}})
       user.dataValues.referal = referal;
       user.dataValues.balanceCrypto = {};
-      
+      user.dataValues.createdAt = moment.utc(user.dataValues.createdAt).format('DD/MM/YYYY')
       for (let i = 0; i < balanceCrypto.length; i++) {
         const market  = await Market.findOne({where:{pair:`RUR_${balanceCrypto[i].wallet.name}`}})
         const orderSell = await OrderSell.findOne({where:{marketId:market.id}})

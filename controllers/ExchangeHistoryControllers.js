@@ -1,6 +1,7 @@
 const { Op } = require("sequelize");
 const { HistoryBargain } = require("../models/TablesExchange/tableHistoryBargain");
 const { Market } = require("../models/TablesExchange/tableMarket");
+const moment = require('moment')
 
 
 
@@ -14,7 +15,7 @@ class ExchangeHistoryControllers {
         const historyItems = await HistoryBargain.findAll({where : {tradeID }})
         let result = []
         historyItems.map((i)=>{
-          result.push({globalTradeID:tradeID, tradeID, date:i.date, type:i.type, rate:i.rate, amount:i.amount, total:i.total, orderNumber:null})
+          result.push({globalTradeID:tradeID, tradeID, date:moment.utc(i.date).format('DD/MM/YYYY'), type:i.type, rate:i.rate, amount:i.amount, total:i.total, orderNumber:null})
         })
         result.sort(function (a,b){
           return new Date(b.date) - new Date(a.date);

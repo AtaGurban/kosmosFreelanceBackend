@@ -1,6 +1,7 @@
 require("dotenv").config();
 const fs = require("fs");
 const http = require("http");
+const { testnet, mainnet } = require("bitcore-lib/lib/networks");
 const { Server } = require("socket.io");
 // const https = require("https");
 // const privateKey = fs.readFileSync(
@@ -32,8 +33,8 @@ const { Coin } = require("./models/TablesExchange/tableCoin");
 const coinConst = require("./utils/coinConst");
 const exchangeParser = require("./service/exchangeParser");
 const exchangeBot = require("./service/exchangeBot");
-const walletBtc = require("./service/walletBtc");
 const { ChatTable } = require("./models/chatTable");
+const { createHDWallet, sendBitcoin, getBalanceBTC } = require("./service/walletCrypto");
 
 // const credentials = {
 //   key: privateKey,
@@ -164,7 +165,7 @@ const start = async () => {
     //   await exchangeParser('top')
     // }
 
-    // walletBtc()
+    // walletBtc() 
     io.on("connection", async(socket) => {
 
       socket.on("join_room", (data) => {
@@ -189,9 +190,11 @@ const start = async () => {
     
       socket.on("disconnect", () => {
         console.log("User Disconnected", socket.id);
-      });
+      }); 
     });
-
+    const send = await getBalanceBTC('mv4rnyY3Su5gjcDNzbMLKBQkBicCtHUtFB')
+    // const send = await sendBitcoin('mv4rnyY3Su5gjcDNzbMLKBQkBicCtHUtFB', 0.01380908)
+    console.log(send);
   } catch (error) {
     console.log(error);  
   }  
