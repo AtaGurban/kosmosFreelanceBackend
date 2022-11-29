@@ -172,7 +172,7 @@ const start = async () => {
       });
 
       const allMessage = await ChatTable.findAll()
-
+      allMessage.reverse()
       socket.on("join_room", (data) => {
         socket.join(data);
         socket.emit("getOldMessage", allMessage);
@@ -181,7 +181,7 @@ const start = async () => {
       socket.on("send_message", async (data) => {
         socket.to(data.room).emit("receive_message", data);
         const item = await ChatTable.create({
-          date: data.time, 
+          time: data.time, 
           message: data.message,
           author: data.author
         })
