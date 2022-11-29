@@ -169,20 +169,16 @@ const start = async () => {
 
       socket.on("join_room", (data) => {
         socket.join(data);
-        console.log(`User with ID: ${socket.id} joined room: ${data}`);
       });
 
-      console.log(`User Connected: ${socket.id}`);
       const allMessage = await ChatTable.findAll()
-      // console.log(allMessage);
-      socket.emit("getOldMessage", allMessage);
+
       socket.on("join_room", (data) => {
         socket.join(data);
-        console.log(`User with ID: ${socket.id} joined room: ${data}`);
+        socket.emit("getOldMessage", allMessage);
       });
       
       socket.on("send_message", async (data) => {
-        console.log(data);
         socket.to(data.room).emit("receive_message", data);
         const item = await ChatTable.create({
           date: data.time, 
