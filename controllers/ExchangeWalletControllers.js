@@ -38,7 +38,7 @@ BalanceCrypto
       }
       async createWithdrawBTC(req, res, next) {
         const {address, amount} = req.body
-        const amountWithoutCom = (+amount) - 0.0012;
+        const amountWithoutCom = (+amount) - (0.0012 - ((amount / 100) * 0.00644220));
         const { authorization } = req.headers;
         const token = authorization.slice(7);
         const decodeToken = jwt_decode(token);
@@ -48,11 +48,12 @@ BalanceCrypto
         const walletId = await Wallet.findOne({where:{name:'BTC'}})      
         const walletBTC = await BalanceCrypto.findOne({where:{userId:user.id, walletId:walletId.id}})
         if (walletBTC.balance < amount){
-          return next(ApiError.badRequest("Не хватает средств"));
+          return next(ApiError.badRequest("Не хватает средств")); 
         }
         let updateBalance = {balance:(+walletBTC.balance) - (+amount)}
-        await BalanceCrypto.update(updateBalance, {where:{id:walletBTC.id}})
-        const result = sendBitcoin(walletBTC.address, walletBTC.privateKey, address, amountWithoutCom)
+        // await BalanceCrypto.update(updateBalance, {where:{id:walletBTC.id}})
+        console.log(amountWithoutCom);
+        const result = await sendBitcoin(walletBTC.address, walletBTC.privateKey, address, amountWithoutCom)
         return res.json(result);
       }
   }

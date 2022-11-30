@@ -76,7 +76,9 @@ const sendBitcoin = async (sourceAddress, privateKey, recieverAddress, amountToS
         inputCount += 1;
         inputs.push(utxo);
         }
-
+    
+    console.log(satoshiToSend);
+    console.log(recieverAddress);
         /**
          * In a bitcoin transaction, the inputs contribute 180 bytes each to the transaction,
          * while the output contributes 34 bytes each to the transaction. Then there is an extra 10 bytes you add or subtract
@@ -92,9 +94,9 @@ const sendBitcoin = async (sourceAddress, privateKey, recieverAddress, amountToS
         }
         //Set transaction input
         transaction.from(inputs);
-
+        
         // set the recieving address and the amount to send
-        transaction.to(recieverAddress, satoshiToSend);
+        transaction.to(recieverAddress, Math.floor(satoshiToSend));
 
         // Set change address - Address to receive the left over funds after transfer
         transaction.change(sourceAddress);
@@ -107,7 +109,6 @@ const sendBitcoin = async (sourceAddress, privateKey, recieverAddress, amountToS
 
         // serialize Transactions
         const serializedTransaction = transaction.serialize();
-        
         // Send transaction
         const result = await axios({
         method: "POST",
