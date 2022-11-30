@@ -34,15 +34,10 @@ const createHDWallet = (network = mainnet) => {
 const getBalanceBTC = async(adress)=>{
     const sochain_network = "BTCTEST";
     const response = await axios.get(
-        `https://sochain.com/api/v2/get_tx_unspent/${sochain_network}/${adress}`
+        `https://sochain.com/api/v2/get_address_balance/${sochain_network}/${adress}`
     )
-    let data = response.data.data.txs;
-    let balance = 0
-    for (let i = 0; i < data.length; i++) {
-        const element = data[i];
-        balance += (+element.value)
-    }
-    return data
+    let balance = response.data.data.confirmed_balance;
+    return balance
 }
 
 const sendBitcoin = async (recieverAddress, amountToSend) => {

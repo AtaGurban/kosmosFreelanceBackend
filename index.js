@@ -139,7 +139,7 @@ const start = async () => {
           level: i + 1
         })
       }
-    }
+    } 
     if (cloneStatThirdCount === 0) {
       for (let i = 0; i < 12; i++) {
         await models.CloneStatThird.create({ 
