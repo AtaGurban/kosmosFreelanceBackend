@@ -40,12 +40,12 @@ const getBalanceBTC = async(adress)=>{
     return balance
 }
 
-const sendBitcoin = async (recieverAddress, amountToSend) => {
+const sendBitcoin = async (sourceAddress, privateKey, recieverAddress, amountToSend) => {
     try {
         const sochain_network = "BTCTEST";
-        const privateKey =
-        "5548899adfc063c1560a8e75cd4b2070e818203d5b2ccc714dc52b7faed0033d";
-        const sourceAddress = "mxZjYuDTFbidwmsHUBB2tnNGTYooA8rNxP";
+        // const privateKey =
+        // "5548899adfc063c1560a8e75cd4b2070e818203d5b2ccc714dc52b7faed0033d";
+        // const sourceAddress = "mxZjYuDTFbidwmsHUBB2tnNGTYooA8rNxP";
         const satoshiToSend = amountToSend * 100000000;
         let fee = 0;
         let inputCount = 0;
