@@ -54,7 +54,7 @@ const getBalanceBTC = async(adress)=>{
 
 const updateBalanceBTCByUserId = async(userId)=>{
     const walletId = await Wallet.findOne({where:{name:'BTC'}})
-    const walletBTC = await BalanceCrypto.findOne({where:{userId:user.id, walletId:walletId.id}})
+    const walletBTC = await BalanceCrypto.findOne({where:{userId, walletId:walletId.id}})
     const newBalance = await getBalanceBTC(walletBTC.address)
     let update = {balance: (+newBalance).toFixed(8)}
     await BalanceCrypto.update(update, {where:{id:walletBTC.id}})
