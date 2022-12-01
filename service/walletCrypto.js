@@ -3,6 +3,8 @@ const Mnemonic = require("bitcore-mnemonic");
 const axios = require('axios')
 const { PrivateKey } = require("bitcore-lib");
 const bitcore = require("bitcore-lib");
+const { Wallet } = require("../models/TablesExchange/tableWallet");
+const { BalanceCrypto } = require("../models/TablesExchange/tableBalanceCrypto");
 
 
 const createWallet = (network = mainnet) => {
@@ -32,12 +34,30 @@ const createHDWallet = (network = mainnet) => {
 };
 
 const getBalanceBTC = async(adress)=>{
-    const sochain_network = "BTCTEST";
-    const response = await axios.get(
-        `https://sochain.com/api/v2/get_address_balance/${sochain_network}/${adress}`
-    )
-    let balance = response.data.data.confirmed_balance;
-    return balance
+    try {
+        const sochain_network = "BTCTEST";
+        const response = await axios.get(
+            `https://sochain.com/api/v2/get_address_balance/${sochain_network}/${adress}`
+        )
+        let balance
+        if (response.data.data.unconfirmed_balance < 0){
+            balance = response.data.data.confirmed_balance + response.data.data.unconfirmed_balance;
+        } else {
+            balance = response.data.data.confirmed_balance
+        }
+        return balance 
+    } catch (error) {
+        console.log(error);
+    }
+
+}
+
+const updateBalanceBTCByUserId = async(userId)=>{
+    const walletId = await Wallet.findOne({where:{name:'BTC'}})
+    const walletBTC = await BalanceCrypto.findOne({where:{userId:user.id, walletId:walletId.id}})
+    const newBalance = await getBalanceBTC(walletBTC.address)
+    let update = {balance: (+newBalance).toFixed(8)}
+    await BalanceCrypto.update(update, {where:{id:walletBTC.id}})
 }
 
 const sendBitcoin = async (sourceAddress, privateKey, recieverAddress, amountToSend) => {
@@ -123,4 +143,4 @@ const sendBitcoin = async (sourceAddress, privateKey, recieverAddress, amountToS
     }
 };
 
-module.exports = {sendBitcoin, createHDWallet, createWallet, getBalanceBTC}  
+module.exports = {sendBitcoin, createHDWallet, createWallet, getBalanceBTC, updateBalanceBTCByUserId}  

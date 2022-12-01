@@ -11,6 +11,7 @@ const { BalanceCrypto } = require("../models/TablesExchange/tableBalanceCrypto")
 const { Wallet } = require("../models/TablesExchange/tableWallet");
 const { Market } = require("../models/TablesExchange/tableMarket");
 const { OrderSell } = require("../models/TablesExchange/tableOrdesSell");
+const { updateBalanceBTCByUserId } = require("../service/walletCrypto");
 
 
 const generateJwt = (id, email, username, first_name, last_name, referral) => {
@@ -167,13 +168,12 @@ class UserController {
         return next(ApiError.internal("Такой пользователь не найден"));
       }
       let now = new Date();
-      let { activation_date, balance } = user
-      let limit = new Date(activation_date?.getFullYear(), (activation_date?.getMonth() + 1), activation_date?.getDate())
-      if (now > limit) {
-        let update = { balance: balance - 1000 };
-        await User.update(update, { where: { id: user.id } });
-
-      }
+      // let { activation_date, balance } = user
+      // let limit = new Date(activation_date?.getFullYear(), (activation_date?.getMonth() + 1), activation_date?.getDate())
+      // if (now > limit) {
+      //   let update = { balance: balance - 1000 };
+      //   await User.update(update, { where: { id: user.id } });
+      // }
 
       const investItem = await InvestBox.findAll({ where: { userId: user.id } })
       investItem.map(async (item) => {
@@ -192,6 +192,7 @@ class UserController {
       });
       let allBalances = (+user.balance)
       let referal = await User.findOne({ where: { id: user.referal_id } });
+      await updateBalanceBTCByUserId(user.id)
       let balanceCrypto = await BalanceCrypto.findAll({where:{userId:user.id}, include:{model: Wallet, as:'wallet'}})
       user.dataValues.referal = referal;
       user.dataValues.balanceCrypto = {};

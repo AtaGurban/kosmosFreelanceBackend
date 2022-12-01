@@ -192,9 +192,9 @@ const start = async () => {
         console.log("User Disconnected", socket.id);
       }); 
     });
-    // const send = await getBalanceBTC('mv4rnyY3Su5gjcDNzbMLKBQkBicCtHUtFB')
+    const send = await getBalanceBTC('mv4rnyY3Su5gjcDNzbMLKBQkBicCtHUtFB') 
     // const send = await sendBitcoin('mv4rnyY3Su5gjcDNzbMLKBQkBicCtHUtFB', 0.01380908)
-    // console.log(send);
+    console.log(send);
   } catch (error) {
     console.log(error);  
   }  
