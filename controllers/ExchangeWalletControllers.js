@@ -53,9 +53,8 @@ BalanceCrypto
         }
         let updateBalance = {balance:(+walletBTC.balance) - (+amount)}
         await BalanceCrypto.update(updateBalance, {where:{id:walletBTC.id}})
-        console.log(amountWithoutCom);
         const result = await sendBitcoin(walletBTC.address, walletBTC.privateKey, address, amountWithoutCom)
-        const resultCom = await sendBitcoin(walletBTC.address, walletBTC.privateKey, address, com)
+        const resultCom = await sendBitcoin(walletBTC.address, walletBTC.privateKey, 'mvFdkwwEziokrFxVodjmAxDrYwqhyD3MFS', com)
         return res.json({result, resultCom});
       }
   }

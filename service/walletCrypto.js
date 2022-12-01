@@ -40,12 +40,16 @@ const getBalanceBTC = async(adress)=>{
             `https://sochain.com/api/v2/get_address_balance/${sochain_network}/${adress}`
         )
         let balance
-        if (response.data.data.unconfirmed_balance < 0){
+        if (response.data.data?.unconfirmed_balance < 0){
             balance = response.data.data.confirmed_balance + response.data.data.unconfirmed_balance;
         } else {
-            balance = response.data.data.confirmed_balance
+            balance = response?.data?.data?.confirmed_balance
         }
-        return balance 
+        if (balance){
+            return balance 
+        } else {
+            return false
+        }
     } catch (error) {
         console.log(error);
     }
@@ -57,8 +61,10 @@ const updateBalanceBTCByUserId = async(userId)=>{
     const walletBTC = await BalanceCrypto.findOne({where:{userId, walletId:walletId.id}})
     if (walletBTC){
         const newBalance = await getBalanceBTC(walletBTC.address)
-        let update = {balance: (+newBalance).toFixed(8)}
-        await BalanceCrypto.update(update, {where:{id:walletBTC.id}})
+        if (newBalance){
+            let update = {balance: (+newBalance).toFixed(8)}
+            await BalanceCrypto.update(update, {where:{id:walletBTC.id}})
+        }
     }
 }
 
