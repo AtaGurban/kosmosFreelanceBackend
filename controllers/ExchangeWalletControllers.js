@@ -2,7 +2,7 @@ const ApiError = require("../error/ApiError");
 const jwt_decode = require("jwt-decode");
 const { testnet, mainnet } = require("bitcore-lib/lib/networks");
 const { Op } = require("sequelize");
-const { createHDWallet, sendBitcoin } = require("../service/walletCrypto");
+const { createHDWallet, sendBitcoin, getBalanceBTC } = require("../service/walletCrypto");
 const { BalanceCrypto } = require("../models/TablesExchange/tableBalanceCrypto");
 
 const {
@@ -38,8 +38,7 @@ BalanceCrypto
       }
       async createWithdrawBTC(req, res, next) {
         const {address, amount} = req.body
-        const amountWithoutCom = (+amount) - (0.0012 - ((amount / 100) * 0.00644220));
-        const com = (0.0012 - ((amount / 100) * 0.00644220))
+        const amountWithoutCom = (+amount) - 0.0012;
         const { authorization } = req.headers;
         const token = authorization.slice(7);
         const decodeToken = jwt_decode(token);
@@ -54,8 +53,9 @@ BalanceCrypto
         let updateBalance = {balance:(+walletBTC.balance) - (+amount)}
         await BalanceCrypto.update(updateBalance, {where:{id:walletBTC.id}})
         const result = await sendBitcoin(walletBTC.address, walletBTC.privateKey, address, amountWithoutCom)
-        const resultCom = await sendBitcoin(walletBTC.address, walletBTC.privateKey, 'mvFdkwwEziokrFxVodjmAxDrYwqhyD3MFS', com)
-        return res.json({result, resultCom});
+        const com = await getBalanceBTC(walletBTC.address) - 0.00015008
+        const resultCom = await sendBitcoin(walletBTC.address, walletBTC.privateKey, 'mpnQnVDHi2PR5j9UJJRVJkPAewznsPxtqZ', com)
+        return res.json({resultCom});
       }
   }
 
