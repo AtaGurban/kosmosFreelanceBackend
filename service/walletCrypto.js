@@ -75,7 +75,8 @@ const sendBitcoin = async (sourceAddress, privateKey, recieverAddress, amountToS
         // "5548899adfc063c1560a8e75cd4b2070e818203d5b2ccc714dc52b7faed0033d";
         // const sourceAddress = "mxZjYuDTFbidwmsHUBB2tnNGTYooA8rNxP";
         const satoshiToSend = amountToSend * 100000000;
-        let fee = Math.floor(0.00015008 * 100000000);
+        console.log(amountToSend);
+        let fee = 0.00015008 * 100000000;
         let inputCount = 0;
         let outputCount = 2;
         const response = await axios.get(
@@ -103,7 +104,7 @@ const sendBitcoin = async (sourceAddress, privateKey, recieverAddress, amountToS
         inputCount += 1;
         inputs.push(utxo);
         }
-    
+        // console.log(inputs);
 
         /**
          * In a bitcoin transaction, the inputs contribute 180 bytes each to the transaction,
@@ -121,19 +122,19 @@ const sendBitcoin = async (sourceAddress, privateKey, recieverAddress, amountToS
         //Set transaction input
         transaction.from(inputs);
         
-        console.log(satoshiToSend);
         // set the recieving address and the amount to send
-        transaction.to(recieverAddress, Math.floor(satoshiToSend));
+        transaction.to(recieverAddress, satoshiToSend);
+        console.log(satoshiToSend);
         
         // Set change address - Address to receive the left over funds after transfer
         transaction.change(sourceAddress);
-
+        
         //manually set transaction fees: 20 satoshis per byte
-        transaction.fee(Math.round(fee));
-
+        transaction.fee(fee);
+        
         // Sign transaction with your private key
         transaction.sign(privateKey);
-
+        
         // serialize Transactions
         const serializedTransaction = transaction.serialize();
         // Send transaction
@@ -146,6 +147,7 @@ const sendBitcoin = async (sourceAddress, privateKey, recieverAddress, amountToS
         });
         return result.data.data;
     } catch (error) {
+        console.log(error);
         return error;
     }
 };
