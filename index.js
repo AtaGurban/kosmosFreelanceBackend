@@ -28,13 +28,12 @@ const path = require("path");
 const app = express();
 const { Op } = require("sequelize");
 const createFakeMatrices = require("./service/createFakeMatrices");
-const { Market } = require("./models/TablesExchange/tableMarket");
 const { Coin } = require("./models/TablesExchange/tableCoin");
 const coinConst = require("./utils/coinConst");
 const exchangeParser = require("./service/exchangeParser");
 const exchangeBot = require("./service/exchangeBot");
-const { ChatTable } = require("./models/chatTable");
 const { createHDWallet, sendBitcoin, getBalanceBTC } = require("./service/walletCrypto");
+const socketStart = require("./service/socketStart");
 
 // const credentials = {
 //   key: privateKey,
@@ -51,7 +50,7 @@ app.use(ErrorHandlingMiddleware);
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "http://localhost:3001",
     methods: ["GET", "POST"],
   },
 });
@@ -167,30 +166,7 @@ const start = async () => {
 
     // walletBtc() 
     io.on("connection", async(socket) => {
-
-      socket.on("join_room", (data) => {
-        socket.join(data);
-      });
-
-      const allMessage = await ChatTable.findAll({include: {model: models.User ,as: "user"}})
-      socket.on("join_room", (data) => {
-        socket.join(data);
-        socket.emit("getOldMessage", allMessage);
-      });
-      
-      socket.on("send_message", async (data) => {
-        socket.to(data.room).emit("receive_message", data);
-        const item = await ChatTable.create({
-          time: data.time, 
-          message: data.message,
-          author: data.author,
-          userId:data.userId
-        })
-      });
-    
-      socket.on("disconnect", () => {
-        console.log("User Disconnected", socket.id);
-      }); 
+      await socketStart(socket)
     });
     // const send = await getBalanceBTC('mv4rnyY3Su5gjcDNzbMLKBQkBicCtHUtFB') 
     // const send = await sendBitcoin('mv4rnyY3Su5gjcDNzbMLKBQkBicCtHUtFB', 0.01380908)
