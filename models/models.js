@@ -332,6 +332,7 @@ const User = sequelize.define(
     active_partners: { type: DataTypes.INTEGER, defaultValue:0 },
     avatar: { type: DataTypes.STRING, defaultValue: null },
     balance: { type: DataTypes.STRING, defaultValue: '00.00000000', allowNull: false },
+    unconfirmed_balance: { type: DataTypes.STRING, defaultValue: '00.00000000', allowNull: false },
     // kurs1: { type: DataTypes.INTEGER, defaultValue: 0, allowNull: false },
     can_create_comment: { type: DataTypes.BOOLEAN,  defaultValue:false },
     email: { type: DataTypes.STRING, allowNull: false },

@@ -1,10 +1,27 @@
 const { fn, col } = require("sequelize");
 const { Op } = require("sequelize");
+const { BalanceCrypto } = require("../models/TablesExchange/tableBalanceCrypto");
 const { Chart } = require("../models/TablesExchange/tableChart");
 const { HistoryBargain } = require("../models/TablesExchange/tableHistoryBargain");
 const { Market } = require("../models/TablesExchange/tableMarket");
 const { OrderSale } = require("../models/TablesExchange/tableOrderSale");
 const { OrderSell } = require("../models/TablesExchange/tableOrdesSell");
+
+const transactionCryptoSale = async(firstUser, secondUser, order, marketId)=>{
+    const pair = await Market.findOne({where:{id:marketId}})
+    const [firstCoin, secondCoin] = pair.split('_')
+    const firstCoinWalletSaleUser = await BalanceCrypto.findOne({where:{userId:firstUser, walletId:firstCoin}})
+    const secondCoinWalletSaleUser = await BalanceCrypto.findOne({where:{userId:firstUser, walletId:secondCoin}})
+    const firstCoinWalletSellUser = await BalanceCrypto.findOne({where:{userId:secondUser, walletId:firstCoin}})
+    const secondCoinWalletSellUser = await BalanceCrypto.findOne({where:{userId:secondUser, walletId:secondCoin}})
+    let updatefirstCoinWalletSaleUser = {unconfirmed_balance: firstCoinWalletSaleUser.unconfirmed_balance - totalWithCom}
+    await BalanceCrypto.update(updatefirstCoinWalletSaleUser, {where:{id: firstCoinWalletSaleUser.id}})
+    let updatesecondCoinWalletSaleUser = {balance:secondCoinWalletSaleUser.balance + amount}
+    await BalanceCrypto.update(updatesecondCoinWalletSaleUser, {where:{id: secondCoinWalletSaleUser.id}})
+    // let updatefirstCoinWalletSellUser = {balance:firstCoinWalletSellUser.balance + }
+    let updatesecondCoinWalletSellUser
+
+}
 
 
 
@@ -20,6 +37,7 @@ module.exports = async (orders, amount, orderType, userId, marketId, allCom, all
         if (((+amountTemp) >= (+element.amount)) && ((+amountTemp) > 0)){
             //History
             if (orderType !== 'buy'){
+
                 const historyItem = await HistoryBargain.create({
                     tradeID:marketId, date: new Date(), type:'buy', rate: element.amount, amount:element.amount, total:all, totalWithCom:allCom, price:element.price, userId, orderSaleId:element.id
                 })

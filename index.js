@@ -160,7 +160,7 @@ const start = async () => {
 
     setInterval(writeOffMatrixTableCount, 2 * 60 * 60 * 1000);
     // setInterval(async ()=>{exchangeParser('all')}, 6 * 60 * 60 * 1000);
-    // while (true) {Second
+    // while (true) {
     //   await exchangeParser('top')
     // }
 

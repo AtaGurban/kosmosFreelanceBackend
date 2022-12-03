@@ -6,6 +6,8 @@ const { Market } = require("../models/TablesExchange/tableMarket");
 const { OrderSell } = require("../models/TablesExchange/tableOrdesSell");
 const { Op } = require("sequelize");
 const OrderClose = require("../service/orderClose");
+const { Wallet } = require("../models/TablesExchange/tableWallet");
+const { BalanceCrypto } = require("../models/TablesExchange/tableBalanceCrypto");
 
 
 const findDublicatePrice = (arr)=>{
@@ -32,12 +34,34 @@ class OrderControllers {
     if (!amount || !price || !orderType || !all || !allCom || !pair){
       return next(ApiError.badRequest("Недостаточно средств"));
     }
+    const [firstCoin, secondCoin] = pair.split('_')
+    const firstCoinWalletId = await Wallet.findOne({where:{name:firstCoin}})   
+    const secondCoinWalletId = await Wallet.findOne({where:{name:secondCoin}})
     const { authorization } = req.headers;
     const token = authorization.slice(7);
-    const { username } = jwt_decode(token);
+    const { username } = jwt_decode(token); 
     const user = await User.findOne({ where: { username } });
+    let firstCoinWallet = await BalanceCrypto.findOne({where:{userId:user.id, walletId:firstCoinWalletId}})   
+    let secondCoinWallet = await BalanceCrypto.findOne({where:{userId:user.id, walletId:secondCoinWalletId}})
+    if (!firstCoinWallet){
+      firstCoinWallet = await BalanceCrypto.create({
+        userId:user.id,
+        walletId:firstCoinWalletId
+      })
+    }   
+    if (!secondCoinWallet){
+      secondCoinWallet = await BalanceCrypto.create({
+        userId:user.id,
+        walletId:secondCoinWalletId
+      })
+    }   
     const market = await Market.findOne({where:{pair}})
     if (orderType === 'buy'){
+      if (firstCoinWallet.balance < allCom){
+        return next(ApiError.badRequest("Недостаточно средств"));
+      }
+      let updateWalletBalance = {balance:firstCoinWallet.balance - allCom, unconfirmed_balance:firstCoinWallet.unconfirmed_balance + allCom}
+      await BalanceCrypto.update(updateWalletBalance, {where:{id:firstCoinWallet.id}})
       const orderCheck = await OrderSell.findAll({where:{marketId:market.id, price: { [Op.lte]: price }}})
       if (orderCheck.length > 0){
         return await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom, all, price)
