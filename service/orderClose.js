@@ -20,38 +20,72 @@ function subtractYears(numOfYears, date = new Date()) {
 const transactionCryptoSale = async (
   firstUser,
   secondUser,
-  order,
-  marketId
+  amount,
+  price,
+  total,
+  orderType,
+  pair
 ) => {
-  const pair = await Market.findOne({ where: { id: marketId } });
+
   const [firstCoin, secondCoin] = pair.split("_");
-  const firstCoinWalletSaleUser = await BalanceCrypto.findOne({
+  const firstCoinWalletFirstUser = await BalanceCrypto.findOne({
     where: { userId: firstUser, walletId: firstCoin },
   });
-  const secondCoinWalletSaleUser = await BalanceCrypto.findOne({
+  const secondCoinWalletFirstUser = await BalanceCrypto.findOne({
     where: { userId: firstUser, walletId: secondCoin },
   });
-  const firstCoinWalletSellUser = await BalanceCrypto.findOne({
+  const firstCoinWalletSecondUser = await BalanceCrypto.findOne({
     where: { userId: secondUser, walletId: firstCoin },
   });
-  const secondCoinWalletSellUser = await BalanceCrypto.findOne({
+  const secondCoinWalletSecondUser = await BalanceCrypto.findOne({
     where: { userId: secondUser, walletId: secondCoin },
   });
-  let updatefirstCoinWalletSaleUser = {
-    unconfirmed_balance:
-      firstCoinWalletSaleUser.unconfirmed_balance - totalWithCom,
-  };
-  await BalanceCrypto.update(updatefirstCoinWalletSaleUser, {
-    where: { id: firstCoinWalletSaleUser.id },
-  });
-  let updatesecondCoinWalletSaleUser = {
-    balance: secondCoinWalletSaleUser.balance + amount,
-  };
-  await BalanceCrypto.update(updatesecondCoinWalletSaleUser, {
-    where: { id: secondCoinWalletSaleUser.id },
-  });
-  // let updatefirstCoinWalletSellUser = {balance:firstCoinWalletSellUser.balance + }
-  let updatesecondCoinWalletSellUser;
+  if (orderType === 'buy'){
+    let updateFirstCoinWalletFirstUser = {
+        unconfirmed_balance:
+          firstCoinWalletFirstUser.unconfirmed_balance - (total + total * 0.02),
+      };
+      await BalanceCrypto.update(updateFirstCoinWalletFirstUser, {
+        where: { id: firstCoinWalletFirstUser.id },
+      });
+      let updateSecondCoinWalletFirstUser = {
+        balance: secondCoinWalletFirstUser.balance + amount,
+      };
+      await BalanceCrypto.update(updateSecondCoinWalletFirstUser, {
+        where: { id: secondCoinWalletFirstUser.id },
+      });
+      let updatefirstCoinWalletSecondUser = {balance:firstCoinWalletSecondUser.balance + (total - total * 0.02)}
+      await BalanceCrypto.update(updatefirstCoinWalletSecondUser, {
+        where: { id: firstCoinWalletSecondUser.id },
+      });
+      let updateSecondCoinWalletSecondUser = {balance:secondCoinWalletSecondUser.balance - amount};
+      await BalanceCrypto.update(updateSecondCoinWalletSecondUser, {
+        where: { id: secondCoinWalletSecondUser.id },
+      });
+  } else {
+    let updateFirstCoinWalletFirstUser = {
+        unconfirmed_balance:
+          firstCoinWalletFirstUser.balance + (total - total * 0.02),
+      };
+      await BalanceCrypto.update(updateFirstCoinWalletFirstUser, {
+        where: { id: firstCoinWalletFirstUser.id },
+      });
+      let updateSecondCoinWalletFirstUser = {
+        balance: secondCoinWalletFirstUser.balance - amount,
+      };
+      await BalanceCrypto.update(updateSecondCoinWalletFirstUser, {
+        where: { id: secondCoinWalletFirstUser.id },
+      });
+      let updatefirstCoinWalletSecondUser = {balance:firstCoinWalletSecondUser.unconfirmed_balance - (total + total * 0.02)}
+      await BalanceCrypto.update(updatefirstCoinWalletSecondUser, {
+        where: { id: firstCoinWalletSecondUser.id },
+      });
+      let updateSecondCoinWalletSecondUser = {balance:secondCoinWalletSecondUser.balance + amount};
+      await BalanceCrypto.update(updateSecondCoinWalletSecondUser, {
+        where: { id: secondCoinWalletSecondUser.id },
+      });
+  }
+
 };
 
 const sochetStartChart = async (socket, update, pair) => {
@@ -134,6 +168,7 @@ const OrderClose = async (
           userId,
           orderSaleId: element.id,
         });
+        transactionCryptoSale(userId, element.userId, element.amount, element.price, all, 'buy', pairName.name)
         io.on("connection", async (socket) => {
           await sochetStartChart(socket, true, pairName.pair);
         });
@@ -150,6 +185,7 @@ const OrderClose = async (
           userId,
           orderSellId: element.id,
         });
+        transactionCryptoSale(userId, element.userId, element.amount, element.price, all, 'sell', pairName.name)
         io.on("connection", async (socket) => {
           await sochetStartChart(socket, true, pairName.pair);
         });
@@ -215,6 +251,7 @@ const OrderClose = async (
           userId,
           orderSaleId: element.id,
         });
+        transactionCryptoSale(userId, element.userId, element.amount, element.price, all, 'buy', pairName.name)
         io.on("connection", async (socket) => {
           await sochetStartChart(socket, true, pairName.pair);
         });
@@ -239,6 +276,7 @@ const OrderClose = async (
           userId,
           orderSaleId: element.id,
         });
+        transactionCryptoSale(userId, element.userId, element.amount, element.price, all, 'sell', pairName.name)
         io.on("connection", async (socket) => {
           await sochetStartChart(socket, true, pairName.pair);
         });
