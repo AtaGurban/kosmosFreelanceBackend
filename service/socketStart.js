@@ -1,5 +1,6 @@
 const ChartControllers = require("../controllers/ChartControllers");
 const { ChatTable } = require("../models/chatTable");
+const { User } = require("../models/models");
 
 
 module.exports = async (socket) => {
@@ -7,7 +8,7 @@ module.exports = async (socket) => {
     socket.join(data);
   }); 
   socket.on("join_room", async (data) => {
-    const allMessage = await ChatTable.findAll({ include: { model: models.User, as: "user" } })
+    const allMessage = await ChatTable.findAll({ include: { model: User, as: "user" } })
     socket.join(data);
     socket.emit("getOldMessage", allMessage);
   });

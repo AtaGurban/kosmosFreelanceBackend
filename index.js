@@ -49,7 +49,8 @@ app.use(fileUpload({}));
 app.use("/api", router);
 app.use(ErrorHandlingMiddleware);
 const server = http.createServer(app);
-const io = require('./service/io.js').init(server);
+require('./service/io.js').init(server);
+const io = require('./service/io.js').get();
 
 
 
@@ -154,16 +155,22 @@ const start = async () => {
     //   await exchangeParser() 
     // }
 
-    setInterval(writeOffMatrixTableCount, 2 * 60 * 60 * 1000);
+    // setInterval(writeOffMatrixTableCount, 2 * 60 * 60 * 1000);
     setInterval(async ()=>{exchangeParser('all')}, 6 * 60 * 60 * 1000);
     io.on("connection", async(socket) => {
-      await socketStart(socket)
-      await sochetStartChart(socket)
+      console.log('dsad');
+      try {
+        await socketStart(socket)
+        await sochetStartChart(socket)
+      } catch (error) {
+        console.log(error);
+      }
+
     });
  
-    while (true) {
-      await exchangeParser('top')
-    }
+    // while (true) {
+    //   await exchangeParser('top')
+    // }
 
     // walletBtc() 
 
