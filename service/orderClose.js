@@ -148,7 +148,6 @@ const sochetStartChart = async (socket, update, pair) => {
 
   if (update) {
     try {
-        fsdf
         const allData = await ChartControllers.list(
             "returnChartData",
             pair,
@@ -156,9 +155,7 @@ const sochetStartChart = async (socket, update, pair) => {
             +new Date(),
             86400
           );
-          dsds;
           socket.to(pair).emit("get_chart_data", allData);
-          console.log("dsds");
     } catch (error) {
         console.log(error);
     }
