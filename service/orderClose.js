@@ -12,6 +12,7 @@ const {
 const { Market } = require("../models/TablesExchange/tableMarket");
 const { OrderSale } = require("../models/TablesExchange/tableOrderSale");
 const { OrderSell } = require("../models/TablesExchange/tableOrdesSell");
+const { Wallet } = require("../models/TablesExchange/tableWallet");
 
 function subtractYears(numOfYears, date = new Date()) {
   date.setFullYear(date.getFullYear() - numOfYears);
@@ -26,20 +27,55 @@ const transactionCryptoSale = async (
   orderType,
   pair
 ) => {
-
+  console.log(secondUser);
   const [firstCoin, secondCoin] = pair.split("_");
-  const firstCoinWalletFirstUser = await BalanceCrypto.findOne({
-    where: { userId: firstUser, walletId: firstCoin },
+
+  const firstWalletId = (await Wallet.findOne({where:{name:firstCoin}})).id
+  const secondWalletId = (await Wallet.findOne({where:{name:secondCoin}})).id
+
+  let firstCoinWalletFirstUser = await BalanceCrypto.findOne({
+    where: { userId: firstUser, walletId: firstWalletId },
   });
-  const secondCoinWalletFirstUser = await BalanceCrypto.findOne({
-    where: { userId: firstUser, walletId: secondCoin },
+  let secondCoinWalletFirstUser = await BalanceCrypto.findOne({
+    where: { userId: firstUser, walletId: secondWalletId },
   });
-  const firstCoinWalletSecondUser = await BalanceCrypto.findOne({
-    where: { userId: secondUser, walletId: firstCoin },
+  let firstCoinWalletSecondUser = await BalanceCrypto.findOne({
+    where: { userId: secondUser, walletId: firstWalletId },
   });
-  const secondCoinWalletSecondUser = await BalanceCrypto.findOne({
-    where: { userId: secondUser, walletId: secondCoin },
+  let secondCoinWalletSecondUser = await BalanceCrypto.findOne({
+    where: { userId: secondUser, walletId: secondWalletId },
   });
+
+  if (!firstCoinWalletFirstUser){
+    if (firstCoin !== 'BTC'){
+      firstCoinWalletFirstUser = await BalanceCrypto.create({
+        userId:firstUser, walletId: firstWalletId
+      })
+    }
+  }
+  if (!secondCoinWalletFirstUser){
+    if (secondCoin !== 'BTC'){
+      secondCoinWalletFirstUser = await BalanceCrypto.create({
+        userId: firstUser, walletId: secondWalletId
+      })
+    }
+  }
+  if (!firstCoinWalletSecondUser){
+    if (firstCoin !== 'BTC'){
+      firstCoinWalletSecondUser = await BalanceCrypto.create({
+        userId: secondUser, walletId: firstWalletId
+      })
+    }
+  }
+  if (!secondCoinWalletSecondUser){
+    if (secondCoin !== 'BTC'){
+      secondCoinWalletSecondUser = await BalanceCrypto.create({
+        userId: secondUser, walletId: secondWalletId
+      })
+    }
+
+  }
+
   if (orderType === 'buy'){
     let updateFirstCoinWalletFirstUser = {
         unconfirmed_balance:
@@ -89,9 +125,10 @@ const transactionCryptoSale = async (
 };
 
 const sochetStartChart = async (socket, update, pair) => {
+
   if (!update) {
     try {
-        socket.on("chart_date", async (data) => {
+      socket.on("chart_date", async (data) => {
             const { command, currencyPair, start, end, period } = data;
             const allData = await ChartControllers.list(
               command,
@@ -156,6 +193,7 @@ const OrderClose = async (
     if (+amountTemp >= +element.amount && +amountTemp > 0) {
       //History
       if (orderType !== "buy") {
+        await transactionCryptoSale(userId, element.userId, element.amount, element.price, all, 'buy', pairName.pair)
         const historyItem = await HistoryBargain.create({
           tradeID: marketId,
           date: new Date(),
@@ -168,11 +206,11 @@ const OrderClose = async (
           userId,
           orderSaleId: element.id,
         });
-        transactionCryptoSale(userId, element.userId, element.amount, element.price, all, 'buy', pairName.name)
         io.on("connection", async (socket) => {
           await sochetStartChart(socket, true, pairName.pair);
         });
       } else {
+        await transactionCryptoSale(userId, element.userId, element.amount, element.price, all, 'sell', pairName.pair)
         const historyItem = await HistoryBargain.create({
           tradeID: marketId,
           date: new Date(),
@@ -185,7 +223,6 @@ const OrderClose = async (
           userId,
           orderSellId: element.id,
         });
-        transactionCryptoSale(userId, element.userId, element.amount, element.price, all, 'sell', pairName.name)
         io.on("connection", async (socket) => {
           await sochetStartChart(socket, true, pairName.pair);
         });
@@ -238,6 +275,7 @@ const OrderClose = async (
         }
       }
     } else {
+      await transactionCryptoSale(userId, element.userId, element.amount, element.price, all, 'buy', pairName.pair)
       if (orderType !== "buy") {
         const historyItem = await HistoryBargain.create({
           tradeID: marketId,
@@ -251,7 +289,6 @@ const OrderClose = async (
           userId,
           orderSaleId: element.id,
         });
-        transactionCryptoSale(userId, element.userId, element.amount, element.price, all, 'buy', pairName.name)
         io.on("connection", async (socket) => {
           await sochetStartChart(socket, true, pairName.pair);
         });
@@ -264,6 +301,7 @@ const OrderClose = async (
         };
         await OrderSale.update(update, { where: { id: element.id } });
       } else {
+        await transactionCryptoSale(userId, element.userId, element.amount, element.price, all, 'sell', pairName.pair)
         const historyItem = await HistoryBargain.create({
           tradeID: marketId,
           date: new Date(),
@@ -276,7 +314,6 @@ const OrderClose = async (
           userId,
           orderSaleId: element.id,
         });
-        transactionCryptoSale(userId, element.userId, element.amount, element.price, all, 'sell', pairName.name)
         io.on("connection", async (socket) => {
           await sochetStartChart(socket, true, pairName.pair);
         });

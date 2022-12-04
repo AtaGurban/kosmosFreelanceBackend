@@ -19,7 +19,7 @@ module.exports = async (socket) => {
       time: data.time,
       message: data.message,
       author: data.author,
-      userId: data.userId
+      userId: data.userId 
     })
   });
 

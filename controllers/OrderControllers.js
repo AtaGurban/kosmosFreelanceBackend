@@ -44,16 +44,20 @@ class OrderControllers {
     let firstCoinWallet = await BalanceCrypto.findOne({where:{userId:user.id, walletId:firstCoinWalletId}})   
     let secondCoinWallet = await BalanceCrypto.findOne({where:{userId:user.id, walletId:secondCoinWalletId}})
     if (!firstCoinWallet){
-      firstCoinWallet = await BalanceCrypto.create({
-        userId:user.id,
-        walletId:firstCoinWalletId
-      })
+      if (firstCoin !== 'BTC'){
+        firstCoinWallet = await BalanceCrypto.create({
+          userId:user.id,
+          walletId:firstCoinWalletId
+        })
+      }
     }   
     if (!secondCoinWallet){
-      secondCoinWallet = await BalanceCrypto.create({
-        userId:user.id,
-        walletId:secondCoinWalletId
-      })
+      if (secondCoin !== 'BTC'){
+        secondCoinWallet = await BalanceCrypto.create({
+          userId:user.id,
+          walletId:secondCoinWalletId
+        })
+      }
     }   
     const market = await Market.findOne({where:{pair}})
     if (orderType === 'buy'){
@@ -92,7 +96,7 @@ class OrderControllers {
       const filteredOrdersSales = findDublicatePrice(orderSale).sort((a, b)=>{return b.price - a.price})
       const filteredOrdersSells = findDublicatePrice(orderSell).sort((a, b)=>{return a.price - b.price})
       let result = {asks:[], bids:[], "isFrozen": "0", "postOnly": "0", "seq": 4878868}
-      filteredOrdersSells.map((i)=>{
+      filteredOrdersSells.map((i)=>{ 
         result.asks.push([`${(i.price).toFixed(8)}`, `${i.amount.toFixed(8)}`, `${i.summ.toFixed(8)}`])
       })
       filteredOrdersSales.map((i)=>{

@@ -158,7 +158,6 @@ const start = async () => {
     // setInterval(writeOffMatrixTableCount, 2 * 60 * 60 * 1000);
     setInterval(async ()=>{exchangeParser('all')}, 6 * 60 * 60 * 1000);
     io.on("connection", async(socket) => {
-      console.log('dsad');
       try {
         await socketStart(socket)
         await sochetStartChart(socket)
