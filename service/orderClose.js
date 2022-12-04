@@ -100,7 +100,7 @@ const transactionCryptoSale = async (
       });
   } else {
     let updateFirstCoinWalletFirstUser = {
-        unconfirmed_balance:
+        balance:
           firstCoinWalletFirstUser.balance + ((+total) - (+total) * 0.02),
       };
       await BalanceCrypto.update(updateFirstCoinWalletFirstUser, {
