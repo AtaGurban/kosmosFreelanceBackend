@@ -137,7 +137,7 @@ const sochetStartChart = async (socket, update, pair) => {
               period
             );
             socket.join(data.pair);
-            socket.to(data.pair).emit("get_chart_data", allData);
+            socket.emit(`get_chart_data_${pair}`, allData);
           });
     } catch (error) {
         console.log(error);
@@ -154,7 +154,7 @@ const sochetStartChart = async (socket, update, pair) => {
             +new Date(),
             86400
           );
-          socket.to(pair).emit("get_chart_data", allData);
+          socket.emit(`get_chart_data_${pair}`, allData);
     } catch (error) {
         console.log(error);
     }
