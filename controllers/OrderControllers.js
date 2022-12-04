@@ -47,7 +47,7 @@ class OrderControllers {
       if (firstCoin !== 'BTC'){
         firstCoinWallet = await BalanceCrypto.create({
           userId:user.id,
-          walletId:firstCoinWalletId
+          walletId:firstCoinWalletId.id
         })
       }
     }   
@@ -55,7 +55,7 @@ class OrderControllers {
       if (secondCoin !== 'BTC'){
         secondCoinWallet = await BalanceCrypto.create({
           userId:user.id,
-          walletId:secondCoinWalletId
+          walletId:secondCoinWalletId.id
         })
       }
     }   
