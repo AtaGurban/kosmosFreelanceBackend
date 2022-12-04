@@ -64,7 +64,7 @@ class OrderControllers {
       if (firstCoinWallet.balance < allCom){
         return next(ApiError.badRequest("Недостаточно средств"));
       }
-      let updateWalletBalance = {balance:firstCoinWallet.balance - allCom, unconfirmed_balance:firstCoinWallet.unconfirmed_balance + allCom}
+      let updateWalletBalance = {balance:firstCoinWallet.balance - (+allCom), unconfirmed_balance:firstCoinWallet.unconfirmed_balance + (+allCom)}
       await BalanceCrypto.update(updateWalletBalance, {where:{id:firstCoinWallet.id}})
       const orderCheck = await OrderSell.findAll({where:{marketId:market.id, price: { [Op.lte]: price }}})
       if (orderCheck.length > 0){
