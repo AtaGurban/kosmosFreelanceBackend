@@ -5,7 +5,7 @@ const { OrderSale } = require("../models/TablesExchange/tableOrderSale");
 const { Market } = require("../models/TablesExchange/tableMarket");
 const { OrderSell } = require("../models/TablesExchange/tableOrdesSell");
 const { Op } = require("sequelize");
-const OrderClose = require("../service/orderClose");
+const {OrderClose} = require("../service/orderClose");
 const { Wallet } = require("../models/TablesExchange/tableWallet");
 const { BalanceCrypto } = require("../models/TablesExchange/tableBalanceCrypto");
 

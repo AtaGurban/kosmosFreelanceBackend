@@ -5,7 +5,7 @@ const { ChatTable } = require("../models/chatTable");
 module.exports = async (socket) => {
   socket.on("join_room", (data) => {
     socket.join(data);
-  });
+  }); 
   socket.on("join_room", async (data) => {
     const allMessage = await ChatTable.findAll({ include: { model: models.User, as: "user" } })
     socket.join(data);

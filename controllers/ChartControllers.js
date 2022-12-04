@@ -4,8 +4,8 @@ const { Market } = require("../models/TablesExchange/tableMarket");
 const chartPeriod = require("../service/chartPeriod");
 
 class ChartControllers {
-  async list(req, res, next) {
-    const {command, currencyPair, start, end, period: period} = req.query
+  async list(command, currencyPair, start, end, period) {
+    // const {command, currencyPair, start, end, period: period} = req.query
     let periodMs = 10 * 60 * 1000
     if (command === 'returnChartData'){ 
         if ((currencyPair.split('').length > 3) && start && end && periodMs){
@@ -35,7 +35,8 @@ class ChartControllers {
                       periodEnd += (+periodMs)    
                   }  
                 } while ((periodStart < end) && (bool));  
-                return res.json(await chartPeriod(periods))
+                // return res.json(await chartPeriod(periods))
+                return await chartPeriod(periods)
             }
         }
     }

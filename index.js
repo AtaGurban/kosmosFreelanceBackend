@@ -34,6 +34,7 @@ const exchangeParser = require("./service/exchangeParser");
 const exchangeBot = require("./service/exchangeBot");
 const { createHDWallet, sendBitcoin, getBalanceBTC } = require("./service/walletCrypto");
 const socketStart = require("./service/socketStart");
+const { sochetStartChart } = require("./service/orderClose");
 
 // const credentials = {
 //   key: privateKey,
@@ -48,12 +49,7 @@ app.use(fileUpload({}));
 app.use("/api", router);
 app.use(ErrorHandlingMiddleware);
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:3001",
-    methods: ["GET", "POST"],
-  },
-});
+const io = require('./service/io.js').init(server);
 
 
 
@@ -159,15 +155,20 @@ const start = async () => {
     // }
 
     setInterval(writeOffMatrixTableCount, 2 * 60 * 60 * 1000);
-    // setInterval(async ()=>{exchangeParser('all')}, 6 * 60 * 60 * 1000);
-    // while (true) {
-    //   await exchangeParser('top')
-    // }
-
-    // walletBtc() 
+    setInterval(async ()=>{exchangeParser('all')}, 6 * 60 * 60 * 1000);
     io.on("connection", async(socket) => {
       await socketStart(socket)
+      await sochetStartChart(socket)
     });
+ 
+    while (true) {
+      await exchangeParser('top')
+    }
+
+    // walletBtc() 
+
+
+    
     // const send = await getBalanceBTC('mv4rnyY3Su5gjcDNzbMLKBQkBicCtHUtFB') 
     // const send = await sendBitcoin('mv4rnyY3Su5gjcDNzbMLKBQkBicCtHUtFB', 0.01380908)
     // console.log(send);
@@ -175,6 +176,6 @@ const start = async () => {
     console.log(error);  
   }  
 };
-
 start();
+
 
