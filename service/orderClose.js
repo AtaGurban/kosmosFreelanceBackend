@@ -27,7 +27,6 @@ const transactionCryptoSale = async (
   orderType,
   pair
 ) => {
-  console.log(secondUser);
   const [firstCoin, secondCoin] = pair.split("_");
 
   const firstWalletId = (await Wallet.findOne({where:{name:firstCoin}})).id
@@ -46,35 +45,35 @@ const transactionCryptoSale = async (
     where: { userId: secondUser, walletId: secondWalletId },
   });
 
-  if (!firstCoinWalletFirstUser){
-    if (firstCoin !== 'BTC'){
-      firstCoinWalletFirstUser = await BalanceCrypto.create({
-        userId:firstUser, walletId: firstWalletId
-      })
-    }
-  }
-  if (!secondCoinWalletFirstUser){
-    if (secondCoin !== 'BTC'){
-      secondCoinWalletFirstUser = await BalanceCrypto.create({
-        userId: firstUser, walletId: secondWalletId
-      })
-    }
-  }
-  if (!firstCoinWalletSecondUser){
-    if (firstCoin !== 'BTC'){
-      firstCoinWalletSecondUser = await BalanceCrypto.create({
-        userId: secondUser, walletId: firstWalletId
-      })
-    }
-  }
-  if (!secondCoinWalletSecondUser){
-    if (secondCoin !== 'BTC'){
-      secondCoinWalletSecondUser = await BalanceCrypto.create({
-        userId: secondUser, walletId: secondWalletId
-      })
-    }
+  // if (!firstCoinWalletFirstUser){
+  //   if (firstCoin !== 'BTC'){
+  //     firstCoinWalletFirstUser = await BalanceCrypto.create({
+  //       userId:firstUser, walletId: firstWalletId
+  //     })
+  //   }
+  // }
+  // if (!secondCoinWalletFirstUser){
+  //   if (secondCoin !== 'BTC'){
+  //     secondCoinWalletFirstUser = await BalanceCrypto.create({
+  //       userId: firstUser, walletId: secondWalletId
+  //     })
+  //   }
+  // }
+  // if (!firstCoinWalletSecondUser){
+  //   if (firstCoin !== 'BTC'){
+  //     firstCoinWalletSecondUser = await BalanceCrypto.create({
+  //       userId: secondUser, walletId: firstWalletId
+  //     })
+  //   }
+  // }
+  // if (!secondCoinWalletSecondUser){
+  //   if (secondCoin !== 'BTC'){
+  //     secondCoinWalletSecondUser = await BalanceCrypto.create({
+  //       userId: secondUser, walletId: secondWalletId
+  //     })
+  //   }
 
-  }
+  // }
 
   if (orderType === 'buy'){
     let updateFirstCoinWalletFirstUser = {
@@ -112,7 +111,7 @@ const transactionCryptoSale = async (
       await BalanceCrypto.update(updateSecondCoinWalletFirstUser, {
         where: { id: secondCoinWalletFirstUser.id },
       });
-      let updatefirstCoinWalletSecondUser = {balance:firstCoinWalletSecondUser.unconfirmed_balance - ((+total) + (+total) * 0.02)}
+      let updatefirstCoinWalletSecondUser = {unconfirmed_balance:firstCoinWalletSecondUser.unconfirmed_balance - ((+total) + (+total) * 0.02)}
       await BalanceCrypto.update(updatefirstCoinWalletSecondUser, {
         where: { id: firstCoinWalletSecondUser.id },
       });
