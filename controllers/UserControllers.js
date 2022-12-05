@@ -200,11 +200,13 @@ class UserController {
       user.dataValues.createdAt = moment.utc(user.dataValues.createdAt).format('DD/MM/YYYY')
       for (let i = 0; i < balanceCrypto.length; i++) {
         const market  = await Market.findOne({where:{pair:`RUR_${balanceCrypto[i].wallet.name}`}})
-        const orderSell = await OrderSell.findOne({where:{marketId:market.id}})
-        allBalances += balanceCrypto[i].balance * (orderSell?.price || 12)
-        user.dataValues.balanceCrypto[`${balanceCrypto[i].wallet.name}`] = balanceCrypto[i].balance.toFixed(8)
-        user.dataValues.address[`${balanceCrypto[i].wallet.name}`] = balanceCrypto[i]?.address
-        user.dataValues.allBalances = allBalances
+        if (market){
+          const orderSell = await OrderSell.findOne({where:{marketId:market.id}})
+          allBalances += balanceCrypto[i].balance * (orderSell?.price || 12)
+          user.dataValues.balanceCrypto[`${balanceCrypto[i].wallet.name}`] = balanceCrypto[i].balance.toFixed(8)
+          user.dataValues.address[`${balanceCrypto[i].wallet.name}`] = balanceCrypto[i]?.address
+          user.dataValues.allBalances = allBalances
+        }
       }
       return res.json(user);
     } catch (error) {

@@ -23,12 +23,14 @@ const transactionCryptoSale = async (
   secondUser,
   amount,
   price,
-  total,
+  totald,
   orderType,
   pair
 ) => {
-  const [firstCoin, secondCoin] = pair.split("_");
 
+  const [firstCoin, secondCoin] = pair.split("_");
+  let total = (+(amount * price).toFixed(8));
+  let com = (+(total * 0.002).toFixed(8));
   const firstWalletId = (await Wallet.findOne({where:{name:firstCoin}})).id
   const secondWalletId = (await Wallet.findOne({where:{name:secondCoin}})).id
 
@@ -78,8 +80,12 @@ const transactionCryptoSale = async (
   if (orderType === 'buy'){
     let updateFirstCoinWalletFirstUser = {
         unconfirmed_balance:
-          firstCoinWalletFirstUser.unconfirmed_balance - ((+total) + (+total) * 0.02),
+          firstCoinWalletFirstUser.unconfirmed_balance - (total + com),
       };
+      console.log(firstCoinWalletFirstUser.unconfirmed_balance);
+      console.log(total); 
+      console.log(com); 
+      console.log(total + com); 
       await BalanceCrypto.update(updateFirstCoinWalletFirstUser, {
         where: { id: firstCoinWalletFirstUser.id },
       });
@@ -89,7 +95,7 @@ const transactionCryptoSale = async (
       await BalanceCrypto.update(updateSecondCoinWalletFirstUser, {
         where: { id: secondCoinWalletFirstUser.id },
       });
-      let updatefirstCoinWalletSecondUser = {balance:firstCoinWalletSecondUser.balance + ((+total) - (+total) * 0.02)}
+      let updatefirstCoinWalletSecondUser = {balance:firstCoinWalletSecondUser.balance + (total - com)}
       await BalanceCrypto.update(updatefirstCoinWalletSecondUser, {
         where: { id: firstCoinWalletSecondUser.id },
       });
@@ -100,7 +106,7 @@ const transactionCryptoSale = async (
   } else {
     let updateFirstCoinWalletFirstUser = {
         balance:
-          firstCoinWalletFirstUser.balance + ((+total) - (+total) * 0.02),
+          firstCoinWalletFirstUser.balance + (total - com),
       };
       await BalanceCrypto.update(updateFirstCoinWalletFirstUser, {
         where: { id: firstCoinWalletFirstUser.id },
@@ -111,7 +117,7 @@ const transactionCryptoSale = async (
       await BalanceCrypto.update(updateSecondCoinWalletFirstUser, {
         where: { id: secondCoinWalletFirstUser.id },
       });
-      let updatefirstCoinWalletSecondUser = {unconfirmed_balance:firstCoinWalletSecondUser.unconfirmed_balance - ((+total) + (+total) * 0.02)}
+      let updatefirstCoinWalletSecondUser = {unconfirmed_balance:firstCoinWalletSecondUser.unconfirmed_balance - (total + com)}
       await BalanceCrypto.update(updatefirstCoinWalletSecondUser, {
         where: { id: firstCoinWalletSecondUser.id },
       });
@@ -189,7 +195,7 @@ const OrderClose = async (
     if (+amountTemp >= +element.amount && +amountTemp > 0) {
       //History
       if (orderType !== "buy") {
-        await transactionCryptoSale(userId, element.userId, element.amount, element.price, all, 'buy', pairName.pair)
+        await transactionCryptoSale(element.userId, userId, element.amount, element.price, all, 'buy', pairName.pair)
         const historyItem = await HistoryBargain.create({
           tradeID: marketId,
           date: new Date(),
@@ -206,7 +212,7 @@ const OrderClose = async (
           await sochetStartChart(socket, true, pairName.pair);
         });
       } else {
-        await transactionCryptoSale(userId, element.userId, element.amount, element.price, all, 'sell', pairName.pair)
+        await transactionCryptoSale(element.userId, userId, element.amount, element.price, all, 'sell', pairName.pair)
         const historyItem = await HistoryBargain.create({
           tradeID: marketId,
           date: new Date(),
@@ -271,7 +277,7 @@ const OrderClose = async (
         }
       }
     } else {
-      await transactionCryptoSale(userId, element.userId, element.amount, element.price, all, 'buy', pairName.pair)
+      await transactionCryptoSale(element.userId, userId, element.amount, element.price, all, 'buy', pairName.pair)
       if (orderType !== "buy") {
         const historyItem = await HistoryBargain.create({
           tradeID: marketId,
@@ -297,7 +303,7 @@ const OrderClose = async (
         };
         await OrderSale.update(update, { where: { id: element.id } });
       } else {
-        await transactionCryptoSale(userId, element.userId, element.amount, element.price, all, 'sell', pairName.pair)
+        await transactionCryptoSale(element.userId, userId, element.amount, element.price, all, 'sell', pairName.pair)
         const historyItem = await HistoryBargain.create({
           tradeID: marketId,
           date: new Date(),

@@ -338,9 +338,9 @@ class MatrixController {
         }
       }
 
-      return res.json({ items: result });
+      return res.json({ items: result }); 
     }
-  }
+  } 
 
   async structure(req, res, next) {
     const { matrix_type, matrix_id } = req.query;
