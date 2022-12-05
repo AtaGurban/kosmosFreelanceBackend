@@ -203,7 +203,7 @@ class UserController {
         if (market){
           const orderSell = await OrderSell.findOne({where:{marketId:market.id}})
           allBalances += balanceCrypto[i].balance * (orderSell?.price || 12)
-          user.dataValues.balanceCrypto[`${balanceCrypto[i].wallet.name}`] = balanceCrypto[i].balance.toFixed(8)
+          user.dataValues.balanceCrypto[`${balanceCrypto[i].wallet.name}`] = (balanceCrypto[i].balance - balanceCrypto[i].unconfirmed_balance).toFixed(8)
           user.dataValues.address[`${balanceCrypto[i].wallet.name}`] = balanceCrypto[i]?.address
           user.dataValues.allBalances = allBalances
         }

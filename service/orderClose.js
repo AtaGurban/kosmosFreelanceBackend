@@ -46,7 +46,7 @@ const transactionCryptoSale = async (
   let secondCoinWalletSecondUser = await BalanceCrypto.findOne({
     where: { userId: secondUser, walletId: secondWalletId },
   });
-
+ 
   // if (!firstCoinWalletFirstUser){
   //   if (firstCoin !== 'BTC'){
   //     firstCoinWalletFirstUser = await BalanceCrypto.create({

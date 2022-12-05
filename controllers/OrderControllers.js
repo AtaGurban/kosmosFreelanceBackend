@@ -62,7 +62,6 @@ class OrderControllers {
     const market = await Market.findOne({where:{pair}})
     if (orderType === 'buy'){ 
       if (firstCoinWallet.balance < allCom){
-        fdf
         return next(ApiError.badRequest("Недостаточно средств"));
       }
       let updateWalletBalance = {balance:firstCoinWallet.balance - (+allCom), unconfirmed_balance:firstCoinWallet.unconfirmed_balance + (+allCom)}
@@ -77,6 +76,11 @@ class OrderControllers {
       return res.json(item)
     }
     if (orderType === 'sell'){
+      if (secondCoinWallet.balance < amount){
+        return next(ApiError.badRequest("Недостаточно средств"));
+      }
+      let updateWalletBalance = {balance:secondCoinWallet.balance - (+amount), unconfirmed_balance:secondCoinWallet.unconfirmed_balance + (+amount)}
+      await BalanceCrypto.update(updateWalletBalance, {where:{id:secondCoinWallet.id}})
       const orderCheck = await OrderSale.findAll({where:{marketId:market.id, price: { [Op.gte]: price }}})
       if (orderCheck.length > 0){
         return await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom, all, price)
