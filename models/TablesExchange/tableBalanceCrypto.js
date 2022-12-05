@@ -7,8 +7,8 @@ const { Wallet } = require("./tableWallet");
 
 const BalanceCrypto = sequelize.define("balance-crypto", {
     id: { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },
-    balance: { type: DataTypes.DOUBLE, defaultValue: 0.00000000 },
-    unconfirmed_balance: { type: DataTypes.DOUBLE, defaultValue: 0.00000000 },
+    balance: { type: DataTypes.DECIMAL(61,8), defaultValue: 0 },
+    unconfirmed_balance: { type: DataTypes.DECIMAL(61,8), defaultValue: 0 },
     xpub: { type: DataTypes.STRING, defaultValue: null, unique: true },
     privateKey: { type: DataTypes.STRING, defaultValue: null, unique: true },
     address: { type: DataTypes.STRING, defaultValue: null, unique: true },

@@ -112,7 +112,11 @@ class UserController {
       activation_date: new Date()
     });
 
-
+    const walletRUB = await Wallet.findOne({where:{name: 'RUB'}})
+    const createRUBBalance = await BalanceCrypto.create({
+      userId: user.id,
+      walletId: walletRUB.id
+    })
     const access_token = generateJwt(
       user.id,
       user.email,

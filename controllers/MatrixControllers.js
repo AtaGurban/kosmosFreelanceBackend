@@ -15,6 +15,8 @@ const {
   MatrixSecond,
   Matrix_TableSecond,
 } = require("../models/models");
+const { Wallet } = require("../models/TablesExchange/tableWallet");
+const { BalanceCrypto } = require("../models/TablesExchange/tableBalanceCrypto");
 
 const childNode = async (node, type_matrix_id) => {
   if (!node) {
@@ -198,11 +200,23 @@ class MatrixController {
     const price = (await TypeMatrixSecond.findOne({ where: { id: matrix_id } }))
       .summ;
     const user = await User.findOne({ where: { username } });
-    if (+user.balance < price) {
+    const walletRUBId = await Wallet.findOne({where:{name: 'RUB'}})
+    const walletRUBBalance = await BalanceCrypto.findOne({
+      where: {
+        userId: user.id,
+        walletId: walletRUBId.id
+      }
+    })
+    if ((+walletRUBBalance.balance < price) && (user.locale < price)) {
       return next(ApiError.badRequest("Недостатосно средств"));
+    } else if (+walletRUBBalance.balance >= price){
+      let update = { balance: walletRUBBalance.balance - price };
+      await BalanceCrypto.update(update, { where: { id: walletRUBBalance.id } });
+    } else {
+      let update = { locale: user.locale - price} ;
+      await User.update(update, { where: { id: user.id } });
     }
-    let update = { balance: `${user.balance - price}.00000000` };
-    await User.update(update, { where: { id: user.id } });
+
     let checkMatrixTable = await Matrix_TableSecond.findOne({
       where: { userId: user.id, typeMatrixSecondId: matrix_id },
     });
