@@ -136,8 +136,8 @@ const sochetStartChart = async (socket, update, pair) => {
               end,
               period
             );
-            socket.join(data.pair);
-            socket.emit(`get_chart_data_${pair}`, allData);
+            socket.join(currencyPair);
+            socket.emit(`get_chart_data_${currencyPair}`, allData);
           });
     } catch (error) {
         console.log(error);
