@@ -14,7 +14,7 @@ module.exports = async (count, parentId, typeMatrix) => {
       where: { id: parentId },
     });
     const user = await User.findOne({ where: { id: matrixTableData.userId } });
-    const walletRUBId = await Wallet.findOne({ where: { name: 'RUB' } })
+    const walletRUBId = await Wallet.findOne({ where: { name: 'RUR' } })
     const walletRUBBalance = await BalanceCrypto.findOne({
         where: {
             userId: user.id,
