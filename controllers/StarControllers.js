@@ -16,6 +16,8 @@ const {
     Matrix_TableSecond,
     MatrixSecond
 } = require("../models/models");
+const { Wallet } = require("../models/TablesExchange/tableWallet");
+const { BalanceCrypto } = require("../models/TablesExchange/tableBalanceCrypto");
 
 const updateOrCreate = async function (model, where, newItem) {
     // First try to find the record
@@ -24,23 +26,38 @@ const updateOrCreate = async function (model, where, newItem) {
     })
 }
 
-const remunerationUser = async(user, summ)=>{
-    let updateBalance = { balance: `${(+user.balance) + summ}.00000000` };
-    await User.update(updateBalance, { where: { id: user.id } });
-    const statisticData = await Statistic.findOne({where:{userId:user.id}})
-    let updateStatisticInventory = {myInviterIncome:statisticData.myInviterIncome + summ}
-    await Statistic.update(updateStatisticInventory, {where:{id:statisticData.id}})
+const remunerationUser = async (user, summ) => {
+    const walletRUBId = await Wallet.findOne({ where: { name: 'RUB' } })
+    const walletRUBBalance = await BalanceCrypto.findOne({
+        where: {
+            userId: user.id,
+            walletId: walletRUBId.id
+        }
+    })
+    let updateBalance = { balance: (+walletRUBBalance.balance) + summ };
+    await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+    const statisticData = await Statistic.findOne({ where: { userId: user.id } })
+    let updateStatisticInventory = { myInviterIncome: statisticData.myInviterIncome + summ }
+    await Statistic.update(updateStatisticInventory, { where: { id: statisticData.id } })
 }
-const remunerationReferal = async(user, summ)=>{
-    const referalMatrix = await Matrix_Table.findOne({where:{userId:user.referal_id}})
-    if (referalMatrix){
-        const referalUser = await User.findOne({where:{id:user.referal_id}})
-        let updateReferalBalance = { balance: `${(+referalUser.balance) + summ}.00000000` };
-        await User.update(updateReferalBalance, { where: { id: user.referal_id } });
+const remunerationReferal = async (user, summ) => {
+    const referalMatrix = await Matrix_Table.findOne({ where: { userId: user.referal_id } })
+    
+    if (referalMatrix) {
+        const referalUser = await User.findOne({ where: { id: user.referal_id } })
+        const walletRUBId = await Wallet.findOne({ where: { name: 'RUB' } })
+        const walletRUBBalance = await BalanceCrypto.findOne({
+            where: {
+                userId: referalUser.id,
+                walletId: walletRUBId.id
+            }
+        })
+        let updateReferalBalance = { balance: (+walletRUBBalance.balance) + summ };
+        await BalanceCrypto.update(updateReferalBalance, { where: { id: walletRUBBalance.id } });
     }
 }
 
-const giftMatrixMilkyWay = async(user, count)=>{
+const giftMatrixMilkyWay = async (user, count) => {
     for (let i = 0; i < count; i++) {
         const matrixTemp = await Matrix.findAll({ include: { model: Matrix_Table, as: "matrix_table" } })
         const matrix = matrixTemp.filter((i, index) => {
@@ -68,75 +85,75 @@ const giftMatrixMilkyWay = async(user, count)=>{
         let newItem = { all_comet: allComet, all_planet: allPlanet, first_planet: 0, my_comet: myComet, my_planet, structure_planet: 0, userId: user.id }
         await updateOrCreate(Statistic, { userId: user.id }, newItem)
         await checkForLevel(parentId, 1)
-        await updateStatistic(allComet, allPlanet)  
+        await updateStatistic(allComet, allPlanet)
     }
 }
 
-const giftInvest = async(user, summ)=>{
+const giftInvest = async (user, summ) => {
     const investBoxItem = await InvestBox.create({
-        status:'активный',
-        userId:user.id,
-        summ:summ
+        status: 'активный',
+        userId: user.id,
+        summ: summ
     })
 }
 
-const giftPegas = async(user, count)=>{
-    const mOneMatrix = await Matrix_TableSecond.findOne({where:{userId:user.id, typeMatrixSecondId:1}})
-    if (mOneMatrix){
+const giftPegas = async (user, count) => {
+    const mOneMatrix = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
+    if (mOneMatrix) {
         let updateCount = { count: mOneMatrix.count + count }
         await Matrix_TableSecond.update(updateCount, { where: { id: mOneMatrix.id } })
     } else {
         const referalId = user.referal_id;
         let parentIdPegas, side_matrix;
         const parentIdForCheck = await findParentId(
-          1,
-          referalId,
-          user.id
+            1,
+            referalId,
+            user.id
         );
         if (parentIdForCheck) {
-          const resultFuncCheckCountParentId = await checkCountParentId(
-            parentIdForCheck,
-            user.id,
-            1
-          );
-          parentIdPegas = resultFuncCheckCountParentId.parentId;
-          side_matrix = resultFuncCheckCountParentId.side_matrix;
+            const resultFuncCheckCountParentId = await checkCountParentId(
+                parentIdForCheck,
+                user.id,
+                1
+            );
+            parentIdPegas = resultFuncCheckCountParentId.parentId;
+            side_matrix = resultFuncCheckCountParentId.side_matrix;
         } else {
-          parentIdPegas = null;
-          side_matrix = null;
+            parentIdPegas = null;
+            side_matrix = null;
         }
-  
+
         const matrixItem = await MatrixSecond.create({
-          date: new Date(),
-          parent_id: parentIdPegas,
-          userId: user.id,
-          side_matrix,
+            date: new Date(),
+            parent_id: parentIdPegas,
+            userId: user.id,
+            side_matrix,
         });
-  
+
         const matrixTableItem = await Matrix_TableSecond.create({
-          matrixSecondId: matrixItem.id,
-          typeMatrixSecondId: 1,
-          userId: user.id,
-          count: (count - 1), 
+            matrixSecondId: matrixItem.id,
+            typeMatrixSecondId: 1,
+            userId: user.id,
+            count: (count - 1),
         });
         const marketingCheck = await marketingCheckCount(parentIdPegas);
         let marketingGiftResult = [];
         if (marketingCheck.length > 0) {
-          marketingCheck.map(async (i) => {
-            if (i.count) {
-              marketingGiftResult.push(await marketingGift(
-                i.count,
-                i.parentId,
-                1
-              ));
-            }
-          })
+            marketingCheck.map(async (i) => {
+                if (i.count) {
+                    marketingGiftResult.push(await marketingGift(
+                        i.count,
+                        i.parentId,
+                        1
+                    ));
+                }
+            })
         }
     }
 }
 
-const giftMarketing = async function (level, matrixTableData){
-    const user = await User.findOne({where:{id:matrixTableData.userId}})
+const giftMarketing = async function (level, matrixTableData) {
+    const user = await User.findOne({ where: { id: matrixTableData.userId } })
     switch (level) {
         case 6:
             //woznograzdeniya
@@ -258,7 +275,7 @@ const giftMarketing = async function (level, matrixTableData){
             //klon m1
             await giftPegas(user, 28)
             break;
-    
+
         default:
             break;
     }
@@ -281,7 +298,7 @@ const summColumnStatistic = async () => {
 }
 
 const checkForLevel = async (parentId, level) => {
-    if (!parentId){
+    if (!parentId) {
         return false
     }
     let countRows = await Matrix.count({
@@ -296,18 +313,18 @@ const checkForLevel = async (parentId, level) => {
         })
         let parentIdForLevel
         if (matrix.length === 0) {
-            parentIdForLevel = null 
+            parentIdForLevel = null
         } else {
             parentIdForLevel = matrix[0].id
-        } 
+        }
 
-        const user = await Matrix.findOne({where: {id: parentId} })
+        const user = await Matrix.findOne({ where: { id: parentId } })
 
-        const matrixItem = await Matrix.create({ 
+        const matrixItem = await Matrix.create({
             date: new Date,
             parent_id: parentIdForLevel,
             userId: user.userId
-        }) 
+        })
         const matrixTableCount = await Matrix_Table.findOne({
             where: { typeMatrixId: level, matrixId: parentId }
         })
@@ -315,10 +332,10 @@ const checkForLevel = async (parentId, level) => {
         matrixTableCount.typeMatrixId = level + 1
         await matrixTableCount.save()
 
-        if (level > 5){
+        if (level > 5) {
             const gift = await giftMarketing(level, matrixTableCount)
         }
-        if(parentIdForLevel && (level < 15)){
+        if (parentIdForLevel && (level < 15)) {
             return checkForLevel(parentIdForLevel, level + 1)
         }
     }
@@ -335,12 +352,22 @@ class StarControllers {
         const user = await User.findOne({
             where: { username: decodeToken.username },
         });
-        if (user.balance < 2160) { 
+        const walletRUBId = await Wallet.findOne({ where: { name: 'RUB' } })
+        const walletRUBBalance = await BalanceCrypto.findOne({
+            where: {
+                userId: user.id,
+                walletId: walletRUBId.id
+            }
+        })
+        if ((walletRUBBalance.balance < 2160) && (user.locale < 2160)) {
             return next(ApiError.badRequest("Недостаточно средств"));
+        } else if (walletRUBBalance.balance >= 2160) {
+            let update = { balance: ((+ walletRUBBalance.balance) - 2160) }
+            let temp = await BalanceCrypto.update(update, { where: { id: walletRUBBalance.id } })
+        } else {
+            let update = { locale: (user.locale - 2160) }
+            let temp = await User.update(update, { where: { id: user.id } })
         }
-        let update = { balance: `${((+ user.balance) - 2160)}.00000000` }
-
-        let temp = await User.update(update, { where: { username: decodeToken.username } })
         const level = 1;
         const matrixTemp = await Matrix.findAll({ include: { model: Matrix_Table, as: "matrix_table" } })
         const matrix = matrixTemp.filter((i, index) => {
@@ -376,7 +403,7 @@ class StarControllers {
     }
 
     async statistic(req, res, next) {
-        const { authorization } = req.headers; 
+        const { authorization } = req.headers;
         const token = authorization.slice(7);
         const decodeToken = jwt_decode(token);
         const user = await User.findOne({
@@ -419,11 +446,22 @@ class StarControllers {
             where: { username: decodeToken.username },
         });
         let summ = planets.length * 2160;
-        if (+(user.balance) < summ) {
+        const walletRUBId = await Wallet.findOne({ where: { name: 'RUB' } })
+        const walletRUBBalance = await BalanceCrypto.findOne({
+            where: {
+                userId: user.id,
+                walletId: walletRUBId.id
+            }
+        })
+        if ((walletRUBBalance.balance < summ) && (user.locale < summ)) {
             return next(ApiError.badRequest("Недостаточно средств"));
+        } else if (walletRUBBalance.balance >= summ){
+            let update = { balance: ((+ walletRUBBalance.balance) - 2160) }
+            let temp = await BalanceCrypto.update(update, { where: { id: walletRUBBalance.id } })
+        } else {
+            let update = { locale: (user.locale - 2160) }
+            let temp = await User.update(update, { where: { id: user.id } })
         }
-        let update = { balance: `${((+ user.balance) - summ)}.00000000` }
-        let temp = await User.update(update, { where: { username: decodeToken.username } })
         planets.map(async (id) => {
             let matrix = await Matrix_Table.findOne({ where: id })
             let updatedMatrix = { count: (matrix.count + 2160) }

@@ -5,6 +5,8 @@ const {
     InvestBox,
     User
 } = require("../models/models");
+const { BalanceCrypto } = require("../models/TablesExchange/tableBalanceCrypto");
+const { Wallet } = require("../models/TablesExchange/tableWallet");
 
 
 class InvestControllers {
@@ -18,6 +20,22 @@ class InvestControllers {
         const user = await User.findOne({
             where: { username: decodeToken.username },
         });
+        const walletRUBId = await Wallet.findOne({ where: { name: 'RUB' } })
+        const walletRUBBalance = await BalanceCrypto.findOne({
+            where: {
+                userId: user.id,
+                walletId: walletRUBId.id
+            }
+        })
+        if ((walletRUBBalance.balance < amount) && (user.locale < amount)) {
+            return next(ApiError.badRequest("Недостаточно средств"));
+        } else if (walletRUBBalance.balance >= summ){
+            let update = { balance: ((+ walletRUBBalance.balance) - amount) }
+            let temp = await BalanceCrypto.update(update, { where: { id: walletRUBBalance.id } })
+        } else {
+            let update = { locale: (user.locale - amount) }
+            let temp = await User.update(update, { where: { id: user.id } })
+        }
         const status = 'активный'
         const investItem = await InvestBox.create({
             status,

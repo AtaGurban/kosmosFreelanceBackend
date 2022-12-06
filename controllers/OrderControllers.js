@@ -49,6 +49,8 @@ class OrderControllers {
           userId:user.id,
           walletId:firstCoinWalletId.id
         })
+      } else {
+        return next(ApiError.badRequest("Создайте BTC кошелек"));
       }
     }   
     if (!secondCoinWallet){
@@ -57,6 +59,8 @@ class OrderControllers {
           userId:user.id,
           walletId:secondCoinWalletId.id
         })
+      } else {
+        return next(ApiError.badRequest("Создайте BTC кошелек"));
       }
     }   
     const market = await Market.findOne({where:{pair}})
