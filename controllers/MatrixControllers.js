@@ -200,7 +200,7 @@ class MatrixController {
     const price = (await TypeMatrixSecond.findOne({ where: { id: matrix_id } }))
       .summ;
     const user = await User.findOne({ where: { username } });
-    const walletRUBId = await Wallet.findOne({where:{name: 'RUB'}})
+    const walletRUBId = await Wallet.findOne({where:{name: 'RUR'}})
     const walletRUBBalance = await BalanceCrypto.findOne({
       where: {
         userId: user.id,

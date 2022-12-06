@@ -27,7 +27,7 @@ const updateOrCreate = async function (model, where, newItem) {
 }
 
 const remunerationUser = async (user, summ) => {
-    const walletRUBId = await Wallet.findOne({ where: { name: 'RUB' } })
+    const walletRUBId = await Wallet.findOne({ where: { name: 'RUR' } })
     const walletRUBBalance = await BalanceCrypto.findOne({
         where: {
             userId: user.id,
@@ -45,7 +45,7 @@ const remunerationReferal = async (user, summ) => {
     
     if (referalMatrix) {
         const referalUser = await User.findOne({ where: { id: user.referal_id } })
-        const walletRUBId = await Wallet.findOne({ where: { name: 'RUB' } })
+        const walletRUBId = await Wallet.findOne({ where: { name: 'RUR' } })
         const walletRUBBalance = await BalanceCrypto.findOne({
             where: {
                 userId: referalUser.id,
@@ -352,7 +352,7 @@ class StarControllers {
         const user = await User.findOne({
             where: { username: decodeToken.username },
         });
-        const walletRUBId = await Wallet.findOne({ where: { name: 'RUB' } })
+        const walletRUBId = await Wallet.findOne({ where: { name: 'RUR' } })
         const walletRUBBalance = await BalanceCrypto.findOne({
             where: {
                 userId: user.id,
@@ -446,7 +446,7 @@ class StarControllers {
             where: { username: decodeToken.username },
         });
         let summ = planets.length * 2160;
-        const walletRUBId = await Wallet.findOne({ where: { name: 'RUB' } })
+        const walletRUBId = await Wallet.findOne({ where: { name: 'RUR' } })
         const walletRUBBalance = await BalanceCrypto.findOne({
             where: {
                 userId: user.id,

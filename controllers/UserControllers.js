@@ -112,7 +112,7 @@ class UserController {
       activation_date: new Date()
     });
 
-    const walletRUB = await Wallet.findOne({where:{name: 'RUB'}})
+    const walletRUB = await Wallet.findOne({where:{name: 'RUR'}})
     const createRUBBalance = await BalanceCrypto.create({
       userId: user.id,
       walletId: walletRUB.id
@@ -194,7 +194,7 @@ class UserController {
       const matrixUser = await Matrix_Table.findAll({
         where: { userId: user.id },
       });
-      const walletRUBId = await Wallet.findOne({ where: { name: 'RUB' } })
+      const walletRUBId = await Wallet.findOne({ where: { name: 'RUR' } })
       const walletRUBBalance = await BalanceCrypto.findOne({
           where: {
               userId: user.id,

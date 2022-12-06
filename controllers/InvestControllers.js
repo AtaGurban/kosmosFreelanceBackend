@@ -20,7 +20,7 @@ class InvestControllers {
         const user = await User.findOne({
             where: { username: decodeToken.username },
         });
-        const walletRUBId = await Wallet.findOne({ where: { name: 'RUB' } })
+        const walletRUBId = await Wallet.findOne({ where: { name: 'RUR' } })
         const walletRUBBalance = await BalanceCrypto.findOne({
             where: {
                 userId: user.id,

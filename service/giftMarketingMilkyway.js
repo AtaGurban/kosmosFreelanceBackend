@@ -11,7 +11,7 @@ const { BalanceCrypto } = require("../models/TablesExchange/tableBalanceCrypto")
 const { Wallet } = require("../models/TablesExchange/tableWallet");
 
 const remunerationUser = async(user, summ)=>{
-    const walletRUBId = await Wallet.findOne({ where: { name: 'RUB' } })
+    const walletRUBId = await Wallet.findOne({ where: { name: 'RUR' } })
     const walletRUBBalance = await BalanceCrypto.findOne({
         where: {
             userId: user.id,
@@ -28,7 +28,7 @@ const remunerationReferal = async(user, summ)=>{
     const referalMatrix = await Matrix_Table.findOne({where:{userId:user.referal_id}})
     if (referalMatrix){
         const referalUser = await User.findOne({where:{id:user.referal_id}})
-        const walletRUBId = await Wallet.findOne({ where: { name: 'RUB' } })
+        const walletRUBId = await Wallet.findOne({ where: { name: 'RUR' } })
         const walletRUBBalance = await BalanceCrypto.findOne({
             where: {
                 userId: referalUser.id,

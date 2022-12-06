@@ -33,7 +33,7 @@ const giftReferalUser = async (referalId, summ) => {
   });
   if (checkMatrixReferal) {
     const referalUser = await User.findOne({ where: { id: referalId } });
-    const walletRUBId = await Wallet.findOne({where:{name: 'RUB'}})
+    const walletRUBId = await Wallet.findOne({where:{name: 'RUR'}})
     const walletRUBBalance = await BalanceCrypto.findOne({
       where: {
         userId: referalUser.id,
@@ -88,7 +88,7 @@ const marketingGift = async (parentId, type_matrix_id) => {
   });
   const user = await User.findOne({ where: { id: matrixItemThree.userId } });
   let updateBalance;
-  const walletRUBId = await Wallet.findOne({where:{name: 'RUB'}})
+  const walletRUBId = await Wallet.findOne({where:{name: 'RUR'}})
   const walletRUBBalance = await BalanceCrypto.findOne({
     where: {
       userId: user.id,
@@ -201,7 +201,7 @@ class PegasUnoControllers {
     const price = (await TypeMatrixThird.findOne({ where: { id: matrix_id } }))
     .summ;
     const user = await User.findOne({ where: { username } });
-    const walletRUBId = await Wallet.findOne({where:{name: 'RUB'}})
+    const walletRUBId = await Wallet.findOne({where:{name: 'RUR'}})
     const walletRUBBalance = await BalanceCrypto.findOne({
       where: {
         userId: user.id,
