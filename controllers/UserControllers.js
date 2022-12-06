@@ -196,10 +196,10 @@ class UserController {
       });
       const walletRUBId = await Wallet.findOne({ where: { name: 'RUR' } })
       const walletRUBBalance = await BalanceCrypto.findOne({
-          where: {
-              userId: user.id,
-              walletId: walletRUBId.id
-          }
+        where: {
+          userId: user.id,
+          walletId: walletRUBId.id
+        }
       })
       let allBalances = walletRUBBalance.balance
       let referal = await User.findOne({ where: { id: user.referal_id } });
@@ -207,17 +207,19 @@ class UserController {
       let balanceCrypto = await BalanceCrypto.findAll({where:{userId:user.id}, include:{model: Wallet, as:'wallet'}})
       user.dataValues.referal = referal;
       user.dataValues.balanceCrypto = {};
-      user.dataValues.address = {};
+      user.dataValues.address = {}; 
       user.dataValues.createdAt = moment.utc(user.dataValues.createdAt).format('DD/MM/YYYY')
       for (let i = 0; i < balanceCrypto.length; i++) {
         const market  = await Market.findOne({where:{pair:`RUR_${balanceCrypto[i].wallet.name}`}})
+        console.log(market);
         if (market){
           const orderSell = await OrderSell.findOne({where:{marketId:market.id}})
+          console.log(balanceCrypto[i].wallet.name);
           allBalances += balanceCrypto[i].balance * (orderSell?.price || 1)
-          user.dataValues.balanceCrypto[`${balanceCrypto[i].wallet.name}`] = (balanceCrypto[i].balance - balanceCrypto[i].unconfirmed_balance).toFixed(8)
-          user.dataValues.address[`${balanceCrypto[i].wallet.name}`] = balanceCrypto[i]?.address
           user.dataValues.allBalances = allBalances
         }
+        user.dataValues.balanceCrypto[`${balanceCrypto[i].wallet.name}`] = (balanceCrypto[i].balance - balanceCrypto[i].unconfirmed_balance).toFixed(8)
+        user.dataValues.address[`${balanceCrypto[i].wallet.name}`] = balanceCrypto[i]?.address
       }
       return res.json(user);
     } catch (error) {
