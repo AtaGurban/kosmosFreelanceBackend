@@ -64,12 +64,14 @@ class OrderControllers {
       }
     }   
     const market = await Market.findOne({where:{pair}})
-    if (orderType === 'buy'){ 
-      if (firstCoinWallet.balance < allCom){
-        return next(ApiError.badRequest("Недостаточно средств"));
-      }
-      let updateWalletBalance = {balance:firstCoinWallet.balance - (+allCom), unconfirmed_balance:firstCoinWallet.unconfirmed_balance + (+allCom)}
-      await BalanceCrypto.update(updateWalletBalance, {where:{id:firstCoinWallet.id}})
+    if (orderType === 'buy'){
+      if (user.id !== 1){
+        if (firstCoinWallet.balance < allCom){
+          return next(ApiError.badRequest("Недостаточно средств"));
+        }
+        let updateWalletBalance = {balance:firstCoinWallet.balance - (+allCom), unconfirmed_balance:firstCoinWallet.unconfirmed_balance + (+allCom)}
+        await BalanceCrypto.update(updateWalletBalance, {where:{id:firstCoinWallet.id}})
+      } 
       const orderCheck = await OrderSell.findAll({where:{marketId:market.id, price: { [Op.lte]: price }}})
       if (orderCheck.length > 0){
         return await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom, all, price)
@@ -80,11 +82,13 @@ class OrderControllers {
       return res.json(item)
     }
     if (orderType === 'sell'){
-      if (secondCoinWallet.balance < amount){
-        return next(ApiError.badRequest("Недостаточно средств"));
+      if (user.id !== 1){
+        if (secondCoinWallet.balance < amount){
+          return next(ApiError.badRequest("Недостаточно средств"));
+        }
+        let updateWalletBalance = {balance:secondCoinWallet.balance - (+amount), unconfirmed_balance:secondCoinWallet.unconfirmed_balance + (+amount)}
+        await BalanceCrypto.update(updateWalletBalance, {where:{id:secondCoinWallet.id}})
       }
-      let updateWalletBalance = {balance:secondCoinWallet.balance - (+amount), unconfirmed_balance:secondCoinWallet.unconfirmed_balance + (+amount)}
-      await BalanceCrypto.update(updateWalletBalance, {where:{id:secondCoinWallet.id}})
       const orderCheck = await OrderSale.findAll({where:{marketId:market.id, price: { [Op.gte]: price }}})
       if (orderCheck.length > 0){
         return await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom, all, price)
