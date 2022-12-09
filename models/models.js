@@ -345,7 +345,7 @@ const User = sequelize.define(
     instagram: { type: DataTypes.STRING, defaultValue: null },
     is_verified: { type: DataTypes.INTEGER, defaultValue: 0 },
     last_name: { type: DataTypes.STRING, defaultValue: null },
-    locale: { type: DataTypes.DECIMAL(61,8), defaultValue: 0 },
+    locale: { type: DataTypes.DOUBLE, defaultValue: 0 },
     password: { type: DataTypes.STRING, allowNull: false },
     phone: { type: DataTypes.STRING, allowNull: false },
     ref_link: { type: DataTypes.STRING, defaultValue: null },

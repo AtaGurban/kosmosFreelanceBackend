@@ -108,7 +108,7 @@ const transactionCryptoSale = async (
         where: { id: firstCoinWalletFirstUser.id },
       });
       let updateSecondCoinWalletFirstUser = {
-        balance: secondCoinWalletFirstUser.balance - (+amount),
+        unconfirmed_balance: secondCoinWalletFirstUser.unconfirmed_balance - (+amount),
       };
       await BalanceCrypto.update(updateSecondCoinWalletFirstUser, {
         where: { id: secondCoinWalletFirstUser.id },
