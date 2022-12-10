@@ -1,8 +1,7 @@
 require("dotenv").config();
 const fs = require("fs");
 const http = require("http");
-const { testnet, mainnet } = require("bitcore-lib/lib/networks");
-const { Server } = require("socket.io");
+
 // const https = require("https");
 // const privateKey = fs.readFileSync(
 //   "/etc/letsencrypt/live/tmcoder.ru/privkey.pem",
@@ -35,6 +34,7 @@ const exchangeBot = require("./service/exchangeBot");
 const { createHDWallet, sendBitcoin, getBalanceBTC } = require("./service/walletCrypto");
 const socketStart = require("./service/socketStart");
 const { sochetStartChart } = require("./service/orderClose");
+const { BalanceCrypto } = require("./models/TablesExchange/tableBalanceCrypto");
 
 // const credentials = {
 //   key: privateKey,
@@ -116,7 +116,7 @@ const start = async () => {
       for (let i = 0; i < 12; i++) {
         await models.TypeMatrixSecond.create({
           summ: typeMatrixSecondSumm[i]
-        })
+        }) 
       }
     }
     if (typeMatrixThirdCount === 0) {

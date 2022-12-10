@@ -74,8 +74,7 @@ const sendBitcoin = async (sourceAddress, privateKey, recieverAddress, amountToS
         // const privateKey =
         // "5548899adfc063c1560a8e75cd4b2070e818203d5b2ccc714dc52b7faed0033d";
         // const sourceAddress = "mxZjYuDTFbidwmsHUBB2tnNGTYooA8rNxP";
-        const satoshiToSend = amountToSend * 100000000;
-        console.log(amountToSend);
+        const satoshiToSend = (+amountToSend) * 100000000;
         let fee = 0.00015008 * 100000000;
         let inputCount = 0;
         let outputCount = 2;

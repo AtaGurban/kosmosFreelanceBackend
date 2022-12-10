@@ -47,7 +47,7 @@ BalanceCrypto
         });
         const walletId = await Wallet.findOne({where:{name:'BTC'}})      
         const walletBTC = await BalanceCrypto.findOne({where:{userId:user.id, walletId:walletId.id}})
-        if (walletBTC.balance < amount){
+        if ((+walletBTC.balance) < amount){
           return next(ApiError.badRequest("Не хватает средств")); 
         }
         let updateBalance = {balance:(+walletBTC.balance) - (+amount)}

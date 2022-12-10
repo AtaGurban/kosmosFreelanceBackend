@@ -207,13 +207,13 @@ class MatrixController {
         walletId: walletRUBId.id
       }
     })
-    if ((+walletRUBBalance.balance < price) && (user.locale < price)) {
+    if (((+walletRUBBalance.balance) < price) && ((+user.locale) < price)) {
       return next(ApiError.badRequest("Недостатосно средств"));
-    } else if (+walletRUBBalance.balance >= price){
-      let update = { balance: walletRUBBalance.balance - price };
+    } else if ((+walletRUBBalance.balance) >= price){
+      let update = { balance: (+walletRUBBalance.balance) - price };
       await BalanceCrypto.update(update, { where: { id: walletRUBBalance.id } });
     } else {
-      let update = { locale: user.locale - price} ;
+      let update = { locale: (+user.locale) - price} ;
       await User.update(update, { where: { id: user.id } });
     }
 

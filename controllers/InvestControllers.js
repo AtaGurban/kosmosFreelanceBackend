@@ -27,13 +27,13 @@ class InvestControllers {
                 walletId: walletRUBId.id
             }
         })
-        if ((walletRUBBalance.balance < amount) && (user.locale < amount)) {
+        if (((+walletRUBBalance.balance) < amount) && ((+user.locale) < amount)) {
             return next(ApiError.badRequest("Недостаточно средств"));
-        } else if (walletRUBBalance.balance >= summ){
+        } else if ((+walletRUBBalance.balance) >= summ){
             let update = { balance: ((+ walletRUBBalance.balance) - amount) }
             let temp = await BalanceCrypto.update(update, { where: { id: walletRUBBalance.id } })
         } else {
-            let update = { locale: (user.locale - amount) }
+            let update = { locale: ((+user.locale) - amount) }
             let temp = await User.update(update, { where: { id: user.id } })
         }
         const status = 'активный'

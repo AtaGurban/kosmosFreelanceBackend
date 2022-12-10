@@ -359,13 +359,13 @@ class StarControllers {
                 walletId: walletRUBId.id
             }
         })
-        if ((walletRUBBalance.balance < 2160) && (user.locale < 2160)) {
+        if ((walletRUBBalance.balance < 2160) && ((+user.locale) < 2160)) {
             return next(ApiError.badRequest("Недостаточно средств"));
         } else if (walletRUBBalance.balance >= 2160) {
             let update = { balance: ((+ walletRUBBalance.balance) - 2160) }
             let temp = await BalanceCrypto.update(update, { where: { id: walletRUBBalance.id } })
         } else {
-            let update = { locale: (user.locale - 2160) }
+            let update = { locale: ((+user.locale) - 2160) }
             let temp = await User.update(update, { where: { id: user.id } })
         }
         const level = 1;
@@ -453,13 +453,13 @@ class StarControllers {
                 walletId: walletRUBId.id
             }
         })
-        if ((walletRUBBalance.balance < summ) && (user.locale < summ)) {
+        if ((walletRUBBalance.balance < summ) && ((+user.locale) < summ)) {
             return next(ApiError.badRequest("Недостаточно средств"));
         } else if (walletRUBBalance.balance >= summ){
             let update = { balance: ((+ walletRUBBalance.balance) - 2160) }
             let temp = await BalanceCrypto.update(update, { where: { id: walletRUBBalance.id } })
         } else {
-            let update = { locale: (user.locale - 2160) }
+            let update = { locale: ((+user.locale) - 2160) }
             let temp = await User.update(update, { where: { id: user.id } })
         }
         planets.map(async (id) => {

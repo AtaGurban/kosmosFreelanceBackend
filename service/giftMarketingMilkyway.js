@@ -18,7 +18,7 @@ const remunerationUser = async(user, summ)=>{
             walletId: walletRUBId.id
         }
     })
-    let updateBalance = { balance: walletRUBBalance.balance + summ};
+    let updateBalance = { balance: (+walletRUBBalance.balance) + summ};
     await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
     const statisticData = await Statistic.findOne({where:{userId:user.id}})
     let updateStatisticInventory = {myInviterIncome:statisticData.myInviterIncome + summ}
@@ -35,7 +35,7 @@ const remunerationReferal = async(user, summ)=>{
                 walletId: walletRUBId.id
             }
         })
-        let updateBalance = { balance: walletRUBBalance.balance + summ};
+        let updateBalance = { balance: (+walletRUBBalance.balance) + summ};
         await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
     }
 }

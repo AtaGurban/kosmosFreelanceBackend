@@ -29,8 +29,8 @@ const transactionCryptoSale = async (
 ) => {
 
   const [firstCoin, secondCoin] = pair.split("_");
-  let total = (+(amount * price).toFixed(8));
-  let com = (+(total * 0.002).toFixed(8));
+  let total = (+(amount * price));
+  let com = (+(total * 0.002));
   const firstWalletId = (await Wallet.findOne({where:{name:firstCoin}})).id
   const secondWalletId = (await Wallet.findOne({where:{name:secondCoin}})).id
 
@@ -80,44 +80,44 @@ const transactionCryptoSale = async (
   if (orderType === 'buy'){
     let updateFirstCoinWalletFirstUser = {
         unconfirmed_balance:
-          firstCoinWalletFirstUser.unconfirmed_balance - (total + com),
+          (+firstCoinWalletFirstUser.unconfirmed_balance) - (total + com),
       };
       await BalanceCrypto.update(updateFirstCoinWalletFirstUser, {
         where: { id: firstCoinWalletFirstUser.id },
       });
       let updateSecondCoinWalletFirstUser = {
-        balance: secondCoinWalletFirstUser.balance + (+amount),
+        balance: (+secondCoinWalletFirstUser.balance) + (+amount),
       };
       await BalanceCrypto.update(updateSecondCoinWalletFirstUser, {
         where: { id: secondCoinWalletFirstUser.id },
       });
-      let updatefirstCoinWalletSecondUser = {balance:firstCoinWalletSecondUser.balance + (total - com)}
+      let updatefirstCoinWalletSecondUser = {balance:(+firstCoinWalletSecondUser.balance) + (total - com)}
       await BalanceCrypto.update(updatefirstCoinWalletSecondUser, {
         where: { id: firstCoinWalletSecondUser.id },
       });
-      let updateSecondCoinWalletSecondUser = {unconfirmed_balance:secondCoinWalletSecondUser.unconfirmed_balance - (+amount)};
+      let updateSecondCoinWalletSecondUser = {unconfirmed_balance:(+secondCoinWalletSecondUser.unconfirmed_balance) - (+amount)};
       await BalanceCrypto.update(updateSecondCoinWalletSecondUser, {
         where: { id: secondCoinWalletSecondUser.id },
       });
   } else {
     let updateFirstCoinWalletFirstUser = {
         balance:
-          firstCoinWalletFirstUser.balance + (total - com),
+          (+firstCoinWalletFirstUser.balance) + (total - com),
       };
       await BalanceCrypto.update(updateFirstCoinWalletFirstUser, {
         where: { id: firstCoinWalletFirstUser.id },
       });
       let updateSecondCoinWalletFirstUser = {
-        unconfirmed_balance: secondCoinWalletFirstUser.unconfirmed_balance - (+amount),
+        unconfirmed_balance: (+secondCoinWalletFirstUser.unconfirmed_balance) - (+amount),
       };
       await BalanceCrypto.update(updateSecondCoinWalletFirstUser, {
         where: { id: secondCoinWalletFirstUser.id },
       });
-      let updatefirstCoinWalletSecondUser = {unconfirmed_balance:firstCoinWalletSecondUser.unconfirmed_balance - (total + com)}
+      let updatefirstCoinWalletSecondUser = {unconfirmed_balance:(+firstCoinWalletSecondUser.unconfirmed_balance) - (total + com)}
       await BalanceCrypto.update(updatefirstCoinWalletSecondUser, {
         where: { id: firstCoinWalletSecondUser.id },
       });
-      let updateSecondCoinWalletSecondUser = {balance:secondCoinWalletSecondUser.balance + (+amount)};
+      let updateSecondCoinWalletSecondUser = {balance:(+secondCoinWalletSecondUser.balance) + (+amount)};
       await BalanceCrypto.update(updateSecondCoinWalletSecondUser, {
         where: { id: secondCoinWalletSecondUser.id },
       });
@@ -291,11 +291,11 @@ const OrderClose = async (
           await sochetStartChart(socket, true, pairName.pair);
         });
         let update = {
-          amount: (+element.amount - +amountTemp).toFixed(10),
+          amount: ((+element.amount) - (+amountTemp)).toFixed(10),
           summ:
-            (+element.amount - amountTemp).toFixed(10) * +element.price * 0.98,
+            ((+element.amount) - (+amountTemp)).toFixed(10) * (+element.price) * 0.98,
           sumWithOutCom:
-            (+element.amount - amountTemp).toFixed(10) * +element.price,
+            ((+element.amount) - (+amountTemp)).toFixed(10) * (+element.price),
         };
         await OrderSale.update(update, { where: { id: element.id } });
       } else {
@@ -316,11 +316,11 @@ const OrderClose = async (
           await sochetStartChart(socket, true, pairName.pair);
         });
         let update = {
-          amount: (+element.amount - +amountTemp).toFixed(10),
+          amount: ((+element.amount) - (+amountTemp)).toFixed(10),
           summ:
-            (+element.amount - amountTemp).toFixed(10) * +element.price * 1.02,
+            ((+element.amount) - (+amountTemp)).toFixed(10) * (+element.price) * 1.02,
           sumWithOutCom:
-            (+element.amount - amountTemp).toFixed(10) * +element.price,
+            ((+element.amount) - (+amountTemp)).toFixed(10) * (+element.price),
         };
         await OrderSell.update(update, { where: { id: element.id } });
       }

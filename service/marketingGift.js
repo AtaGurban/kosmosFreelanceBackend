@@ -26,7 +26,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 4) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 11, } })
           if (!transactionCheck) {
-            let update = { balance: walletRUBBalance.balance + 500 };
+            let update = { balance: (+walletRUBBalance.balance) + 500 };
             await BalanceCrypto.update(update, { where: { id: walletRUBBalance.id } });
             const transaction = await Transaction.create({
               comment: 'Выплата за 4 место',
@@ -106,7 +106,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 4) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 21, } })
           if (!transactionCheck) {
-            let update = { balance: walletRUBBalance.balance + 500 };
+            let update = { balance: (+walletRUBBalance.balance) + 500 };
             await BalanceCrypto.update(update, { where: { id: walletRUBBalance.id } });
             const transaction = await Transaction.create({
               comment: 'Выплата за 4 место',
@@ -226,7 +226,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 4) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 31, } })
           if (!transactionCheck) {
-            let update = { balance: walletRUBBalance.balance + 1000 };
+            let update = { balance: (+walletRUBBalance.balance) + 1000 };
             await BalanceCrypto.update(update, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 2 }
@@ -245,7 +245,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 5) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 32, } })
           if (!transactionCheck) {
-            let update = { balance: walletRUBBalance.balance + 1000 };
+            let update = { balance: (+walletRUBBalance.balance) + 1000 };
             await BalanceCrypto.update(update, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 2 }
@@ -264,7 +264,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 6) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 33, } })
           if (!transactionCheck) {
-            let update = { balance: walletRUBBalance.balance + 1000 };
+            let update = { balance: (+walletRUBBalance.balance) + 1000 };
             await BalanceCrypto.update(update, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 2 }
@@ -278,7 +278,7 @@ module.exports = async (count, parentId, typeMatrix) => {
                     walletId: walletRUBId.id
                 }
             })
-              let updateBalanceReferal = { balance: walletRUBBalanceReferal.balance + 500 };
+              let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 500 };
               await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
             }
             const transaction = await Transaction.create({
@@ -295,7 +295,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count === 7) {
           const checkMatrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 4 } })
           if (!checkMatrixTable) {
-            let update = { balance: walletRUBBalance.balance + 1000 };
+            let update = { balance: (+walletRUBBalance.balance) + 1000 };
             await BalanceCrypto.update(update, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 2 }
@@ -309,7 +309,7 @@ module.exports = async (count, parentId, typeMatrix) => {
                     walletId: walletRUBId.id
                 }
             })
-              let updateBalanceReferal = { balance: walletRUBBalanceReferal.balance + 500 };
+              let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 500 };
               await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
             }
             const referalId = user.referal_id;
@@ -356,7 +356,7 @@ module.exports = async (count, parentId, typeMatrix) => {
           } else {
             const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 34, } })
             if (!transactionCheck) {
-              let updateBalance = { balance: walletRUBBalance.balance + 1000 };
+              let updateBalance = { balance: (+walletRUBBalance.balance) + 1000 };
               await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
               const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
               let updateCount = { count: matrixTable.count + 2 }
@@ -370,7 +370,7 @@ module.exports = async (count, parentId, typeMatrix) => {
                       walletId: walletRUBId.id
                   }
                 })
-                let updateBalanceReferal = { balance: walletRUBBalanceReferal.balance + 500 };
+                let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 500 };
                 await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
               }
               let update = { count: checkMatrixTable.count + 1 }
@@ -393,7 +393,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 4) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 41, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 2000 };
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 2000 };
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 4 }
@@ -412,7 +412,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 5) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 42, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 2000 };
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 2000 };
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 4 }
@@ -432,7 +432,7 @@ module.exports = async (count, parentId, typeMatrix) => {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 43, } })
           if (!transactionCheck) {
 
-            let updateBalance = { balance: walletRUBBalance.balance + 2000 };
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 2000 };
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 4 }
@@ -446,7 +446,7 @@ module.exports = async (count, parentId, typeMatrix) => {
                     walletId: walletRUBId.id
                 }
               })
-              let updateBalanceReferal = { balance: walletRUBBalanceReferal.balance + 500 };
+              let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 500 };
               await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
             }
             const transaction = await Transaction.create({
@@ -463,7 +463,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count === 7) {
           const checkMatrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 5 } })
           if (!checkMatrixTable) {
-            let updateBalance = { balance: walletRUBBalance.balance + 2000 };
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 2000 };
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 4 }
@@ -477,7 +477,7 @@ module.exports = async (count, parentId, typeMatrix) => {
                   walletId: walletRUBId.id
                   }
                 })
-              let updateBalanceReferal = { balance: walletRUBBalanceReferal.balance + 1000 };
+              let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 1000 };
               await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
             }
             const referalId = user.referal_id;
@@ -524,7 +524,7 @@ module.exports = async (count, parentId, typeMatrix) => {
           } else {
             const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 44, } })
             if (!transactionCheck) {
-              let updateBalance = { balance: walletRUBBalance.balance + 2000 };
+              let updateBalance = { balance: (+walletRUBBalance.balance) + 2000 };
               await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
               const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
               let updateCount = { count: matrixTable.count + 4 }
@@ -538,7 +538,7 @@ module.exports = async (count, parentId, typeMatrix) => {
                     walletId: walletRUBId.id
                     }
                   })
-                let updateBalanceReferal = { balance: walletRUBBalanceReferal.balance + 1000 };
+                let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 1000 };
                 await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
               }
               let update = { count: checkMatrixTable.count + 1 }
@@ -561,7 +561,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 4) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 51, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 3000 };
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 3000 };
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 5 }
@@ -580,7 +580,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 5) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 52, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 3000 };
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 3000 };
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 5 }
@@ -599,7 +599,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 6) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 53, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 3000 };
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 3000 };
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 5 }
@@ -613,7 +613,7 @@ module.exports = async (count, parentId, typeMatrix) => {
                   walletId: walletRUBId.id
                   }
                 })
-              let updateBalanceReferal = { balance: walletRUBBalanceReferal.balance + 1000 };
+              let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 1000 };
               await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
             }
             const transaction = await Transaction.create({
@@ -630,7 +630,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count === 7) {
           const checkMatrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 6 } })
           if (!checkMatrixTable) {
-            let updateBalance = { balance: walletRUBBalance.balance + 3000 };
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 3000 };
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 5 }
@@ -644,7 +644,7 @@ module.exports = async (count, parentId, typeMatrix) => {
                   walletId: walletRUBId.id
                   }
                 })
-              let updateBalanceReferal = { balance: walletRUBBalanceReferal.balance + 1000 };
+              let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 1000 };
               await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
             }
             const referalId = user.referal_id;
@@ -691,7 +691,7 @@ module.exports = async (count, parentId, typeMatrix) => {
           } else {
             const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 54, } })
             if (!transactionCheck) {
-              let updateBalance = { balance: walletRUBBalance.balance + 3000 };
+              let updateBalance = { balance: (+walletRUBBalance.balance) + 3000 };
               await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
               const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
               let updateCount = { count: matrixTable.count + 5 }
@@ -705,7 +705,7 @@ module.exports = async (count, parentId, typeMatrix) => {
                     walletId: walletRUBId.id
                     }
                   })
-                let updateBalanceReferal = { balance: walletRUBBalanceReferal.balance + 1000 };
+                let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 1000 };
                 await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
               }
               let update = { count: checkMatrixTable.count + 1 }
@@ -728,7 +728,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 4) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 61, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 5000 };
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 5000 };
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 10 }
@@ -747,7 +747,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 5) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 62, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 5000 };
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 5000 };
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });            
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 10 }
@@ -766,7 +766,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 6) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 63, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 5000 };
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 5000 };
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });            
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 10 }
@@ -780,7 +780,7 @@ module.exports = async (count, parentId, typeMatrix) => {
                   walletId: walletRUBId.id
                   }
                 })
-              let updateBalanceReferal = { balance: walletRUBBalanceReferal.balance + 2000};
+              let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 2000};
               await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
             }
             const transaction = await Transaction.create({
@@ -797,7 +797,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count === 7) {
           const checkMatrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 7 } })
           if (!checkMatrixTable) {
-            let updateBalance = { balance: walletRUBBalance.balance + 5000 };
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 5000 };
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 10 }
@@ -811,7 +811,7 @@ module.exports = async (count, parentId, typeMatrix) => {
                   walletId: walletRUBId.id
                   }
                 })
-              let updateBalanceReferal = { balance: walletRUBBalanceReferal.balance + 2000};
+              let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 2000};
               await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
             }
             const referalId = user.referal_id;
@@ -858,7 +858,7 @@ module.exports = async (count, parentId, typeMatrix) => {
           } else {
             const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 64, } })
             if (!transactionCheck) {
-              let updateBalance = { balance: walletRUBBalance.balance + 5000 };
+              let updateBalance = { balance: (+walletRUBBalance.balance) + 5000 };
               await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
               const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
               let updateCount = { count: matrixTable.count + 10 }
@@ -872,7 +872,7 @@ module.exports = async (count, parentId, typeMatrix) => {
                     walletId: walletRUBId.id
                     }
                   })
-                let updateBalanceReferal = { balance: walletRUBBalanceReferal.balance + 2000};
+                let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 2000};
                 await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
               }
               let update = { count: checkMatrixTable.count + 1 }
@@ -895,7 +895,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 4) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 71, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 7000};
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 7000};
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 8 }
@@ -914,7 +914,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 5) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 72, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 7000};
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 7000};
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 8 }
@@ -933,7 +933,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 6) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 73, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 7000};
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 7000};
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 8 }
@@ -947,7 +947,7 @@ module.exports = async (count, parentId, typeMatrix) => {
                   walletId: walletRUBId.id
                   }
                 })
-              let updateBalanceReferal = { balance: walletRUBBalanceReferal.balance + 3000};
+              let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 3000};
               await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
             }
             const transaction = await Transaction.create({
@@ -964,7 +964,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count === 7) {
           const checkMatrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 8 } })
           if (!checkMatrixTable) {
-            let updateBalance = { balance: walletRUBBalance.balance + 7000};
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 7000};
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 8 }
@@ -978,7 +978,7 @@ module.exports = async (count, parentId, typeMatrix) => {
                   walletId: walletRUBId.id
                   }
                 })
-              let updateBalanceReferal = { balance: walletRUBBalanceReferal.balance + 3000};
+              let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 3000};
               await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
             }
             const referalId = user.referal_id;
@@ -1025,7 +1025,7 @@ module.exports = async (count, parentId, typeMatrix) => {
           } else {
             const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 74, } })
             if (!transactionCheck) {
-              let updateBalance = { balance: walletRUBBalance.balance + 7000};
+              let updateBalance = { balance: (+walletRUBBalance.balance) + 7000};
               await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
               const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
               let updateCount = { count: matrixTable.count + 8 }
@@ -1039,7 +1039,7 @@ module.exports = async (count, parentId, typeMatrix) => {
                     walletId: walletRUBId.id
                     }
                   })
-                let updateBalanceReferal = { balance: walletRUBBalanceReferal.balance + 3000};
+                let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 3000};
                 await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
               }
               let update = { count: checkMatrixTable.count + 1 }
@@ -1062,7 +1062,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 4) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 81, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 15000};
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 15000};
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 30 }
@@ -1081,7 +1081,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 5) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 82, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 15000};
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 15000};
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 30 }
@@ -1100,7 +1100,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 6) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 83, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 15000};
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 15000};
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixTable = await Matrix_TableSecond.findOne({ where: { userId: user.id, typeMatrixSecondId: 1 } })
             let updateCount = { count: matrixTable.count + 30 }
@@ -1114,7 +1114,7 @@ module.exports = async (count, parentId, typeMatrix) => {
                   walletId: walletRUBId.id
                   }
                 })
-              let updateBalanceReferal = { balance: walletRUBBalanceReferal.balance + 5000};
+              let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 5000};
               await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
             }
             const transaction = await Transaction.create({
@@ -1194,7 +1194,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 4) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 91, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 20000};
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 20000};
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const transaction = await Transaction.create({
               comment: 'Выплата за 4 место',
@@ -1210,7 +1210,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 5) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 92, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 20000};
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 20000};
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const transaction = await Transaction.create({
               comment: 'Выплата за 5 место',
@@ -1226,7 +1226,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 6) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 93, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 15000};
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 15000};
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixPegasCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
             if (matrixPegasCheckReferal){
@@ -1237,7 +1237,7 @@ module.exports = async (count, parentId, typeMatrix) => {
                   walletId: walletRUBId.id
                   }
                 })
-              let updateBalanceReferal = { balance: walletRUBBalanceReferal.balance + 5000};
+              let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 5000};
               await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
             }
             const transaction = await Transaction.create({
@@ -1317,7 +1317,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 4) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 101, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 25000};
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 25000};
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const transaction = await Transaction.create({
               comment: 'Выплата за 4 место',
@@ -1333,7 +1333,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 5) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 102, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 25000};
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 25000};
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const transaction = await Transaction.create({
               comment: 'Выплата за 5 место',
@@ -1349,7 +1349,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 6) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 103, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 20000};
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 20000};
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixPegasCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
             if (matrixPegasCheckReferal){
@@ -1360,7 +1360,7 @@ module.exports = async (count, parentId, typeMatrix) => {
                   walletId: walletRUBId.id
                   }
                 })
-              let updateBalanceReferal = { balance: walletRUBBalanceReferal.balance + 5000};
+              let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 5000};
               await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
             }
             const transaction = await Transaction.create({
@@ -1440,7 +1440,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 4) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 111, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 30000};
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 30000};
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const transaction = await Transaction.create({
               comment: 'Выплата за 4 место',
@@ -1456,7 +1456,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 5) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 112, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 30000};
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 30000};
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const transaction = await Transaction.create({
               comment: 'Выплата за 5 место',
@@ -1472,7 +1472,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 6) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 113, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 25000};
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 25000};
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const matrixPegasCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
             if (matrixPegasCheckReferal){
@@ -1483,7 +1483,7 @@ module.exports = async (count, parentId, typeMatrix) => {
                   walletId: walletRUBId.id
                   }
                 })
-              let updateBalanceReferal = { balance: walletRUBBalanceReferal.balance + 5000};
+              let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 5000};
               await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
             }
             const transaction = await Transaction.create({
@@ -1563,7 +1563,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 4) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 121, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 60000};
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 60000};
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const transaction = await Transaction.create({
               comment: 'Выплата за 4 место',
@@ -1579,7 +1579,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 5) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 122, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 60000};
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 60000};
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const transaction = await Transaction.create({
               comment: 'Выплата за 5 место',
@@ -1595,7 +1595,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         if (count >= 6) {
           const transactionCheck = await Transaction.findOne({ where: { parent_matrix_id: parentId, transaction_type: 123, } })
           if (!transactionCheck) {
-            let updateBalance = { balance: walletRUBBalance.balance + 60000};
+            let updateBalance = { balance: (+walletRUBBalance.balance) + 60000};
             await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             const transaction = await Transaction.create({
               comment: 'Выплата за 6 место',
