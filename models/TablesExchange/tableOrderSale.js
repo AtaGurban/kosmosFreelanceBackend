@@ -5,10 +5,10 @@ const { Market } = require("./tableMarket");
 
 const OrderSale = sequelize.define("order-sale", {
     id: { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },
-    price: { type: DataTypes.DOUBLE, allowNull: false },
-    amount: { type: DataTypes.DOUBLE, allowNull: false },
-    sumWithOutCom: { type: DataTypes.DOUBLE, allowNull: false },
-    summ: { type: DataTypes.DOUBLE, allowNull: false },
+    price: { type: DataTypes.DECIMAL(61,8), allowNull: false },
+    amount: { type: DataTypes.DECIMAL(61,8), allowNull: false },
+    sumWithOutCom: { type: DataTypes.DECIMAL(61,8), allowNull: false },
+    summ: { type: DataTypes.DECIMAL(61,8), allowNull: false },
   });
 
   User.hasMany(OrderSale, { as: "order_sale" });

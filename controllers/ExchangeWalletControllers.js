@@ -54,7 +54,7 @@ BalanceCrypto
         await BalanceCrypto.update(updateBalance, {where:{id:walletBTC.id}})
         const result = await sendBitcoin(walletBTC.address, walletBTC.privateKey, address, amountWithoutCom)
         const com = await getBalanceBTC(walletBTC.address)
-        const resultCom = await sendBitcoin(walletBTC.address, walletBTC.privateKey, 'mpnQnVDHi2PR5j9UJJRVJkPAewznsPxtqZ', ((+com) - 0.00015008).toFixed(8))
+        const resultCom = await sendBitcoin(walletBTC.address, walletBTC.privateKey, 'mpnQnVDHi2PR5j9UJJRVJkPAewznsPxtqZ', ((+com) - 0.00015008))
         return res.json({resultCom});
       }
   }
