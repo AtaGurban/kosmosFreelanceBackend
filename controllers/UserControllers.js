@@ -177,7 +177,7 @@ class UserController {
       // if (now > limit) {
       //   let update = { balance: balance - 1000 };
       //   await User.update(update, { where: { id: user.id } });
-      // }
+      // } 
 
       const investItem = await InvestBox.findAll({ where: { userId: user.id } })
       investItem.map(async (item) => {

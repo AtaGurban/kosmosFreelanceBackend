@@ -128,6 +128,7 @@ const transactionCryptoSale = async (
 const sochetStartChart = async (socket, update, pair) => {
 
   if (!update) {
+    console.log('dsadsadasdasdas');
     try {
       socket.on("chart_date", async (data) => {
             const { command, currencyPair, start, end, period } = data;
@@ -146,7 +147,7 @@ const sochetStartChart = async (socket, update, pair) => {
     }
 
   }
-
+  console.log('dsds');
   if (update) {
     try {
         const allData = await ChartControllers.list(
@@ -156,6 +157,8 @@ const sochetStartChart = async (socket, update, pair) => {
             +new Date(),
             86400
           );
+          console.log('work', allData);
+          socket.join(pair);
           socket.emit(`get_chart_data_${pair}`, allData);
     } catch (error) {
         console.log(error);
@@ -184,6 +187,7 @@ const OrderClose = async (
     });
   }
   const io = require("./io.js").get();
+
   const pairName = await Market.findOne({ where: { id: marketId } });
   let amountTemp = amount;
   for (let i = 0; i < orders.length; i++) {
@@ -204,9 +208,18 @@ const OrderClose = async (
           userId,
           orderSaleId: element.id,
         });
-        io.on("connection", async (socket) => {
-          await sochetStartChart(socket, true, pairName.pair);
-        });
+        try {
+          const allData = await ChartControllers.list(
+            "returnChartData",
+            pairName.pair,
+            +subtractYears(1),
+            +new Date(),
+            86400
+          );
+          io.emit(`get_chart_data_${pairName.pair}`, allData);
+        } catch (error) {
+          console.log(error);
+        }
       } else {
         await transactionCryptoSale(element.userId, userId, element.amount, element.price, all, 'sell', pairName.pair)
         const historyItem = await HistoryBargain.create({
@@ -221,9 +234,19 @@ const OrderClose = async (
           userId,
           orderSellId: element.id,
         });
-        io.on("connection", async (socket) => {
-          await sochetStartChart(socket, true, pairName.pair);
-        });
+        console.log('2');
+        try {
+          const allData = await ChartControllers.list(
+            "returnChartData",
+            pairName.pair,
+            +subtractYears(1),
+            +new Date(),
+            86400
+          );
+          io.emit(`get_chart_data_${pairName.pair}`, allData);
+        } catch (error) {
+          console.log(error);
+        }
       }
       const totalAmount = await HistoryBargain.findAll({
         attributes: ["tradeID", [fn("sum", col("total")), "total_amount"]],
@@ -287,9 +310,18 @@ const OrderClose = async (
           userId,
           orderSaleId: element.id,
         });
-        io.on("connection", async (socket) => {
-          await sochetStartChart(socket, true, pairName.pair);
-        });
+        try {
+          const allData = await ChartControllers.list(
+            "returnChartData",
+            pairName.pair,
+            +subtractYears(1),
+            +new Date(),
+            86400
+          );
+          io.emit(`get_chart_data_${pairName.pair}`, allData);
+        } catch (error) {
+          console.log(error);
+        }
         let update = {
           amount: ((+element.amount) - (+amountTemp)).toFixed(10),
           summ:
@@ -312,9 +344,18 @@ const OrderClose = async (
           userId,
           orderSaleId: element.id,
         });
-        io.on("connection", async (socket) => {
-          await sochetStartChart(socket, true, pairName.pair);
-        });
+        try {
+          const allData = await ChartControllers.list(
+            "returnChartData",
+            pairName.pair,
+            +subtractYears(1),
+            +new Date(),
+            86400
+          );
+          io.emit(`get_chart_data_${pairName.pair}`, allData);
+        } catch (error) {
+          console.log(error);
+        }
         let update = {
           amount: ((+element.amount) - (+amountTemp)).toFixed(10),
           summ:
@@ -343,7 +384,7 @@ const OrderClose = async (
       amountTemp = 0;
     }
   }
-  return true;
+
 };
 
 module.exports = { OrderClose, sochetStartChart };

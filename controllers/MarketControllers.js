@@ -13,11 +13,11 @@ class MarketControllers {
       let [market, coin] = i.pair.split('_')
       i.dataValues['market'] = market
       i.dataValues['coin']= coin
-      i['lowestAsk'] = i['lowestAsk'].toFixed(10)
-      i['highestBid'] = i['highestBid'].toFixed(10)
-      i['baseVolume'] = i['baseVolume'].toFixed(10)
-      i['high24hr'] = i['high24hr'].toFixed(10)
-      i['low24hr'] = i['low24hr'].toFixed(10)
+      i['lowestAsk'] = i['lowestAsk']
+      i['highestBid'] = i['highestBid']
+      i['baseVolume'] = i['baseVolume']
+      i['high24hr'] = i['high24hr']
+      i['low24hr'] = i['low24hr']
     });
     return res.json(markets);
   }
