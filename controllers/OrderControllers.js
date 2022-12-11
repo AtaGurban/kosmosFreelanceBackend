@@ -74,7 +74,8 @@ class OrderControllers {
       } 
       const orderCheck = await OrderSell.findAll({where:{marketId:market.id, price: { [Op.lte]: price }}})
       if (orderCheck.length > 0){
-        return await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom, all, price)
+        await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom, all, price)
+        return res.json(true)
       }
       const item = await OrderSale.create({
           amount, price, marketId:market.id, userId:user.id, summ:allCom, sumWithOutCom:all 
@@ -91,15 +92,14 @@ class OrderControllers {
       }
       const orderCheck = await OrderSale.findAll({where:{marketId:market.id, price: { [Op.gte]: price }}})
       if (orderCheck.length > 0){
-        return await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom, all, price)
+        await OrderClose(orderCheck, amount, orderType, user.id, market.id, allCom, all, price)
+        return res.json(true)
       }
         const item = await OrderSell.create({
             amount, price, marketId:market.id, userId:user.id, summ:allCom, sumWithOutCom:all
         }) 
         return res.json(item)
     }
-    return res.json(true)
-    
   } 
   async getAll(req, res, next) {
     const {command, currencyPair, depth} = req.query 

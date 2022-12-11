@@ -2,7 +2,7 @@ const ApiError = require("../error/ApiError");
 const jwt_decode = require("jwt-decode");
 const { findParentId } = require("../service/findParentIdPegasUno");
 const {
-  checkCountParentId,
+  checkCountParentIdPegasUno,
 } = require("../service/checkCoountParentIdPegasUno");
 
 const {
@@ -51,7 +51,7 @@ const transitionToHighLevel = async (matrixId, level, user) => {
   let parentId, side_matrix;
   const parentIdForCheck = await findParentId(nextLevel, referalId, user.id);
   if (parentIdForCheck) {
-    const resultFuncCheckCountParentId = await checkCountParentId(
+    const resultFuncCheckCountParentId = await checkCountParentIdPegasUno(
       parentIdForCheck,
       user.id,
       nextLevel
@@ -230,7 +230,7 @@ class PegasUnoControllers {
         user.id
       );
       if (parentIdForCheck) {
-        const resultFuncCheckCountParentId = await checkCountParentId(
+        const resultFuncCheckCountParentId = await checkCountParentIdPegasUno(
           parentIdForCheck,
           user.id,
           matrix_id

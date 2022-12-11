@@ -128,7 +128,6 @@ const transactionCryptoSale = async (
 const sochetStartChart = async (socket, update, pair) => {
 
   if (!update) {
-    console.log('dsadsadasdasdas');
     try {
       socket.on("chart_date", async (data) => {
             const { command, currencyPair, start, end, period } = data;
@@ -147,24 +146,23 @@ const sochetStartChart = async (socket, update, pair) => {
     }
 
   }
-  console.log('dsds');
-  if (update) {
-    try {
-        const allData = await ChartControllers.list(
-            "returnChartData",
-            pair,
-            +subtractYears(1),
-            +new Date(),
-            86400
-          );
-          console.log('work', allData);
-          socket.join(pair);
-          socket.emit(`get_chart_data_${pair}`, allData);
-    } catch (error) {
-        console.log(error);
-    }
+  // if (update) {
+  //   try {
+  //       const allData = await ChartControllers.list(
+  //           "returnChartData",
+  //           pair,
+  //           +subtractYears(1),
+  //           +new Date(),
+  //           86400
+  //         );
+  //         console.log('work', allData);
+  //         socket.join(pair);
+  //         socket.emit(`get_chart_data_${pair}`, allData);
+  //   } catch (error) {
+  //       console.log(error);
+  //   }
 
-  }
+  // }
 };
 
 const OrderClose = async (

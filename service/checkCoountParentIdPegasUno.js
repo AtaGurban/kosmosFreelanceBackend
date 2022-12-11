@@ -2,15 +2,15 @@ const {
      MatrixThird,
   } = require("../models/models");
 
-  const checkCountParentId = async (parentId, userId, typeMatrixSecondId) => {
+  const checkCountParentIdPegasUno = async (parentId, userId, typeMatrixSecondId) => {
     const itemsParentId = await MatrixThird.findAll({
       where: { parent_id: parentId },
     });
     if (itemsParentId.length > 1) {
       // const leftItem = itemsParentId[0].userId;
       // const rightItem = itemsParentId[1].userId;
-      let one = await checkCountParentId(itemsParentId[0].id, userId);
-      let two = await checkCountParentId(itemsParentId[1].id, userId);
+      let one = await checkCountParentIdPegasUno(itemsParentId[0].id, userId);
+      let two = await checkCountParentIdPegasUno(itemsParentId[1].id, userId);
       let countOne = await MatrixThird.count({
         where: { parent_id: one.parentId },
       });
@@ -35,4 +35,4 @@ const {
     }
   };
 
-  module.exports = {checkCountParentId}
+  module.exports = {checkCountParentIdPegasUno}
