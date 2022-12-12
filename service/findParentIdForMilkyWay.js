@@ -8,14 +8,14 @@ const findParentIdForMilkyWay = async(level, userId)=>{
         })
         const parentId = matrix[0]?.id
         if (parentId){
-            return parentId
+            return {parentId, typeMatrixId: level}
         } else {
             return findParentIdForMilkyWay(level + 1, userId)
         }
     } else if (level > 15) {
-        return null
+        return {parentId: null, typeMatrixId: 1}
     } else {
-        return null
+        return {parentId: null, typeMatrixId: level}
     }
 
 }

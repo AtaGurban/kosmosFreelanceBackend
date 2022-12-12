@@ -375,7 +375,7 @@ class StarControllers {
         // const matrix = matrixTemp.filter((i, index) => {
         //     return ((i.matrix_table[0]?.typeMatrixId === 1) && (i.matrix_table[0]?.count > 6))
         // })
-        const parentId = await findParentIdForMilkyWay(level, user.id)
+        const {parentId, typeMatrixId} = await findParentIdForMilkyWay(level, user.id)
         const matrixItem = await Matrix.create({
             date: new Date,
             parent_id: parentId,
@@ -383,7 +383,7 @@ class StarControllers {
         })
         const matrixTableItem = await Matrix_Table.create({
             matrixId: matrixItem.id,
-            typeMatrixId: level,
+            typeMatrixId,
             userId: user.id,
             count: 2160
         })
