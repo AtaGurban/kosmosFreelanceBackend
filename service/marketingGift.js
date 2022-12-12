@@ -9,8 +9,7 @@ const { Wallet } = require("../models/TablesExchange/tableWallet");
 const { checkCountParentId } = require("./checkCountParentId");
 const { findParentId } = require("./findParentId");
 
-
-module.exports = async (count, parentId, typeMatrix) => {
+const marketingGift = async (count, parentId, typeMatrix) => {
     const matrixTableData = await MatrixSecond.findOne({
       where: { id: parentId },
     });
@@ -1629,3 +1628,7 @@ module.exports = async (count, parentId, typeMatrix) => {
         break;
     }
   };
+
+  module.exports = {
+    marketingGift
+  }

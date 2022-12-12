@@ -9,6 +9,13 @@ const {
 } = require("../models/models");
 const { BalanceCrypto } = require("../models/TablesExchange/tableBalanceCrypto");
 const { Wallet } = require("../models/TablesExchange/tableWallet");
+const { checkCountParentId } = require("./checkCountParentId");
+const { checkForLevel } = require("./checkForLevel");
+const { findParentId } = require("./findParentId");
+const { findParentIdForMilkyWay } = require("./findParentIdForMilkyWay");
+const { marketingCheckCount } = require("./marketingCheckCount");
+const { marketingGift } = require("./marketingGift");
+const { updateOrCreate, updateStatistic, summColumnStatistic } = require("./milkyWayFunc");
 
 const remunerationUser = async(user, summ)=>{
     const walletRUBId = await Wallet.findOne({ where: { name: 'RUR' } })
@@ -42,11 +49,12 @@ const remunerationReferal = async(user, summ)=>{
 
 const giftMatrixMilkyWay = async(user, count)=>{
     for (let i = 0; i < count; i++) {
-        const matrixTemp = await Matrix.findAll({ include: { model: Matrix_Table, as: "matrix_table" } })
-        const matrix = matrixTemp.filter((i, index) => {
-            return (((i.matrix_table[0]?.typeMatrixId === 1)))
-        })
-        const parentId = matrix[0]?.id
+        // const matrixTemp = await Matrix.findAll({ include: { model: Matrix_Table, as: "matrix_table" } })
+        // const matrix = matrixTemp.filter((i, index) => {
+        //     return (((i.matrix_table[0]?.typeMatrixId === 1)))
+        // })
+        
+        const parentId = findParentIdForMilkyWay(1, user.id)
         const matrixItem = await Matrix.create({
             date: new Date,
             parent_id: parentId,
@@ -59,7 +67,7 @@ const giftMatrixMilkyWay = async(user, count)=>{
             count: 2160
         })
         const userItemsInMAtrixTable = await Matrix_Table.findAll({
-            where: { userId: user.id }
+            where: { userId: user.id } 
         })
         const myComet = userItemsInMAtrixTable.reduce((a, b) => a + b.count, 0);
         const allPlanet = await Matrix_Table.count()
@@ -134,7 +142,6 @@ const giftPegas = async(user, count)=>{
         }
     }
 }
-
 module.exports = async function (level, matrixTableData){
     const user = await User.findOne({where:{id:matrixTableData.userId}})
     switch (level) {

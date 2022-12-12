@@ -2,10 +2,7 @@ const ApiError = require("../error/ApiError");
 const jwt_decode = require("jwt-decode");
 const sequelize = require('../db')
 const { Op } = require("sequelize");
-const findParentId = require('../service/findParentId')
 const checkCountParentId = require('../service/checkCountParentId')
-const marketingCheckCount = require('../service/marketingCheckCount')
-const marketingGift = require('../service/marketingGift')
 
 const {
     User,
@@ -18,6 +15,11 @@ const {
 } = require("../models/models");
 const { Wallet } = require("../models/TablesExchange/tableWallet");
 const { BalanceCrypto } = require("../models/TablesExchange/tableBalanceCrypto");
+const { marketingCheckCount } = require("../service/marketingCheckCount");
+const { marketingGift } = require("../service/marketingGift");
+const { findParentId } = require("../service/findParentId");
+const { findParentIdForMilkyWay } = require("../service/findParentIdForMilkyWay");
+
 
 const updateOrCreate = async function (model, where, newItem) {
     // First try to find the record
@@ -369,11 +371,11 @@ class StarControllers {
             let temp = await User.update(update, { where: { id: user.id } })
         }
         const level = 1;
-        const matrixTemp = await Matrix.findAll({ include: { model: Matrix_Table, as: "matrix_table" } })
-        const matrix = matrixTemp.filter((i, index) => {
-            return ((i.matrix_table[0]?.typeMatrixId === 1) && (i.matrix_table[0]?.count > 6))
-        })
-        const parentId = matrix[0]?.id
+        // const matrixTemp = await Matrix.findAll({ include: { model: Matrix_Table, as: "matrix_table" } })
+        // const matrix = matrixTemp.filter((i, index) => {
+        //     return ((i.matrix_table[0]?.typeMatrixId === 1) && (i.matrix_table[0]?.count > 6))
+        // })
+        const parentId = await findParentIdForMilkyWay(level, user.id)
         const matrixItem = await Matrix.create({
             date: new Date,
             parent_id: parentId,

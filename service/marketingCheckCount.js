@@ -44,7 +44,7 @@ const marketingInsideCheck = async (node) => {
 
 
 
-module.exports = async (parentId) => {
+  const marketingCheckCount = async (parentId) => {
     if (!parentId) {
       return [];
     }
@@ -60,4 +60,8 @@ module.exports = async (parentId) => {
     result[1] = await marketingInsideCheck(parentTwoStep)
     return result
   };
+
+  module.exports = {
+    marketingCheckCount
+  }
   

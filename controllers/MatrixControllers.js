@@ -3,8 +3,6 @@ const jwt_decode = require("jwt-decode");
 const { Op } = require("sequelize");
 const {findParentId} = require('../service/findParentId')
 const {checkCountParentId} = require('../service/checkCountParentId')
-const marketingGift = require('../service/marketingGift')
-const marketingCheckCount = require('../service/marketingCheckCount')
 
 const {
   CloneStatSecond,
@@ -17,6 +15,8 @@ const {
 } = require("../models/models");
 const { Wallet } = require("../models/TablesExchange/tableWallet");
 const { BalanceCrypto } = require("../models/TablesExchange/tableBalanceCrypto");
+const { marketingGift } = require("../service/marketingGift");
+const { marketingCheckCount } = require("../service/marketingCheckCount");
 
 const childNode = async (node, type_matrix_id) => {
   if (!node) {
