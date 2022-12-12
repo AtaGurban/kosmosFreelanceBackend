@@ -1,4 +1,6 @@
+const { Op } = require("sequelize")
 const { Matrix, Matrix_Table } = require("../models/models")
+
 
 const findParentIdForMilkyWay = async (level, userId) => {
     if (level <= 15) {
