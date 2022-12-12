@@ -2,7 +2,7 @@ const {
     Matrix,
     Matrix_Table,
 } = require("../models/models");
-const checkForLevel = require("./checkForLevel");
+const { checkForLevel } = require("./checkForLevel");
 
 module.exports = async ()=>{
     const level = await Matrix_Table.min('typeMatrixId')
