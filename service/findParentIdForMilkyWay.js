@@ -14,7 +14,7 @@ const findParentIdForMilkyWay = async (level, userId) => {
         } else {
             const checkMatrixTable = await Matrix_Table.findAll({ where: { typeMatrixId: { [Op.gt]: level } } })
             if (checkMatrixTable.length > 0) {
-                return findParentIdForMilkyWay(level + 1, userId)
+                return (await findParentIdForMilkyWay(level + 1, userId))
             } else {
                 return { parentId: null, typeMatrixId: level }
             }

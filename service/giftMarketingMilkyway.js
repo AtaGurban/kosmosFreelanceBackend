@@ -54,7 +54,7 @@ const giftMatrixMilkyWay = async(user, count)=>{
         //     return (((i.matrix_table[0]?.typeMatrixId === 1)))
         // })
         
-        const {parentId, typeMatrixId} = findParentIdForMilkyWay(1, user.id)
+        const {parentId, typeMatrixId} = await findParentIdForMilkyWay(1, user.id)
         const matrixItem = await Matrix.create({
             date: new Date,
             parent_id: parentId,
