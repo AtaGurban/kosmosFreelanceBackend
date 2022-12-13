@@ -1,3 +1,5 @@
+const { Statistic, Matrix_Table } = require("../models/models")
+
 const summColumnStatistic = async () => {
     let resp = await Matrix_Table.findAll({
         attributes: [[
@@ -6,7 +8,6 @@ const summColumnStatistic = async () => {
     })
     return resp
 }
-
 const updateOrCreate = async function (model, where, newItem) {
     // First try to find the record
     await model.findOne({ where: where }).then(async function (foundItem) {
