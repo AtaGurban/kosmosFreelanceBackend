@@ -1,5 +1,7 @@
+const { Op } = require('sequelize')
 const sequelize = require('../db')
 const { Statistic, Matrix_Table } = require("../models/models")
+
 
 const summColumnStatistic = async () => {
     let resp = await Matrix_Table.findAll({
@@ -18,7 +20,6 @@ const updateOrCreate = async function (model, where, newItem) {
 
 const updateStatistic = async (all_comet, all_planet) => {
     let update = { all_comet, all_planet }
-
     const allItems = await Statistic.update(update, { where: { id: { [Op.not]: 0 } } })
 }
 
