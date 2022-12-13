@@ -261,7 +261,11 @@ class PegasUnoControllers {
       }
       return res.json(true);
     } else {
-      return next(ApiError.badRequest("Вы больше не можете купить"));
+      let updateTable = { count: checkMatrixTable.count + 1 };
+      await Matrix_TableThird.update(updateTable, {
+        where: { userId: user.id, typeMatrixThirdId: matrix_id },
+      });
+      return res.json(updateTable);
     }
   }
   async structure(req, res, next) {
@@ -423,7 +427,7 @@ class PegasUnoControllers {
         id: index + 1,
         count: i.count,
         name: typeMatrix[index].name,
-        level: i.typeMatrixSecondId,
+        level: i.typeMatrixThirdId,
         canBuy: true,
         isActive: true,
         summ: typeMatrix[index].summ,

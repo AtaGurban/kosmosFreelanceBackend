@@ -107,7 +107,7 @@ const start = async () => {
   try {
     await sequelize.authenticate();
     await sequelize.sync();
-    server.listen(5000, () => console.log(`server started on port 5000`));
+    server.listen(80, () => console.log(`server started on port 5000`));
     // httpsServer.listen(443, () => console.log(`server started on port 443`));
     // app.listen(PORT, ()=> console.log(`server started on port ${PORT}`))
     const typeMatrixSecondCount = await models.TypeMatrixSecond.count()
@@ -155,7 +155,7 @@ const start = async () => {
     //   await exchangeParser() 
     // }
 
-    // setInterval(writeOffMatrixTableCount, 2 * 60 * 60 * 1000);
+    setInterval(writeOffMatrixTableCount, 10000);
     setInterval(async ()=>{exchangeParser('all')}, 6 * 60 * 60 * 1000);
     io.on("connection", async(socket) => {
       try {

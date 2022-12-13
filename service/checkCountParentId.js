@@ -7,8 +7,6 @@ const {
       where: { parent_id: parentId },
     });
     if (itemsParentId.length > 1) {
-      // const leftItem = itemsParentId[0].userId;
-      // const rightItem = itemsParentId[1].userId;
       let one = await checkCountParentId(itemsParentId[0].id, userId);
       let two = await checkCountParentId(itemsParentId[1].id, userId);
       let countOne = await MatrixSecond.count({

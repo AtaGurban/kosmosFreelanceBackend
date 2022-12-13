@@ -4,7 +4,7 @@ module.exports = async (periods) => {
     let result = []
     periods.map((i) => {
         let prices = []
-        let volume = 0
+        let volume = 0 
         i.periodArr.map((j) => {
             prices.push(+j.price)
             volume = volume + (+j.total)
