@@ -52,7 +52,7 @@ const checkForLevel = async (parentId, level) => {
                 const gift = await giftMarketingMilkyway(level, matrixTableCount)
             }
             if (parentIdForLevel && (level < 15)) {
-                return await checkForLevel(parentIdForLevel, level + 1)
+                return checkForLevel(parentIdForLevel, level + 1)
             }
         }
 
