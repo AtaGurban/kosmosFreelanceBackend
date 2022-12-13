@@ -1,3 +1,4 @@
+const sequelize = require('../db')
 const { Statistic, Matrix_Table } = require("../models/models")
 
 const summColumnStatistic = async () => {
