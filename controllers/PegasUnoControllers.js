@@ -268,6 +268,68 @@ class PegasUnoControllers {
       return res.json(updateTable);
     }
   }
+  async clone(req, res, next) {
+    const { matrix_type } = req.query;
+    const { authorization } = req.headers;
+    const token = authorization.slice(7);
+    const { username } = jwt_decode(token);
+    const user = await User.findOne({ where: { username } });
+    const count = await Matrix_TableThird.findOne({
+      where: { userId: user.id, typeMatrixThirdId: matrix_type },
+    });
+    if (count?.count) {
+      return res.json({ count: count.count });
+    } else {
+      return res.json(null);
+    }
+  }
+  async targetClone(req, res, next) {
+    let { place, ancestor_id } = req.body;
+    const { authorization } = req.headers;
+    const token = authorization.slice(7);
+    const { username } = jwt_decode(token);
+    const user = await User.findOne({ where: { username } });
+    const matrixTableData = await findRealUser(ancestor_id, user.id);
+    if (matrixTableData.count < 1) {
+      return next(ApiError.badRequest("Недостатосно count"));
+    }
+    let update = { count: matrixTableData.count - 1 };
+    await Matrix_TableThird.update(update, {
+      where: { id: matrixTableData.id },
+    });
+    const typeMatrix = (
+      await Matrix_TableThird.findOne({ where: { id: matrixTableData.id } })
+    ).typeMatrixThirdId;
+    place = +place
+    let side_matrix;
+    let parent_id;
+    switch (place) {
+      case 1:
+        side_matrix = 0;
+        parent_id = ancestor_id;
+        break;
+      case 2:
+        side_matrix = 1;
+        parent_id = ancestor_id;
+        break;
+      case 3:
+        side_matrix = 2;
+        parent_id = ancestor_id
+        break;
+    }
+    const matrixItem = MatrixThird.create({
+      date: new Date(),
+      parent_id: parent_id,
+      userId: user.id,
+      side_matrix,
+    });
+
+    const marketingCheck = await marketingPegasUnoCheck(parent_id);
+    if (marketingCheck) {
+      const gift = await marketingGift(parent_id, typeMatrix);
+    }
+    return res.json(true);
+  }
   async structure(req, res, next) {
     const { matrix_type, matrix_id } = req.query;
 
