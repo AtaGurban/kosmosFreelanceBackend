@@ -495,7 +495,7 @@ class PegasUnoControllers {
         summ: typeMatrix[index].summ,
       });
     });
-    for (let i = result.length + 1; i < 13; i++) {
+    for (let i = result.length + 1; i < 4; i++) {
       result.push({
         id: i,
         count: 0,
