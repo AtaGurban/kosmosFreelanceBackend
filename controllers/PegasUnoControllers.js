@@ -20,11 +20,7 @@ const marketingPegasUnoCheck = async (parent_id) => {
     return false;
   }
   const countNode = await MatrixThird.count({ where: { parent_id } });
-  if (countNode == 2) {
-    return true;
-  } else {
-    return false;
-  }
+  return countNode
 };
 
 const giftReferalUser = async (referalId, summ) => {
@@ -77,12 +73,12 @@ const transitionToHighLevel = async (matrixId, level, user) => {
     count: 0,
   });
   const marketingCheck = await marketingPegasUnoCheck(parentId);
-  if (marketingCheck) {
+  if (marketingCheck > 0) {
     const gift = await marketingGift(parentId, nextLevel);
   }
 };
 
-const marketingGift = async (parentId, type_matrix_id) => {
+const marketingGift = async (parentId, type_matrix_id, count) => {
   const matrixItemThree = await MatrixThird.findOne({
     where: { id: parentId },
   });
@@ -97,13 +93,73 @@ const marketingGift = async (parentId, type_matrix_id) => {
   })
   switch (type_matrix_id) {
     case 1:
-      await transitionToHighLevel(parentId, type_matrix_id, user);
+      if (count == 3){
+        await transitionToHighLevel(parentId, type_matrix_id, user);
+      }
       break;
     case 2:
-      await transitionToHighLevel(parentId, type_matrix_id, user);
+      if (count == 1){
+        updateBalance = { balance: (+walletRUBBalance.balance) + 600 };
+        await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+      }
+      if (count == 2){
+        await transitionToHighLevel(parentId, type_matrix_id, user);
+      }
       break;
     case 3:
-      await transitionToHighLevel(parentId, type_matrix_id, user);
+      if (count == 1){
+        updateBalance = { balance: (+walletRUBBalance.balance) + 600 };
+        await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+      }
+      if (count == 2){
+        let checkMatrixTable = await Matrix_TableThird.findOne({
+          where: { userId: user.id, typeMatrixThirdId: matrix_id },
+        });
+        if (!checkMatrixTable) {
+          const referalId = user.referal_id;
+          let parentId, side_matrix;
+          const parentIdForCheck = await findParentId(
+            matrix_id,
+            referalId,
+            user.id
+          );
+          if (parentIdForCheck) {
+            const resultFuncCheckCountParentId = await checkCountParentIdPegasUno(
+              parentIdForCheck,
+              user.id,
+              matrix_id
+            );
+            parentId = resultFuncCheckCountParentId.parentId;
+            side_matrix = resultFuncCheckCountParentId.side_matrix;
+          } else {
+            parentId = null;
+            side_matrix = null;
+          }
+    
+          const matrixItem = await MatrixThird.create({
+            date: new Date(),
+            parent_id: parentId,
+            userId: user.id,
+            side_matrix,
+          });
+    
+          const matrixTableItem = await Matrix_TableThird.create({
+            matrixThirdId: matrixItem.id,
+            typeMatrixThirdId: matrix_id,
+            userId: user.id,
+            count: 0,
+          });
+          const marketingCheck = await marketingPegasUnoCheck(parentId);
+          if (marketingCheck > 0) {
+            const gift = await marketingGift(parentId, matrix_id, marketingCheck);
+          }
+        } else {
+          let updateTable = { count: checkMatrixTable.count + 1 };
+          await Matrix_TableThird.update(updateTable, {
+            where: { userId: user.id, typeMatrixThirdId: matrix_id },
+          });
+        }
+      }
       break;
     case 4:
       await transitionToHighLevel(parentId, type_matrix_id, user);
@@ -256,8 +312,8 @@ class PegasUnoControllers {
         count: 0,
       });
       const marketingCheck = await marketingPegasUnoCheck(parentId);
-      if (marketingCheck) {
-        const gift = await marketingGift(parentId, matrix_id);
+      if (marketingCheck > 0) {
+        const gift = await marketingGift(parentId, matrix_id, marketingCheck);
       }
       return res.json(true);
     } else {
@@ -325,8 +381,8 @@ class PegasUnoControllers {
     });
 
     const marketingCheck = await marketingPegasUnoCheck(parent_id);
-    if (marketingCheck) {
-      const gift = await marketingGift(parent_id, typeMatrix);
+    if (marketingCheck > 0) {
+      const gift = await marketingGift(parent_id, typeMatrix, marketingCheck);
     }
     return res.json(true);
   }
