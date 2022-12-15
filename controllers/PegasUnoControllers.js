@@ -108,7 +108,7 @@ const marketingGift = async (parentId, type_matrix_id, count) => {
       break;
     case 3:
       if (count == 1){
-        updateBalance = { balance: (+walletRUBBalance.balance) + 600 };
+        updateBalance = { balance: (+walletRUBBalance.balance) + 0 };
         await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
       }
       if (count == 2){
