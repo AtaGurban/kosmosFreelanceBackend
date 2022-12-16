@@ -91,9 +91,12 @@ class UserController {
     ) {
       return next(ApiError.badRequest("Не все поля заполнены"));
     }
-    const candidate =
-      (await User.findOne({ where: { email } || { username } })) || null;
-    if (candidate) {
+    const candidateEmail = await User.findOne({ where: { email } })
+    const candidateUsername = await User.findOne({ where: { username } })
+    if (candidateEmail) {
+      return next(ApiError.badRequest("Такой пользователь уже существует"));
+    }
+    if (candidateUsername) {
       return next(ApiError.badRequest("Такой пользователь уже существует"));
     }
     const hashPassword = await bcrypt.hash(password, 5);
