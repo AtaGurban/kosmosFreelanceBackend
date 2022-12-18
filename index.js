@@ -38,7 +38,7 @@ const { BalanceCrypto } = require("./models/TablesExchange/tableBalanceCrypto");
 
 // const credentials = {
 //   key: privateKey,
-//   cert: certificate,
+//   cert: certificate, 
 //   ca: ca,
 // };
 

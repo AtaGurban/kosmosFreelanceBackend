@@ -264,6 +264,7 @@ class PegasUnoControllers {
         walletId: walletRUBId.id
       }
     })
+    console.log(+walletRUBBalance.balance);
     if (((+walletRUBBalance.balance) < price) && (+user.locale < price)) {
       return next(ApiError.badRequest("Недостатосно средств"));
     } else if ((+walletRUBBalance.balance) >= price){
@@ -538,23 +539,26 @@ class PegasUnoControllers {
       where: { userId: user.id },
     });
     const typeMatrix = await TypeMatrixThird.findAll();
-
+    // console.log(type);
     let result = [];
-    type.map((i, index) => {
-      result.push({
-        id: index + 1,
-        count: i.count,
-        name: typeMatrix[index].name,
-        level: i.typeMatrixThirdId,
-        canBuy: true,
-        isActive: true,
-        summ: typeMatrix[index].summ,
-      });
-    });
-    for (let i = result.length + 1; i < 4; i++) {
+    // type.map((i, index) => {
+    //   result.push({
+    //     id: index + 1, 
+    //     count: i.count,
+    //     name: typeMatrix[index].name,
+    //     level: i.typeMatrixThirdId,
+    //     canBuy: true,
+    //     isActive: true,
+    //     summ: typeMatrix[index].summ,
+    //   });
+    // }); 
+    for (let i = 1; i < 4; i++) {
+      const countItem = type.filter((j)=>{ 
+        return j.typeMatrixThirdId === i
+      })
       result.push({
         id: i,
-        count: 0,
+        count: countItem[0]?.dataValues?.count || 0,
         name: typeMatrix[i - 1].name,
         level: i,
         canBuy: true,

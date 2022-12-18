@@ -316,11 +316,11 @@ class MatrixController {
             userName: firstChildes[index]?.user.username,
             photo: firstChildes[index]?.user.avatar,
             typeId: null,
-            place: 0,
+            place: 0, 
             createdAt: firstChildes[index]?.user.createdAt,
           };
         });
-      }
+      } 
       if (secondChildes?.length > 0) {
         secondChildes.map((i, index) => {
           result[i.side_matrix + 3] = {
