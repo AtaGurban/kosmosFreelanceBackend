@@ -166,23 +166,27 @@ class MatrixController {
       where: { userId: user.id },
     });
     const typeMatrix = await TypeMatrixSecond.findAll();
-
+    // console.log(type);
     let result = [];
-    type.map((i, index) => {
-      result.push({
-        id: index + 1,
-        count: i.count,
-        name: typeMatrix[index].name,
-        level: i.typeMatrixSecondId,
-        canBuy: true,
-        isActive: true,
-        summ: typeMatrix[index].summ,
-      });
-    });
-    for (let i = result.length + 1; i < 13; i++) {
+    // type.map((i, index) => {
+    //   result.push({
+    //     id: index + 1, 
+    //     count: i.count,
+    //     name: typeMatrix[index].name,
+    //     level: i.typeMatrixThirdId,
+    //     canBuy: true, 
+    //     isActive: true,
+    //     summ: typeMatrix[index].summ,
+    //   });
+    // }); 
+    console.log(type);
+    for (let i = 1; i < 13; i++) {
+      const countItem = type.filter((j)=>{ 
+        return j.typeMatrixSecondId === i
+      })
       result.push({
         id: i,
-        count: 0,
+        count: countItem[0]?.dataValues?.count || 0,
         name: typeMatrix[i - 1].name,
         level: i,
         canBuy: true,
